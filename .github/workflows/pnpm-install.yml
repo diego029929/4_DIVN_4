@@ -1,0 +1,30 @@
+name: Install and Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install PNPM
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts=false
+
+      - name: Build project
+        run: pnpm build
+        
