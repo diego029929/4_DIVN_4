@@ -3,7 +3,7 @@
 import { useCallback } from "react"
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
-import { createCheckoutSession } from "@/app/actions/stripe"
+import { createCheckoutSession } from "@/actions/stripe"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
