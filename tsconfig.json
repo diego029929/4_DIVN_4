@@ -13,14 +13,8 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
-
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    },
 
     "types": ["node", "react", "react-dom"],
 
