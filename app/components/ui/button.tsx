@@ -5,14 +5,14 @@ import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cn } from "@/lib/utils"
 
-// Définition des variantes et tailles
-export const buttonVariants = ({
+// Définition d'une fonction pour générer les classes du bouton
+export function buttonVariants({
   variant = "default",
   size = "default",
 }: {
   variant?: "default" | "ghost" | "primary" | "outline"
   size?: "default" | "icon" | "sm" | "lg"
-} = {}) => {
+} = {}) {
   const base = "inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2"
 
   const variantClasses: Record<string, string> = {
@@ -55,5 +55,5 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = "Button"
 
-export { Button, buttonVariants }
+export { Button }
   
