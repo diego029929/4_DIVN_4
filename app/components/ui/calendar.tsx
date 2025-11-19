@@ -88,8 +88,8 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Root: ({ className, rootRef, ...props }) => (
-          <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />
+        Root: ({ className, ...props }) => (
+          <div data-slot="calendar" className={cn(className)} {...props} />
         ),
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === 'left') return <ChevronLeftIcon className={cn('size-4', className)} {...props} />
@@ -150,4 +150,4 @@ function CalendarDayButton({
 }
 
 export { Calendar, CalendarDayButton }
-        
+      
