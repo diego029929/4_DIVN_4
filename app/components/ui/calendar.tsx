@@ -126,7 +126,7 @@ function CalendarDayButton({
 
   return (
     <Button
-      ref={ref}
+      ref={ref as React.Ref<HTMLButtonElement>}
       variant="ghost"
       size="icon"
       data-day={new Date(day.date).toLocaleDateString()}
@@ -150,4 +150,4 @@ function CalendarDayButton({
 }
 
 export { Calendar, CalendarDayButton }
-      
+  
