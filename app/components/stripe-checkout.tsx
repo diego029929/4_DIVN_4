@@ -8,7 +8,15 @@ import { createCheckoutSession } from "@/actions/stripe"
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 export function StripeCheckout() {
-  const fetchClientSecret = useCallback(() => createCheckoutSession(), [])
+  const fetchClientSecret = useCallback(async () => {
+    const secret = await createCheckoutSession()
+
+    if (!secret) {
+      throw new Error("Stripe client_secret is null — cannot continue checkout")
+    }
+
+    return secret
+  }, [])
 
   return (
     <div id="checkout">
@@ -17,4 +25,4 @@ export function StripeCheckout() {
       </EmbeddedCheckoutProvider>
     </div>
   )
-}
+        }
