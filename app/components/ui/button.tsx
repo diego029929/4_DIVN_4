@@ -9,7 +9,7 @@ export const buttonVariants = ({
   variant = 'default',
   size = 'default',
 }: {
-  variant?: 'default' | 'ghost' | 'primary'
+  variant?: 'default' | 'ghost' | 'primary' | 'outline'
   size?: 'default' | 'icon' | 'sm'
 } = {}) => {
   const base =
@@ -18,6 +18,7 @@ export const buttonVariants = ({
     default: 'bg-gray-200 text-gray-900 hover:bg-gray-300',
     ghost: 'bg-transparent hover:bg-gray-100',
     primary: 'bg-blue-600 text-white hover:bg-blue-700',
+    outline: 'border border-gray-300 text-gray-900 hover:bg-gray-50',
   }
   const sizeClasses: Record<string, string> = {
     default: 'h-10 px-4 py-2',
@@ -30,7 +31,7 @@ export const buttonVariants = ({
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean
-  variant?: 'default' | 'ghost' | 'primary'
+  variant?: 'default' | 'ghost' | 'primary' | 'outline'
   size?: 'default' | 'icon' | 'sm'
 }
 
@@ -50,3 +51,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button'
 
 export { Button }
+  
