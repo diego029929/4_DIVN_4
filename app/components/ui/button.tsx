@@ -40,21 +40,11 @@ type ButtonProps = React.ComponentProps<'button'> &
 
 const Button = React.forwardRef<HTMLElement, ButtonProps>(
   ({ asChild = false, className, variant, size, ...props }, ref) => {
-    if (asChild) {
-      // Slot peut recevoir ref: on utilise HTMLDivElement ici
-      return (
-        <Slot
-          ref={ref as React.Ref<HTMLDivElement>}
-          data-slot="button"
-          className={cn(buttonVariants({ variant, size, className }))}
-          {...props}
-        />
-      )
-    }
+    const Comp = asChild ? Slot : 'button'
 
     return (
-      <button
-        ref={ref as React.Ref<HTMLButtonElement>}
+      <Comp
+        ref={ref as any} // <-- ici c'est safe et compatible Slot/HTMLButtonElement
         data-slot="button"
         className={cn(buttonVariants({ variant, size, className }))}
         {...props}
@@ -66,4 +56,4 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
 Button.displayName = 'Button'
 
 export { Button, buttonVariants }
-        
+  
