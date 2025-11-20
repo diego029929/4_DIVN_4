@@ -9,7 +9,7 @@ import {
 } from "react-day-picker"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "./button"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+  import { ChevronLeft, ChevronRight } from "lucide-react"
 
 /**
  * Bouton navigation mois
@@ -65,48 +65,35 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
       showOutsideDays
       components={{
         /**
-         * ⚠️ react-day-picker v9 :
-         * CaptionLabel = seulement le texte
+         * ⚠️ Ta version n'utilise PAS displayMonth → mais "date"
          */
-        CaptionLabel: ({ displayMonth }) => (
-          <p className="text-sm font-medium">
-            {displayMonth.toLocaleString("fr-FR", {
+        CaptionLabel: ({ date }) => (
+          <p className="text-sm font-medium capitalize">
+            {date.toLocaleString("fr-FR", {
               month: "long",
               year: "numeric",
             })}
           </p>
         ),
 
-        /**
-         * Conteneur du header (prev + label + next)
-         */
         Nav: ({ children }) => (
           <div className="flex items-center justify-between mb-2">
             {children}
           </div>
         ),
 
-        /**
-         * Bouton mois précédent
-         */
         PreviousMonthButton: (p) => (
           <CalendarNavButton {...p} aria-label="Précédent">
             <ChevronLeft className="h-4 w-4" />
           </CalendarNavButton>
         ),
 
-        /**
-         * Bouton mois suivant
-         */
         NextMonthButton: (p) => (
           <CalendarNavButton {...p} aria-label="Suivant">
             <ChevronRight className="h-4 w-4" />
           </CalendarNavButton>
         ),
 
-        /**
-         * Bouton jour
-         */
         DayButton: (p) => <CalendarDayButton {...p} />,
       }}
       classNames={{
@@ -127,4 +114,4 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
 Calendar.displayName = "Calendar"
 
 export { Calendar }
-  
+        
