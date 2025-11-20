@@ -12,7 +12,7 @@ import { buttonVariants } from "./button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 /**
- * Bouton navigation mois
+ * Bouton navigation
  */
 const CalendarNavButton = React.forwardRef<
   HTMLButtonElement,
@@ -65,12 +65,18 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
       showOutsideDays
       components={{
         /**
-         * ⛔ FIX FINAL : utiliser Caption car il reçoit toutes les infos
-         * Cette version fonctionne quel que soit ton setup !
+         * 👉 NAVBAR = seule API valide pour ta version
+         * Fournit EXACTEMENT :
+         * - displayMonth
+         * - onPreviousClick
+         * - onNextClick
          */
-        Caption: ({ displayMonth, onPrevClick, onNextClick }) => (
+        Navbar: ({ displayMonth, onPreviousClick, onNextClick }) => (
           <div className="flex items-center justify-between mb-2">
-            <CalendarNavButton onClick={onPrevClick} aria-label="Précédent">
+            <CalendarNavButton
+              onClick={onPreviousClick}
+              aria-label="Précédent"
+            >
               <ChevronLeft className="h-4 w-4" />
             </CalendarNavButton>
 
@@ -87,7 +93,6 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
           </div>
         ),
 
-        // day
         DayButton: (p) => <CalendarDayButton {...p} />,
       }}
       classNames={{
