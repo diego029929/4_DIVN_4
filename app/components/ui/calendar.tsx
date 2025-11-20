@@ -9,7 +9,7 @@ import {
 } from "react-day-picker"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "./button"
-  import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 /**
  * Bouton navigation mois
@@ -65,35 +65,29 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
       showOutsideDays
       components={{
         /**
-         * ⚠️ Ta version n'utilise PAS displayMonth → mais "date"
+         * ⛔ FIX FINAL : utiliser Caption car il reçoit toutes les infos
+         * Cette version fonctionne quel que soit ton setup !
          */
-        CaptionLabel: ({ date }) => (
-          <p className="text-sm font-medium capitalize">
-            {date.toLocaleString("fr-FR", {
-              month: "long",
-              year: "numeric",
-            })}
-          </p>
-        ),
-
-        Nav: ({ children }) => (
+        Caption: ({ displayMonth, onPrevClick, onNextClick }) => (
           <div className="flex items-center justify-between mb-2">
-            {children}
+            <CalendarNavButton onClick={onPrevClick} aria-label="Précédent">
+              <ChevronLeft className="h-4 w-4" />
+            </CalendarNavButton>
+
+            <p className="text-sm font-medium capitalize">
+              {displayMonth.toLocaleString("fr-FR", {
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+
+            <CalendarNavButton onClick={onNextClick} aria-label="Suivant">
+              <ChevronRight className="h-4 w-4" />
+            </CalendarNavButton>
           </div>
         ),
 
-        PreviousMonthButton: (p) => (
-          <CalendarNavButton {...p} aria-label="Précédent">
-            <ChevronLeft className="h-4 w-4" />
-          </CalendarNavButton>
-        ),
-
-        NextMonthButton: (p) => (
-          <CalendarNavButton {...p} aria-label="Suivant">
-            <ChevronRight className="h-4 w-4" />
-          </CalendarNavButton>
-        ),
-
+        // day
         DayButton: (p) => <CalendarDayButton {...p} />,
       }}
       classNames={{
@@ -114,4 +108,4 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
 Calendar.displayName = "Calendar"
 
 export { Calendar }
-        
+    
