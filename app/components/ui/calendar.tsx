@@ -12,7 +12,7 @@ import { buttonVariants } from "./button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 /**
- * Button utilisé pour changer le mois
+ * Bouton navigation mois
  */
 const CalendarNavButton = React.forwardRef<
   HTMLButtonElement,
@@ -31,7 +31,7 @@ const CalendarNavButton = React.forwardRef<
 })
 
 /**
- * Bouton de jour — entièrement corrigé pour React 19
+ * Bouton de jour
  */
 const CalendarDayButton = React.forwardRef<
   HTMLButtonElement,
@@ -56,7 +56,7 @@ const CalendarDayButton = React.forwardRef<
 })
 
 /**
- * Le composant Calendar final
+ * Calendar principal
  */
 function Calendar({ className, classNames, ...props }: DayPickerProps) {
   return (
@@ -64,7 +64,11 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
       className={cn("p-3", className)}
       showOutsideDays
       components={{
-        Caption: ({ ...p }) => (
+        /**
+         * ⚠️ IMPORTANT : react-day-picker v9 → CaptionLabel
+         * et non plus Caption
+         */
+        CaptionLabel: (p) => (
           <div className="flex items-center justify-between mb-2">
             <CalendarNavButton
               onClick={() => p.onPrevClick?.()}
@@ -89,7 +93,9 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
           </div>
         ),
 
-        // ⛔ Fix React 19 : wrappé dans une fonction
+        /**
+         * Bouton jour compatible React 19
+         */
         DayButton: (p) => <CalendarDayButton {...p} />,
       }}
       classNames={{
@@ -110,4 +116,3 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
 Calendar.displayName = "Calendar"
 
 export { Calendar }
-        
