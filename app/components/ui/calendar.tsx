@@ -11,9 +11,6 @@ import { cn } from "@/lib/utils"
 import { buttonVariants } from "./button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
-/**
- * Bouton navigation
- */
 const CalendarNavButton = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
@@ -30,16 +27,13 @@ const CalendarNavButton = React.forwardRef<
   )
 })
 
-/**
- * Bouton de jour
- */
 const CalendarDayButton = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & {
     day: CalendarDay
     modifiers: Modifiers
   }
->(function CalendarDayButton({ day, modifiers, className, ...props }, ref) {
+>(function CalendarDayButton({ modifiers, className, ...props }, ref) {
   return (
     <button
       {...props}
@@ -56,57 +50,62 @@ const CalendarDayButton = React.forwardRef<
 })
 
 /**
- * Calendar principal
+ * Calendar avec header custom car ta version ne supporte PAS Navbar/Caption
  */
 function Calendar({ className, classNames, ...props }: DayPickerProps) {
+  const [month, setMonth] = React.useState(props.month ?? new Date())
+
+  const prev = () => {
+    const d = new Date(month)
+    d.setMonth(d.getMonth() - 1)
+    setMonth(d)
+  }
+
+  const next = () => {
+    const d = new Date(month)
+    d.setMonth(d.getMonth() + 1)
+    setMonth(d)
+  }
+
   return (
-    <DayPicker
-      className={cn("p-3", className)}
-      showOutsideDays
-      components={{
-        /**
-         * 👉 NAVBAR = seule API valide pour ta version
-         * Fournit EXACTEMENT :
-         * - displayMonth
-         * - onPreviousClick
-         * - onNextClick
-         */
-        Navbar: ({ displayMonth, onPreviousClick, onNextClick }) => (
-          <div className="flex items-center justify-between mb-2">
-            <CalendarNavButton
-              onClick={onPreviousClick}
-              aria-label="Précédent"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </CalendarNavButton>
+    <div className={cn("p-3", className)}>
+      
+      {/* 🔥 Header entièrement custom */}
+      <div className="flex items-center justify-between mb-2">
+        <CalendarNavButton onClick={prev}>
+          <ChevronLeft className="h-4 w-4" />
+        </CalendarNavButton>
 
-            <p className="text-sm font-medium capitalize">
-              {displayMonth.toLocaleString("fr-FR", {
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
+        <p className="text-sm font-medium capitalize">
+          {month.toLocaleString("fr-FR", { month: "long", year: "numeric" })}
+        </p>
 
-            <CalendarNavButton onClick={onNextClick} aria-label="Suivant">
-              <ChevronRight className="h-4 w-4" />
-            </CalendarNavButton>
-          </div>
-        ),
+        <CalendarNavButton onClick={next}>
+          <ChevronRight className="h-4 w-4" />
+        </CalendarNavButton>
+      </div>
 
-        DayButton: (p) => <CalendarDayButton {...p} />,
-      }}
-      classNames={{
-        months: "flex flex-col gap-4",
-        month: "space-y-4",
-        weekdays: "grid grid-cols-7 text-center text-sm text-muted-foreground",
-        weekday: "text-xs",
-        weeks: "grid grid-cols-7 gap-1",
-        week: "contents",
-        day: "h-8 w-8",
-        ...classNames,
-      }}
-      {...props}
-    />
+      {/* Le DayPicker *sans* Header car impossible de le customiser */}
+      <DayPicker
+        month={month}
+        onMonthChange={setMonth}
+        showOutsideDays
+        components={{
+          DayButton: (p) => <CalendarDayButton {...p} />,
+        }}
+        classNames={{
+          months: "flex flex-col gap-4",
+          month: "space-y-4",
+          weekdays: "grid grid-cols-7 text-center text-sm text-muted-foreground",
+          weekday: "text-xs",
+          weeks: "grid grid-cols-7 gap-1",
+          week: "contents",
+          day: "h-8 w-8",
+          ...classNames,
+        }}
+        {...props}
+      />
+    </div>
   )
 }
 
