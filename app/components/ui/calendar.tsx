@@ -1,16 +1,15 @@
 "use client"
 
 import * as React from "react"
-import {
-  DayPicker,
-  type DayPickerProps,
-  type CalendarDay,
-  type Modifiers
-} from "react-day-picker"
+import { DayPicker } from "react-day-picker"
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "./button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+
+/* ============================
+   NAV BUTTON (OK avec forwardRef)
+   ============================ */
 const CalendarNavButton = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement>
@@ -27,50 +26,42 @@ const CalendarNavButton = React.forwardRef<
   )
 })
 
-const CalendarDayButton = React.forwardRef<
-  HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    day: CalendarDay
-    modifiers: Modifiers
-  }
->(function CalendarDayButton({ modifiers, className, ...props }, ref) {
+
+/* ============================
+   DAY BUTTON (SANS forwardRef)
+   FIX DEFINITIF
+   ============================ */
+function CalendarDayButton(props: any) {
+  const { modifiers, className, ...rest } = props
+
   return (
     <button
-      {...props}
-      ref={ref}
+      {...rest}
       className={cn(
         "relative flex h-8 w-8 items-center justify-center rounded-md text-sm transition",
-        modifiers.selected && "bg-primary text-primary-foreground",
-        modifiers.today && "font-semibold underline",
-        modifiers.disabled && "opacity-50 pointer-events-none",
+        modifiers?.selected && "bg-primary text-primary-foreground",
+        modifiers?.today && "font-semibold underline",
+        modifiers?.disabled && "opacity-50 pointer-events-none",
         className
       )}
     />
   )
-})
+}
 
-/**
- * Calendar avec header custom car ta version ne supporte PAS Navbar/Caption
- */
-function Calendar({ className, classNames, ...props }: DayPickerProps) {
+
+/* ============================
+   CALENDAR AVEC HEADER CUSTOM
+   ============================ */
+function Calendar({ className, classNames, ...props }: any) {
   const [month, setMonth] = React.useState(props.month ?? new Date())
 
-  const prev = () => {
-    const d = new Date(month)
-    d.setMonth(d.getMonth() - 1)
-    setMonth(d)
-  }
-
-  const next = () => {
-    const d = new Date(month)
-    d.setMonth(d.getMonth() + 1)
-    setMonth(d)
-  }
+  const prev = () => setMonth(new Date(month.getFullYear(), month.getMonth() - 1))
+  const next = () => setMonth(new Date(month.getFullYear(), month.getMonth() + 1))
 
   return (
     <div className={cn("p-3", className)}>
       
-      {/* 🔥 Header entièrement custom */}
+      {/* HEADER CUSTOM */}
       <div className="flex items-center justify-between mb-2">
         <CalendarNavButton onClick={prev}>
           <ChevronLeft className="h-4 w-4" />
@@ -85,13 +76,13 @@ function Calendar({ className, classNames, ...props }: DayPickerProps) {
         </CalendarNavButton>
       </div>
 
-      {/* Le DayPicker *sans* Header car impossible de le customiser */}
+      {/* DAYPICKER */}
       <DayPicker
         month={month}
         onMonthChange={setMonth}
         showOutsideDays
         components={{
-          DayButton: (p) => <CalendarDayButton {...p} />,
+          DayButton: CalendarDayButton,  // 🔥 FIX ICI
         }}
         classNames={{
           months: "flex flex-col gap-4",
