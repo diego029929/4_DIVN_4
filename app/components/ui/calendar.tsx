@@ -1,113 +1,113 @@
-'use client'
+"use client"
 
-import * as React from 'react'
+import * as React from "react"
 import {
   DayPicker,
-  DayButton,
-  DateRange,
-  getDefaultClassNames,
   type DayPickerProps,
-} from 'react-day-picker'
+  type CalendarDay,
+  type Modifiers
+} from "react-day-picker"
+import { cn } from "@/lib/utils"
+import { buttonVariants } from "./button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-
-/* ------------------------------- Types ------------------------------- */
-
-type Mode = 'single' | 'multiple' | 'range'
-
-type SelectedValue = Date | Date[] | DateRange | undefined
-
-export interface CalendarProps
-  extends Omit<Partial<DayPickerProps>, 'selected' | 'onSelect' | 'mode'> {
-  mode?: Mode
-  selected?: SelectedValue
-  onSelect?: (value: SelectedValue) => void
-  showOutsideDays?: boolean
-}
-
-/* ---------------------- Safe date conversion ------------------------- */
-
-function toDate(value: unknown): Date {
-  if (value instanceof Date) return value
-  const n = Number(value)
-  if (!isNaN(n)) return new Date(n)
-  return new Date(String(value))
-}
-
-/* --------------------------- Calendar -------------------------------- */
-
-export function Calendar({
-  mode = 'single',
-  selected,
-  onSelect,
-  showOutsideDays = true,
-  className,
-  classNames,
-  components,
-  ...props
-}: CalendarProps) {
-  const defaultClasses = getDefaultClassNames()
-
-  return (
-    <DayPicker
-      mode={mode as any}
-      selected={selected as any}
-      onSelect={onSelect as any}
-      showOutsideDays={showOutsideDays}
-      className={cn('p-3 bg-background', className)}
-      classNames={{
-        root: cn('w-fit', defaultClasses.root),
-        month: cn('space-y-4', defaultClasses.month),
-        months: cn('inline-flex gap-4', defaultClasses.months),
-        day: cn('text-center select-none', defaultClasses.day),
-        ...classNames,
-      }}
-      components={{
-        IconLeft: () => (
-          <Button variant="ghost" size="icon">
-            <ChevronLeftIcon className="size-4" />
-          </Button>
-        ),
-        IconRight: () => (
-          <Button variant="ghost" size="icon">
-            <ChevronRightIcon className="size-4" />
-          </Button>
-        ),
-        IconDown: () => (
-          <Button variant="ghost" size="icon">
-            <ChevronDownIcon className="size-4" />
-          </Button>
-        ),
-        DayButton: CalendarDayButton,
-        ...components,
-      }}
-      {...props}
-    />
-  )
-}
-
-/* ---------------------- Custom Day Button ---------------------------- */
-
-const CalendarDayButton = React.forwardRef<
+/**
+ * Button utilisé pour changer le mois
+ */
+const CalendarNavButton = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentProps<typeof DayButton>
->(function CalendarDayButton({ day, modifiers, className, ...props }, ref) {
-  const d = day?.date ? toDate((day as any).date) : new Date()
-
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(function CalendarNavButton(props, ref) {
   return (
-    <Button
+    <button
       ref={ref}
-      variant={modifiers?.selected ? 'default' : 'ghost'}
-      size="icon"
-      data-day={d.toISOString()}
-      className={cn('w-full aspect-square', className)}
       {...props}
+      className={cn(
+        buttonVariants({ variant: "ghost" }),
+        "h-7 w-7 p-0 opacity-70 hover:opacity-100"
+      )}
     />
   )
 })
+
+/**
+ * Bouton de jour — entièrement corrigé pour React 19
+ */
+const CalendarDayButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    day: CalendarDay
+    modifiers: Modifiers
+  }
+>(function CalendarDayButton({ day, modifiers, className, ...props }, ref) {
+  return (
+    <button
+      {...props}
+      ref={ref}
+      className={cn(
+        "relative flex h-8 w-8 items-center justify-center rounded-md text-sm transition",
+        modifiers.selected && "bg-primary text-primary-foreground",
+        modifiers.today && "font-semibold underline",
+        modifiers.disabled && "opacity-50 pointer-events-none",
+        className
+      )}
+    />
+  )
+})
+
+/**
+ * Le composant Calendar final
+ */
+function Calendar({ className, classNames, ...props }: DayPickerProps) {
+  return (
+    <DayPicker
+      className={cn("p-3", className)}
+      showOutsideDays
+      components={{
+        Caption: ({ ...p }) => (
+          <div className="flex items-center justify-between mb-2">
+            <CalendarNavButton
+              onClick={() => p.onPrevClick?.()}
+              aria-label="Précédent"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </CalendarNavButton>
+
+            <p className="text-sm font-medium">
+              {p.displayMonth.toLocaleString("fr-FR", {
+                month: "long",
+                year: "numeric",
+              })}
+            </p>
+
+            <CalendarNavButton
+              onClick={() => p.onNextClick?.()}
+              aria-label="Suivant"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </CalendarNavButton>
+          </div>
+        ),
+
+        // ⛔ Fix React 19 : wrappé dans une fonction
+        DayButton: (p) => <CalendarDayButton {...p} />,
+      }}
+      classNames={{
+        months: "flex flex-col gap-4",
+        month: "space-y-4",
+        weekdays: "grid grid-cols-7 text-center text-sm text-muted-foreground",
+        weekday: "text-xs",
+        weeks: "grid grid-cols-7 gap-1",
+        week: "contents",
+        day: "h-8 w-8",
+        ...classNames,
+      }}
+      {...props}
+    />
+  )
+}
+
+Calendar.displayName = "Calendar"
+
+export { Calendar }
+        
