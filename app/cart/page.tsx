@@ -1,8 +1,10 @@
 "use client";
 
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { CartContent } from "@/components/cart-content"
+export const dynamic = "force-dynamic"; // 🔥 Empêche Next.js de prerender côté serveur
+
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { CartContent } from "@/components/cart-content";
 
 export default function CartPage() {
   return (
@@ -16,5 +18,5 @@ export default function CartPage() {
 
       <Footer />
     </div>
-  )
+  );
 }
