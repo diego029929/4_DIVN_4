@@ -1,8 +1,14 @@
+// app/layout.tsx
+import { CartProvider } from "@/context/cart-context";
 
-export default function AboutLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      {children}
-    </div>
+    <html lang="fr">
+      <body>
+        <CartProvider>
+          {children}
+        </CartProvider>
+      </body>
+    </html>
   );
 }
