@@ -2,13 +2,14 @@
 
 import { useCart } from "@/context/cart-context";
 
-export function CartContent() {
+export function CheckoutContent() {
   const { items } = useCart();
 
   if (!items || items.length === 0) {
     return <p className="text-lg">Votre panier est vide.</p>;
   }
 
+  // Calcul du total ici
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
