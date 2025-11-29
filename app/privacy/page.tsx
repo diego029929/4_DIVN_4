@@ -9,14 +9,12 @@ export const dynamic = "force-dynamic";
 export default function PrivacyPage() {
   return (
     <CartProvider>
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col">
         <Header />
 
         <main className="flex-1 container mx-auto px-4 py-16">
-          <div className="max-w-3xl mx-auto space-y-8">
-            <h1 className="text-4xl font-bold text-center md:text-left">
-              Politique de Confidentialité
-            </h1>
+          <div className="max-w-3xl mx-auto space-y-6">
+            <h1 className="text-4xl font-bold">Politique de Confidentialité</h1>
 
             <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground">
               <section>
@@ -66,5 +64,4 @@ export default function PrivacyPage() {
       </div>
     </CartProvider>
   );
-      }
-        
+    }
