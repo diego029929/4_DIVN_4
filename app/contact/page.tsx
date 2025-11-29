@@ -2,19 +2,19 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { CartProvider } from "@/context/cart-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin } from "lucide-react";
+import { CartProvider } from "@/context/cart-context";
 
 export const dynamic = "force-dynamic";
 
 export default function ContactPage() {
   return (
     <CartProvider>
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col">
         <Header />
 
         <main className="flex-1 container mx-auto px-4 py-16">
@@ -44,9 +44,7 @@ export default function ContactPage() {
                     <Mail className="h-6 w-6 text-primary flex-shrink-0" />
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
-                      <p className="text-sm text-muted-foreground">
-                        contact@divn.fr
-                      </p>
+                      <p className="text-sm text-muted-foreground">contact@divn.fr</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -56,9 +54,7 @@ export default function ContactPage() {
                     <Phone className="h-6 w-6 text-primary flex-shrink-0" />
                     <div>
                       <h3 className="font-semibold mb-1">Téléphone</h3>
-                      <p className="text-sm text-muted-foreground">
-                        +33 1 23 45 67 89
-                      </p>
+                      <p className="text-sm text-muted-foreground">+33 1 23 45 67 89</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -69,7 +65,8 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold mb-1">Adresse</h3>
                       <p className="text-sm text-muted-foreground">
-                        123 Rue de la Mode<br />
+                        123 Rue de la Mode
+                        <br />
                         75001 Paris, France
                       </p>
                     </div>
@@ -84,5 +81,5 @@ export default function ContactPage() {
       </div>
     </CartProvider>
   );
-                }
-      
+                    }
+                
