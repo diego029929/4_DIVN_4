@@ -3,34 +3,28 @@
 import { useCart } from "@/context/cart-context";
 
 export function CheckoutContent() {
-  const { items } = useCart();
+  const { items, total } = useCart(); // fonctionne maintenant côté client
 
-  if (!items || items.length === 0) {
+  if (items.length === 0) {
     return <p className="text-lg">Votre panier est vide.</p>;
   }
 
-  // Calcul du total à la volée
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Résumé de votre commande</h2>
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Résumé de la commande</h2>
 
-      <ul className="space-y-4">
+      <ul className="space-y-4 mb-6">
         {items.map((item) => (
-          <li key={item.id} className="flex justify-between border-b pb-2">
-            <span>
-              {item.name} × {item.quantity}
-            </span>
-            <span>{item.price * item.quantity} €</span>
+          <li key={item.id} className="flex justify-between">
+            <span>{item.name} × {item.quantity}</span>
+            <span>{item.price * item.quantity}€</span>
           </li>
         ))}
       </ul>
 
-      <div className="text-xl font-bold flex justify-between pt-4 border-t">
-        <span>Total :</span>
-        <span>{total} €</span>
-      </div>
+      <p className="text-xl font-bold">
+        Total : {total}€
+      </p>
     </div>
   );
 }
