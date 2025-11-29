@@ -3,15 +3,18 @@
 import { useCart } from "@/context/cart-context";
 
 export function CheckoutContent() {
-  const { items, total } = useCart();
+  const { items } = useCart();
 
-  if (items.length === 0) {
+  if (!items || items.length === 0) {
     return <p className="text-lg">Votre panier est vide.</p>;
   }
 
+  // Calcul du total à la volée
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Résumé de commande</h2>
+      <h2 className="text-2xl font-semibold">Résumé de votre commande</h2>
 
       <ul className="space-y-4">
         {items.map((item) => (
@@ -28,10 +31,6 @@ export function CheckoutContent() {
         <span>Total :</span>
         <span>{total} €</span>
       </div>
-
-      <button className="w-full bg-black text-white py-3 rounded-lg text-lg">
-        Procéder au paiement
-      </button>
     </div>
   );
 }
