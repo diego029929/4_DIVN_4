@@ -1,69 +1,35 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { useCart } from "@/context/cart-context";
 
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-}
+export function CheckoutContent() {
+  const { items, total } = useCart();
 
-export interface CartContextType {
-  items: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  clearCart: () => void;
-  total: number; // ✅ AJOUT IMPORTANT
-}
-
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-
-  const addToCart = (item: CartItem) => {
-    setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.id === item.id
-            ? { ...i, quantity: i.quantity + item.quantity }
-            : i
-        );
-      }
-      return [...prev, item];
-    });
-  };
-
-  const removeFromCart = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const clearCart = () => {
-    setItems([]);
-  };
-
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  ); // ✅ LE TOTAL CALCULÉ
+  if (items.length === 0) {
+    return <p className="text-lg">Votre panier est vide.</p>;
+  }
 
   return (
-    <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, clearCart, total }}
-    >
-      {children}
-    </CartContext.Provider>
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Récapitulatif du panier</h2>
+
+      <ul className="space-y-4 mb-6">
+        {items.map((item) => (
+          <li key={item.id} className="p-4 border rounded-lg">
+            <div className="flex justify-between">
+              <span>
+                {item.name} × {item.quantity}
+              </span>
+              <span>{(item.price * item.quantity).toFixed(2)} €</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <h3 className="text-xl font-bold">
+        Total : {total.toFixed(2)} €
+      </h3>
+    </div>
   );
 }
-
-export function useCart() {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used within CartProvider");
-  }
-  return context;
-      }
-              
+  
