@@ -1,63 +1,45 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { useCart } from "@/context/cart-context";
 
-export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-}
+export function CheckoutContent() {
+  const { items } = useCart();
 
-export interface CartContextType {
-  items: CartItem[];
-  addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
-  clearCart: () => void;
-  total: number; // <-- IMPORTANT !! DOIT ETRE PRÉSENT !
-}
+  if (!items?.length) {
+    return <p className="text-lg">Votre panier est vide.</p>;
+  }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
-
-  const addToCart = (item: CartItem) => {
-    setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.id === item.id
-            ? { ...i, quantity: i.quantity + item.quantity }
-            : i
-        );
-      }
-      return [...prev, item];
-    });
-  };
-
-  const removeFromCart = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  const clearCart = () => setItems([]);
-
+  // Calcul du total à la volée avec arrondi
   const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, item) => sum + Math.round(item.price * item.quantity * 100) / 100,
     0
   );
 
-  return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, clearCart, total }}>
-      {children}
-    </CartContext.Provider>
-  );
-}
+  // Formatage en euros
+  const formatter = new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  });
 
-export function useCart() {
-  const context = useContext(CartContext);
-  if (!context) throw new Error("useCart must be used within CartProvider");
-  return context;
-  }
-  
+  return (
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold">Contenu du panier</h2>
+
+      <ul className="space-y-4">
+        {items.map((item) => (
+          <li key={item.id} className="flex justify-between border-b pb-2">
+            <span>
+              {item.name} × {item.quantity}
+            </span>
+            <span>{formatter.format(item.price * item.quantity)}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div className="text-xl font-bold flex justify-between pt-4 border-t">
+        <span>Total :</span>
+        <span>{formatter.format(total)}</span>
+      </div>
+    </div>
+  );
+            }
