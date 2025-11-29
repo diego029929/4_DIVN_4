@@ -1,24 +1,21 @@
 "use client";
 
+export const dynamic = "force-dynamic"; // 🔥 empêche le prerender côté serveur
+
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { CheckoutForm } from "@/components/checkout-form";
+import { CheckoutContent } from "@/components/checkout-content";
 
 export default function CheckoutPage() {
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* HEADER */}
+    <div className="min-h-screen flex flex-col">
       <Header />
 
-      {/* MAIN */}
-      <main className="container mx-auto flex-1 px-4 py-12">
-        <div className="mx-auto max-w-2xl">
-          <h1 className="mb-8 text-4xl font-bold">Paiement</h1>
-          <CheckoutForm />
-        </div>
+      <main className="flex-1 container mx-auto px-4 py-12">
+        <h1 className="text-4xl font-bold mb-8">Paiement</h1>
+        <CheckoutContent />
       </main>
 
-      {/* FOOTER */}
       <Footer />
     </div>
   );
