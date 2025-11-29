@@ -4,7 +4,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/context/cart-context";
 
-export const dynamic = "force-dynamic"; // Empêche le prerendering côté serveur
+export const dynamic = "force-dynamic";
 
 export default function PrivacyPage() {
   return (
@@ -66,5 +66,5 @@ export default function PrivacyPage() {
       </div>
     </CartProvider>
   );
-                }
-      
+      }
+        
