@@ -4,7 +4,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/context/cart-context";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"; // force rendu côté client
 
 export default function PrivacyPage() {
   return (
@@ -13,50 +13,43 @@ export default function PrivacyPage() {
         <Header />
 
         <main className="flex-1 container mx-auto px-4 py-16">
-          <div className="max-w-3xl mx-auto space-y-6">
-            <h1 className="text-4xl font-bold">Politique de Confidentialité</h1>
+          <div className="max-w-3xl mx-auto space-y-8 prose prose-invert text-muted-foreground">
+            <h1 className="text-4xl font-bold">Politique de confidentialité</h1>
 
-            <div className="prose prose-invert max-w-none space-y-6 text-muted-foreground">
-              <section>
-                <h2 className="text-2xl font-bold text-foreground">1. Collecte des données</h2>
-                <p>
-                  DIVN collecte des données personnelles uniquement dans le cadre de la gestion des commandes et
-                  de l'amélioration de nos services.
-                </p>
-              </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground">1. Collecte des données</h2>
+              <p className="leading-relaxed">
+                Nous collectons uniquement les informations nécessaires pour le traitement des commandes et la gestion du compte client.
+              </p>
+            </section>
 
-              <section>
-                <h2 className="text-2xl font-bold text-foreground">2. Utilisation des données</h2>
-                <p>
-                  Vos données sont utilisées pour traiter vos commandes, vous contacter et améliorer votre expérience
-                  sur notre site.
-                </p>
-              </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground">2. Utilisation des données</h2>
+              <p className="leading-relaxed">
+                Vos données sont utilisées exclusivement pour le traitement de vos commandes et pour vous informer des nouveautés et offres spéciales, si vous y consentez.
+              </p>
+            </section>
 
-              <section>
-                <h2 className="text-2xl font-bold text-foreground">3. Protection des données</h2>
-                <p>
-                  Nous mettons en œuvre toutes les mesures nécessaires pour protéger vos données personnelles contre tout
-                  accès non autorisé.
-                </p>
-              </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground">3. Partage des données</h2>
+              <p className="leading-relaxed">
+                Nous ne partageons jamais vos données personnelles avec des tiers non partenaires. Les prestataires logistiques peuvent recevoir vos informations pour assurer la livraison.
+              </p>
+            </section>
 
-              <section>
-                <h2 className="text-2xl font-bold text-foreground">4. Vos droits</h2>
-                <p>
-                  Conformément au RGPD, vous disposez d'un droit d'accès, de modification et de suppression de vos données
-                  personnelles.
-                </p>
-              </section>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground">4. Sécurité</h2>
+              <p className="leading-relaxed">
+                Nous mettons en place toutes les mesures techniques et organisationnelles nécessaires pour protéger vos données contre tout accès non autorisé.
+              </p>
+            </section>
 
-              <section>
-                <h2 className="text-2xl font-bold text-foreground">5. Cookies</h2>
-                <p>
-                  Notre site utilise des cookies pour améliorer votre expérience de navigation. Vous pouvez à tout moment
-                  désactiver les cookies dans les paramètres de votre navigateur.
-                </p>
-              </section>
-            </div>
+            <section>
+              <h2 className="text-2xl font-bold text-foreground">5. Vos droits</h2>
+              <p className="leading-relaxed">
+                Vous pouvez accéder, rectifier ou supprimer vos données personnelles à tout moment en nous contactant à l'adresse indiquée sur le site.
+              </p>
+            </section>
           </div>
         </main>
 
@@ -65,4 +58,3 @@ export default function PrivacyPage() {
     </CartProvider>
   );
       }
-                  
