@@ -81,5 +81,5 @@ export default function ContactPage() {
       </div>
     </CartProvider>
   );
-                        }
-                        
+                    }
+                  
