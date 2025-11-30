@@ -3,11 +3,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/context/cart-context";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Mail, Phone, MapPin } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -18,62 +13,34 @@ export default function ContactPage() {
         <Header />
 
         <main className="flex-1 container mx-auto px-4 py-16">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-8">Contactez-nous</h1>
+          <div className="max-w-3xl mx-auto space-y-8 prose prose-invert text-muted-foreground">
+            <h1 className="text-4xl font-bold">Contactez-nous</h1>
+            <p>
+              Vous pouvez nous contacter par email à contact@divn.com ou via le formulaire ci-dessous.
+            </p>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* FORMULAIRE */}
-              <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-bold mb-6">Envoyez-nous un message</h2>
-
-                  <form className="space-y-4">
-                    <Input placeholder="Nom" />
-                    <Input type="email" placeholder="Email" />
-                    <Input placeholder="Sujet" />
-                    <Textarea placeholder="Votre message" rows={5} />
-                    <Button className="w-full">Envoyer</Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              {/* INFORMATIONS */}
-              <div className="space-y-6">
-                <Card>
-                  <CardContent className="p-6 flex gap-4">
-                    <Mail className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Email</h3>
-                      <p className="text-sm text-muted-foreground">contact@divn.fr</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6 flex gap-4">
-                    <Phone className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Téléphone</h3>
-                      <p className="text-sm text-muted-foreground">+33 1 23 45 67 89</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6 flex gap-4">
-                    <MapPin className="h-6 w-6 text-primary flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold mb-1">Adresse</h3>
-                      <p className="text-sm text-muted-foreground">
-                        123 Rue de la Mode
-                        <br />
-                        75001 Paris, France
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+            <section>
+              <h2 className="text-2xl font-bold mt-6">Formulaire de contact</h2>
+              <form className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Nom"
+                  className="w-full p-2 border rounded-md"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="w-full p-2 border rounded-md"
+                />
+                <textarea
+                  placeholder="Votre message"
+                  className="w-full p-2 border rounded-md"
+                />
+                <button type="submit" className="px-6 py-2 bg-black text-white rounded-md">
+                  Envoyer
+                </button>
+              </form>
+            </section>
           </div>
         </main>
 
@@ -81,5 +48,4 @@ export default function ContactPage() {
       </div>
     </CartProvider>
   );
-                    }
-                  
+                  }
