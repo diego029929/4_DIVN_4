@@ -4,9 +4,9 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/context/cart-context";
 
-export const dynamic = "force-dynamic"; // Force rendu côté client
+export const dynamic = "force-dynamic";
 
-export default function CGVPage() {
+export default function CgvPage() {
   return (
     <CartProvider>
       <div className="min-h-screen flex flex-col">
@@ -14,42 +14,47 @@ export default function CGVPage() {
 
         <main className="flex-1 container mx-auto px-4 py-16">
           <div className="max-w-3xl mx-auto space-y-8 prose prose-invert text-muted-foreground">
-            <h1 className="text-4xl font-bold">Conditions Générales de Vente</h1>
+            <h1 className="text-4xl font-bold">Conditions Générales de Vente (CGV)</h1>
 
             <section>
-              <h2 className="text-2xl font-bold text-foreground">1. Objet</h2>
-              <p className="leading-relaxed">
-                Les présentes conditions générales de vente régissent les ventes de produits proposés sur le site DIVN.
+              <h2 className="text-2xl font-bold mt-6">1. Objet</h2>
+              <p>
+                Les présentes conditions générales de vente régissent toutes les ventes conclues par le site DIVN.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-foreground">2. Prix</h2>
-              <p className="leading-relaxed">
-                Les prix sont indiqués en euros TTC. DIVN se réserve le droit de modifier ses prix à tout moment.
+              <h2 className="text-2xl font-bold mt-6">2. Produits</h2>
+              <p>
+                Les produits proposés sont décrits et présentés avec la plus grande exactitude possible.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-foreground">3. Commande</h2>
-              <p className="leading-relaxed">
-                Toute commande implique l'acceptation sans réserve des présentes conditions générales de vente.
+              <h2 className="text-2xl font-bold mt-6">3. Commande</h2>
+              <p>
+                Toute commande implique l’acceptation sans réserve des présentes conditions.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-foreground">4. Livraison</h2>
-              <p className="leading-relaxed">
-                Les produits sont livrés sous 48h à l'adresse indiquée lors de la commande. La livraison est gratuite
-                pour toute commande supérieure à 100€.
+              <h2 className="text-2xl font-bold mt-6">4. Paiement</h2>
+              <p>
+                Le paiement est exigible immédiatement à la commande.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold text-foreground">5. Droit de rétractation</h2>
-              <p className="leading-relaxed">
-                Conformément aux dispositions légales, vous disposez d'un délai de 30 jours pour retourner un produit
-                qui ne vous conviendrait pas.
+              <h2 className="text-2xl font-bold mt-6">5. Livraison</h2>
+              <p>
+                La livraison est effectuée à l’adresse indiquée lors de la commande.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-2xl font-bold mt-6">6. Rétractation</h2>
+              <p>
+                Conformément à la loi, vous disposez d’un délai de 14 jours pour vous rétracter.
               </p>
             </section>
           </div>
@@ -59,5 +64,4 @@ export default function CGVPage() {
       </div>
     </CartProvider>
   );
-                }
-      
+}
