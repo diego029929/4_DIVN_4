@@ -5,13 +5,12 @@ import { Footer } from "@/components/footer";
 import { ProductCard } from "@/components/product-card";
 import { PRODUCTS, getProductsByCategory } from "@/lib/products";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
 
-export default function BoutiquePage({
-  searchParams,
-}: {
-  searchParams?: { category?: string };
-}) {
-  const category = searchParams?.category;
+export default function BoutiquePage() {
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category") || undefined;
+
   const products = category ? getProductsByCategory(category) : PRODUCTS;
 
   const categoryTitle = category
@@ -58,5 +57,4 @@ export default function BoutiquePage({
       <Footer />
     </div>
   );
-            }
-              
+      }
