@@ -1,6 +1,6 @@
 "use client";
 
-export const dynamic = "force-dynamic"; // Empêche le prerender côté serveur
+export const dynamic = "force-dynamic"; // Empêche tout prerender
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
