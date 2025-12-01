@@ -1,22 +1,22 @@
 "use client";
 
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
-import { ProductCard } from "@/components/product-card"
-import { PRODUCTS, getProductsByCategory } from "@/lib/products"
-import { Button } from "@/components/ui/button"
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { ProductCard } from "@/components/product-card";
+import { PRODUCTS, getProductsByCategory } from "@/lib/products";
+import { Button } from "@/components/ui/button";
 
-export default async function BoutiquePage({
+export default function BoutiquePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>
+  searchParams?: { category?: string };
 }) {
-  const params = await searchParams
-  const category = params.category
+  const category = searchParams?.category;
+  const products = category ? getProductsByCategory(category) : PRODUCTS;
 
-  const products = category ? getProductsByCategory(category) : PRODUCTS
-
-  const categoryTitle = category ? category.charAt(0).toUpperCase() + category.slice(1) : "Tous les produits"
+  const categoryTitle = category
+    ? category.charAt(0).toUpperCase() + category.slice(1)
+    : "Tous les produits";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -40,7 +40,10 @@ export default async function BoutiquePage({
           <Button variant={category === "femme" ? "default" : "outline"} asChild>
             <a href="/boutique?category=femme">Femme</a>
           </Button>
-          <Button variant={category === "accessoires" ? "default" : "outline"} asChild>
+          <Button
+            variant={category === "accessoires" ? "default" : "outline"}
+            asChild
+          >
             <a href="/boutique?category=accessoires">Accessoires</a>
           </Button>
         </div>
@@ -54,5 +57,6 @@ export default async function BoutiquePage({
 
       <Footer />
     </div>
-  )
-}
+  );
+            }
+              
