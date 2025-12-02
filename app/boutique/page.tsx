@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/product-card";
 import { PRODUCTS, getProductsByCategory } from "@/lib/products";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
+import { CartProvider } from "@/context/cart-context";
 
 export default function BoutiquePage() {
   const searchParams = useSearchParams();
@@ -18,6 +19,7 @@ export default function BoutiquePage() {
     : "Tous les produits";
 
   return (
+    </CartProvider>
     <div className="min-h-screen flex flex-col">
       <Header />
 
@@ -56,5 +58,6 @@ export default function BoutiquePage() {
 
       <Footer />
     </div>
+    </CartProvider>
   );
       }
