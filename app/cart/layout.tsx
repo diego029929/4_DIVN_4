@@ -1,4 +1,4 @@
-import { CartProvider } from "@/components/cart-context"; // adjust the path
+import { CartProvider } from "@/components/cart-provider"; // adjust the path
 
 export default function AboutLayout({ children }: { children: React.ReactNode }) {
   return (
