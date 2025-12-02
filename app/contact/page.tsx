@@ -2,6 +2,7 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import{ CartProvider } from "@/app/components/cart-provider"; 
 
 export const dynamic = "force-dynamic";
 
