@@ -1,7 +1,11 @@
+import { CartProvider } from "@/context/CartContext"; // adjust the path
+
 export default function AboutLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      {children}
-    </div>
+    <CartProvider>
+      <div>
+        {children}
+      </div>
+    </CartProvider>
   );
 }
