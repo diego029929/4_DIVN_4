@@ -2,12 +2,12 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import{ CartProvider } from "@/app/components/cart-provider"; 
-
+import { CartProvider } from "@/context/cart-context";
 export const dynamic = "force-dynamic";
 
 export default function ContactPage() {
   return (
+    </CartProvider>
     <div className="min-h-screen flex flex-col">
       <Header />
 
@@ -48,5 +48,6 @@ export default function ContactPage() {
 
       <Footer />
     </div>
+    </CartProvider>
   );
 }
