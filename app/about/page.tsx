@@ -2,11 +2,13 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { CartProvider } from "@/context/cart-context";
 
 export const dynamic = "force-dynamic";
 
 export default function AboutPage() {
   return (
+    </CartProvider>
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
 
@@ -57,5 +59,6 @@ export default function AboutPage() {
 
       <Footer />
     </div>
+    </CartProvider>
   );
 }
