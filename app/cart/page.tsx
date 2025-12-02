@@ -3,7 +3,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartContent } from "@/components/cart-content";
-import { CartProvider } from "@/components/cart-provider"; // adjust path
+import { CartProvider } from "@/context/cart-context";
 
 export const dynamic = "force-dynamic";
 
