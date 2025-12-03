@@ -2,12 +2,11 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { CartProvider } from "@/context/cart-context";
+
 export const dynamic = "force-dynamic";
 
 export default function ContactPage() {
   return (
-    </CartProvider>
     <div className="min-h-screen flex flex-col">
       <Header />
 
@@ -23,18 +22,21 @@ export default function ContactPage() {
             <form className="space-y-4">
               <input
                 type="text"
+                name="name"
                 placeholder="Nom"
                 className="w-full p-2 border rounded-md"
               />
               <input
                 type="email"
+                name="email"
                 placeholder="Email"
                 className="w-full p-2 border rounded-md"
               />
               <textarea
+                name="message"
                 placeholder="Votre message"
                 className="w-full p-2 border rounded-md"
-              />
+              ></textarea>
               <button
                 type="submit"
                 className="px-6 py-2 bg-black text-white rounded-md"
@@ -48,6 +50,5 @@ export default function ContactPage() {
 
       <Footer />
     </div>
-    </CartProvider>
   );
 }
