@@ -7,9 +7,9 @@ export const dynamic = "force-dynamic";
 
 export default function PrivacyPage() {
   return (
-    </CartProvider>
-    <div className="min-h-screen flex flex-col">
-      <Header />
+   </CartProvider>
+     <div className="min-h-screen flex flex-col">
+       <Header />
 
       <main className="flex-1 container mx-auto px-4 py-16">
         <div className="max-w-3xl mx-auto space-y-8 prose prose-invert text-muted-foreground">
