@@ -2,62 +2,28 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { ProductCard } from "@/components/product-card";
-import { PRODUCTS, getProductsByCategory } from "@/lib/products";
-import { Button } from "@/components/ui/button";
-import { useSearchParams } from "next/navigation";
 import { CartProvider } from "@/context/cart-context";
+import ProductsGrid from "@/components/products-grid"; // exemple
 
-export default function BoutiquePage() {
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category") || undefined;
+export const dynamic = "force-dynamic";
 
-  const products = category ? getProductsByCategory(category) : PRODUCTS;
-
-  const categoryTitle = category
-    ? category.charAt(0).toUpperCase() + category.slice(1)
+export default function BoutiquePage({ searchParams }: any) {
+  const category = searchParams?.category
+    ? decodeURIComponent(searchParams.category)
     : "Tous les produits";
 
   return (
-    </CartProvider>
-    <div className="min-h-screen flex flex-col">
-      <Header />
+    <CartProvider>
+      <div className="min-h-screen flex flex-col">
+        <Header />
 
-      <main className="flex-1 container mx-auto px-4 py-12">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">{categoryTitle}</h1>
-          <p className="text-muted-foreground">
-            {products.length} produit{products.length > 1 ? "s" : ""}
-          </p>
-        </div>
+        <main className="flex-1 container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-6">{category}</h1>
+          <ProductsGrid />
+        </main>
 
-        <div className="flex gap-4 mb-8 flex-wrap">
-          <Button variant={!category ? "default" : "outline"} asChild>
-            <a href="/boutique">Tout</a>
-          </Button>
-          <Button variant={category === "homme" ? "default" : "outline"} asChild>
-            <a href="/boutique?category=homme">Homme</a>
-          </Button>
-          <Button variant={category === "femme" ? "default" : "outline"} asChild>
-            <a href="/boutique?category=femme">Femme</a>
-          </Button>
-          <Button
-            variant={category === "accessoires" ? "default" : "outline"}
-            asChild
-          >
-            <a href="/boutique?category=accessoires">Accessoires</a>
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+        <Footer />
+      </div>
     </CartProvider>
   );
-      }
+}
