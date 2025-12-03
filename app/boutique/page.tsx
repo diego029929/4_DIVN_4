@@ -3,6 +3,7 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/context/cart-context";
+import ProductsGrid from "@/components/products-grid"; // exemple
 
 export const dynamic = "force-dynamic";
 
