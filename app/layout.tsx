@@ -1,29 +1,21 @@
-"use client";
-
 import "./globals.css";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { CartProvider } from "@/context/cart-context";
-import { Header } from "@/components/header"; // majuscule pour être sûr
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+
+export const metadata = {
+  title: "DIVN",
+  description: "Boutique DIVN",
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
-      <head>
-        <title>DIVN</title>
-        <meta name="description" content="Site DIVN" />
-      </head>
-      <body className="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col bg-background text-foreground">
         <CartProvider>
-          {/* Header */}
           <Header />
-
-          {/* Main content */}
-          <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 sm:py-12">
-            {children}
-          </main>
-
-          {/* Footer */}
+          <main className="flex-1">{children}</main>
           <Footer />
         </CartProvider>
       </body>
