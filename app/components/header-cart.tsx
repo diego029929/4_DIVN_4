@@ -6,7 +6,16 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 export default function HeaderCart() {
-  const { totalItems } = useCart()
+  let totalItems = 0
+
+  // Vérifie si useCart est disponible
+  try {
+    const cart = useCart()
+    totalItems = cart.totalItems
+  } catch {
+    // useCart appelé avant que le provider soit monté
+    return null
+  }
 
   return (
     <Link href="/cart">
