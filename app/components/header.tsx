@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
-const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
+const HeaderCart = () => <div>Cart test</div>
 
 export function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
