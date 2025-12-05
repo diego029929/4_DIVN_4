@@ -3,8 +3,8 @@
 import "./globals.css";
 import { ReactNode } from "react";
 import { CartProvider } from "@/context/cart-context";
-import { Header } from "@/components/Header"; // majuscule pour être sûr
-import { Footer } from "@/components/Footer";
+import { Header } from "@/components/header"; // majuscule pour être sûr
+import { Footer } from "@/components/footer";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
