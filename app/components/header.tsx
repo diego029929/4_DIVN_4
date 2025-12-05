@@ -1,22 +1,32 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingBag, Search, Menu, X } from "lucide-react"
+import { Search, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useCart } from "@/components/cart-provider"
 import { useState } from "react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import dynamic from "next/dynamic"
+
+// 🔥 Import dynamique pour éviter l’erreur useCart pendant le build
+const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false })
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
+
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export function Header() {
-  const { totalItems } = useCart()
   const [searchOpen, setSearchOpen] = useState(false)
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
+
           {/* Mobile Menu */}
           <Sheet>
             <SheetTrigger asChild className="lg:hidden">
@@ -102,24 +112,19 @@ export function Header() {
                 <Button variant="ghost" size="icon" onClick={() => setSearchOpen(true)} className="hidden sm:flex">
                   <Search className="h-5 w-5" />
                 </Button>
+
                 <Link href="/contact" className="hidden lg:block">
                   <Button variant="ghost" className="text-sm">
                     Contact
                   </Button>
                 </Link>
-                <Link href="/cart">
-                  <Button variant="ghost" size="icon" className="relative">
-                    <ShoppingBag className="h-5 w-5" />
-                    {totalItems > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
-                        {totalItems}
-                      </span>
-                    )}
-                  </Button>
-                </Link>
+
+                {/* 🔥 Remplacement du panier par HeaderCart */}
+                <HeaderCart />
               </>
             )}
           </div>
+
         </div>
       </div>
     </header>
