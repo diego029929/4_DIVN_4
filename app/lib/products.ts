@@ -1,3 +1,4 @@
+// types et interface
 export interface Product {
   id: string
   name: string
@@ -10,6 +11,7 @@ export interface Product {
   featured?: boolean
 }
 
+// liste des produits
 export const PRODUCTS: Product[] = [
   {
     id: "tee-premium-noir",
@@ -38,7 +40,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "robe-elegante-noire",
     name: "Robe Élégante Noire",
-    description: "Robe sophistiquée en tissus nobles. Design intemporel pour toutes les occasions spéciales.",
+    description:
+      "Robe sophistiquée en tissus nobles. Design intemporel pour toutes les occasions spéciales.",
     priceInCents: 12900,
     category: "femme",
     images: ["/elegant-black-dress-minimalist.jpg"],
@@ -59,7 +62,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "casquette-signature",
     name: "Casquette Signature",
-    description: "Casquette premium avec logo DIVN brodé. Accessoire parfait pour compléter votre look.",
+    description:
+      "Casquette premium avec logo DIVN brodé. Accessoire parfait pour compléter votre look.",
     priceInCents: 3900,
     category: "accessoires",
     images: ["/premium-black-cap-with-gold-logo.jpg"],
@@ -69,7 +73,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "sac-leather-noir",
     name: "Sac Cuir Premium",
-    description: "Sac en cuir véritable noir avec finitions dorées. Design intemporel et pratique.",
+    description:
+      "Sac en cuir véritable noir avec finitions dorées. Design intemporel et pratique.",
     priceInCents: 15900,
     category: "accessoires",
     images: ["/premium-black-leather-bag-gold-details.jpg"],
@@ -89,7 +94,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "pantalon-cargo",
     name: "Pantalon Cargo Premium",
-    description: "Pantalon cargo avec coupe moderne. Confort et style pour toutes les occasions.",
+    description:
+      "Pantalon cargo avec coupe moderne. Confort et style pour toutes les occasions.",
     priceInCents: 7900,
     category: "homme",
     images: ["/premium-black-cargo-pants.jpg"],
@@ -136,6 +142,7 @@ export const PRODUCTS: Product[] = [
   },
 ]
 
+// fonctions utilitaires
 export function getProductById(id: string): Product | undefined {
   return PRODUCTS.find((p) => p.id === id)
 }
@@ -153,4 +160,5 @@ export function formatPrice(priceInCents: number): string {
     style: "currency",
     currency: "EUR",
   }).format(priceInCents / 100)
-}
+    }
+    
