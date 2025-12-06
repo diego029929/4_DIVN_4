@@ -1,57 +1,83 @@
-export default function HomePage() {
+import { Header } from "@/components/header";
+import SideMenu from "@/components/side-menu";
+import { ProductCard } from "@/components/product-card";
+
+export default function ShopPage() {
   return (
-    <main className="min-h-screen bg-white text-black">
-      {/* HERO */}
-      <section className="relative h-[80vh] flex flex-col justify-center items-center text-center px-6">
-        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-6">
-          Élégance. Minimalisme. Excellence.
-        </h1>
+    <main className="pt-20 bg-white min-h-screen">
+      <SideMenu />
+      <Header />
 
-        <p className="text-lg text-gray-600 max-w-xl mb-8">
-          Découvrez les pièces essentielles de DIVN — conçues pour un style intemporel.
-        </p>
+      {/* MAIN IMAGE */}
+      <div className="w-full">
+        <img
+          src="/image1.jpg"
+          className="w-full h-64 object-cover"
+        />
+      </div>
 
+      {/* TRI */}
+      <div className="flex items-center justify-between px-4 py-4">
         <a
-          href="/boutique"
-          className="px-8 py-3 bg-black text-white rounded-lg text-lg hover:bg-neutral-800 transition"
+          href="/"
+          className="px-4 py-2 bg-black text-white rounded-lg"
         >
-          Découvrir la collection
+          Accueil
         </a>
-      </section>
 
-      {/* PRODUITS EN AVANT */}
-      <section className="py-24 bg-neutral-50">
-        <div className="container mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-10">Nos Best Sellers</h2>
+        <select className="border p-2 rounded-lg">
+          <option>Pertinence</option>
+          <option>Prix croissant</option>
+          <option>Prix décroissant</option>
+        </select>
+      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-            <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition">
-              <img src="/premium-black-tshirt-minimalist.jpg" className="w-full h-72 object-cover" />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg">T-shirt Premium Noir</h3>
-                <p className="text-sm text-gray-600 mt-1">Collection Essentielle</p>
-              </div>
-            </div>
+      {/* PRODUITS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-16">
 
-            <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition">
-              <img src="/luxury-fashion-dark-minimalist.jpg" className="w-full h-72 object-cover" />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg">Veste Oversize Luxe</h3>
-                <p className="text-sm text-gray-600 mt-1">Nouvelle Collection</p>
-              </div>
-            </div>
+        <ProductCard
+          product={{
+            id: "1",
+            name: "Écharpe Solis",
+            description: "Écharpe chaude et élégante",
+            priceInCents: 2990,
+            images: [
+              "https://via.placeholder.com/300x300?text=Produit+1A"
+            ],
+            inStock: true,
+            category: "Écharpes",
+          }}
+        />
 
-            <div className="rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition">
-              <img src="/premium-black-leather-bag-gold-details.jpg" className="w-full h-72 object-cover" />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg">Sac en Cuir Premium</h3>
-                <p className="text-sm text-gray-600 mt-1">Edition Gold</p>
-              </div>
-            </div>
-          </div>
+        <ProductCard
+          product={{
+            id: "2",
+            name: "Écharpe Veyra",
+            description: "Modèle doux et premium",
+            priceInCents: 2599,
+            images: [
+              "https://via.placeholder.com/300x300?text=Produit+2A"
+            ],
+            inStock: true,
+            category: "Écharpes",
+          }}
+        />
 
-        </div>
-      </section>
+        <ProductCard
+          product={{
+            id: "3",
+            name: "Écharpe Eryos",
+            description: "Version luxe haute qualité",
+            priceInCents: 3990,
+            images: [
+              "https://via.placeholder.com/300x300?text=Produit+3A"
+            ],
+            inStock: true,
+            category: "Écharpes",
+          }}
+        />
+
+      </div>
     </main>
   );
-              }
+          }
