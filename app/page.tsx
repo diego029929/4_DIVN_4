@@ -45,7 +45,7 @@ export default function ShopPage() {
               "https://via.placeholder.com/300x300?text=Produit+1A"
             ],
             inStock: true,
-            category: "Écharpes",
+            category: "femme", // catégorie valide
           }}
         />
 
@@ -59,7 +59,7 @@ export default function ShopPage() {
               "https://via.placeholder.com/300x300?text=Produit+2A"
             ],
             inStock: true,
-            category: "Écharpes",
+            category: "femme",
           }}
         />
 
@@ -73,11 +73,12 @@ export default function ShopPage() {
               "https://via.placeholder.com/300x300?text=Produit+3A"
             ],
             inStock: true,
-            category: "Écharpes",
+            category: "femme",
           }}
         />
 
       </div>
     </main>
   );
-          }
+      }
+            
