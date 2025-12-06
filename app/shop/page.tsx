@@ -1,17 +1,20 @@
 import { Header } from "@/components/header";
 import SideMenu from "@/components/side-menu";
 import { ProductCard } from "@/components/product-card";
+import { PRODUCTS, Product } from "@/lib/products";
 
 export default function ShopPage() {
   return (
     <main className="pt-20 bg-white min-h-screen">
+      {/* Side menu et header */}
       <SideMenu />
       <Header />
 
-      {/* MAIN IMAGE */}
+      {/* IMAGE PRINCIPALE */}
       <div className="w-full">
         <img
           src="/image1.jpg"
+          alt="Image principale"
           className="w-full h-64 object-cover"
         />
       </div>
@@ -26,55 +29,19 @@ export default function ShopPage() {
         </a>
 
         <select className="border p-2 rounded-lg">
-          <option>Pertinence</option>
-          <option>Prix croissant</option>
-          <option>Prix décroissant</option>
+          <option value="pertinence">Pertinence</option>
+          <option value="asc">Prix croissant</option>
+          <option value="desc">Prix décroissant</option>
         </select>
       </div>
 
       {/* PRODUITS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-16">
-        
-        <ProductCard
-          product={{
-            id: "1",
-            name: "Écharpe Solis",
-            description: "Écharpe chaude et élégante",
-            priceInCents: 2990,
-            images: [
-              "https://via.placeholder.com/300x300?text=Produit+1A"
-            ],
-            inStock: true
-          }}
-        />
-
-        <ProductCard
-          product={{
-            id: "2",
-            name: "Écharpe Veyra",
-            description: "Modèle doux et premium",
-            priceInCents: 2599,
-            images: [
-              "https://via.placeholder.com/300x300?text=Produit+2A"
-            ],
-            inStock: true
-          }}
-        />
-
-        <ProductCard
-          product={{
-            id: "3",
-            name: "Écharpe Eryos",
-            description: "Version luxe haute qualité",
-            priceInCents: 3990,
-            images: [
-              "https://via.placeholder.com/300x300?text=Produit+3A"
-            ],
-            inStock: true
-          }}
-        />
-
+        {PRODUCTS.map((product: Product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     </main>
   );
-}
+            }
+        
