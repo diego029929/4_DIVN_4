@@ -1,55 +1,41 @@
-"use client";
+<ProductCard
+  product={{
+    id: "1",
+    name: "Écharpe Solis",
+    description: "Écharpe chaude et élégante",
+    priceInCents: 2990,
+    images: [
+      "https://via.placeholder.com/300x300?text=Produit+1A"
+    ],
+    inStock: true,
+    category: "accessoires"
+  }}
+/>
 
-import Link from "next/link";
-import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { type Product, formatPrice } from "@/lib/products";
+<ProductCard
+  product={{
+    id: "2",
+    name: "Écharpe Veyra",
+    description: "Modèle doux et premium",
+    priceInCents: 2599,
+    images: [
+      "https://via.placeholder.com/300x300?text=Produit+2A"
+    ],
+    inStock: true,
+    category: "accessoires"
+  }}
+/>
 
-interface ProductCardProps {
-  product: Product;
-}
-
-export function ProductCard({ product }: ProductCardProps) {
-  return (
-    <Link href={`/product/${product.id}`}>
-      <Card className="group overflow-hidden border border-border/40 bg-card transition-all duration-300 hover:border-primary/50">
-        <CardContent className="p-0">
-          
-          {/* IMAGE */}
-          <div className="relative aspect-[3/4] overflow-hidden bg-secondary">
-            <Image
-              src={product.images?.[0] ?? "/placeholder.svg"}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
-            />
-
-            {/* BADGE RUPTURE */}
-            {!product.inStock && (
-              <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                <span className="text-sm font-semibold">Rupture de stock</span>
-              </div>
-            )}
-          </div>
-
-          {/* INFOS PRODUIT */}
-          <div className="p-4 space-y-2">
-            <h3 className="font-medium transition-colors group-hover:text-primary">
-              {product.name}
-            </h3>
-
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {product.description}
-            </p>
-
-            <p className="text-lg font-semibold text-primary">
-              {formatPrice(product.priceInCents)}
-            </p>
-          </div>
-
-        </CardContent>
-      </Card>
-    </Link>
-  );
-            }
-      
+<ProductCard
+  product={{
+    id: "3",
+    name: "Écharpe Eryos",
+    description: "Version luxe haute qualité",
+    priceInCents: 3990,
+    images: [
+      "https://via.placeholder.com/300x300?text=Produit+3A"
+    ],
+    inStock: true,
+    category: "accessoires"
+  }}
+/>
