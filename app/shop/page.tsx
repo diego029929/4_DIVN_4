@@ -1,5 +1,5 @@
 import { Header } from "@/components/header";
-import { SideMenu } from "@/components/side-menu";
+import SideMenu from "@/components/side-menu";
 import { ProductCard } from "@/components/product-card";
 
 export default function ShopPage() {
@@ -34,40 +34,47 @@ export default function ShopPage() {
 
       {/* PRODUITS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-16">
+        
         <ProductCard
-          title="Écharpe Solis"
-          price="29,90"
-          images={[
-            "https://via.placeholder.com/300x300?text=Produit+1A",
-            "https://via.placeholder.com/300x300?text=Produit+1B",
-            "https://via.placeholder.com/300x300?text=Produit+1C",
-            "https://via.placeholder.com/300x300?text=Produit+1D",
-          ]}
+          product={{
+            id: "1",
+            name: "Écharpe Solis",
+            description: "Écharpe chaude et élégante",
+            priceInCents: 2990,
+            images: [
+              "https://via.placeholder.com/300x300?text=Produit+1A"
+            ],
+            inStock: true
+          }}
         />
 
         <ProductCard
-          title="Écharpe Veyra"
-          price="25,99"
-          images={[
-            "https://via.placeholder.com/300x300?text=Produit+2A",
-            "https://via.placeholder.com/300x300?text=Produit+2B",
-            "https://via.placeholder.com/300x300?text=Produit+2C",
-            "https://via.placeholder.com/300x300?text=Produit+2D",
-          ]}
+          product={{
+            id: "2",
+            name: "Écharpe Veyra",
+            description: "Modèle doux et premium",
+            priceInCents: 2599,
+            images: [
+              "https://via.placeholder.com/300x300?text=Produit+2A"
+            ],
+            inStock: true
+          }}
         />
 
         <ProductCard
-          title="Écharpe Eryos"
-          price="39,90"
-          images={[
-            "https://via.placeholder.com/300x300?text=Produit+3A",
-            "https://via.placeholder.com/300x300?text=Produit+3B",
-            "https://via.placeholder.com/300x300?text=Produit+3C",
-            "https://via.placeholder.com/300x300?text=Produit+3D",
-          ]}
+          product={{
+            id: "3",
+            name: "Écharpe Eryos",
+            description: "Version luxe haute qualité",
+            priceInCents: 3990,
+            images: [
+              "https://via.placeholder.com/300x300?text=Produit+3A"
+            ],
+            inStock: true
+          }}
         />
+
       </div>
     </main>
   );
-      }
-          
+}
