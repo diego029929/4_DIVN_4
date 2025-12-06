@@ -143,7 +143,7 @@ header {
 .product-slider img {
   width: 100%;
   display: none;
-  border-radius: 10px;
+  border-radius: 12px;
   transition: opacity 0.5s ease;
 }
 
@@ -197,7 +197,7 @@ header {
   left: -100%;
   width: 60%;
   height: 100%;
-  background: rgba(20, 20, 20, 0.95);
+  background: #111; /* même style sombre */
   backdrop-filter: blur(12px);
   transition: left 0.3s ease;
   z-index: 1100;
@@ -223,6 +223,7 @@ header {
   font-size: 2rem;
   cursor: pointer;
   margin-bottom: 20px;
+  color: #f5f5f5;
 }
 
 .side-menu ul {
@@ -290,4 +291,4 @@ header {
 
 .social-links a:hover {
   transform: scale(1.2);
-}
+  }
