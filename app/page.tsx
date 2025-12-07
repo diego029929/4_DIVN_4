@@ -3,8 +3,6 @@ import { ProductCard } from "@/components/product-card";
 export default function ShopPage() {
   return (
     <main className="pt-20 bg-white min-h-screen">
-      <SideMenu />
-      <Header />
 
       {/* MAIN IMAGE */}
       <div className="w-full">
