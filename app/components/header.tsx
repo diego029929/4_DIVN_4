@@ -1,89 +1,78 @@
 "use client";
 
-import Link from "next/link";
-import { Search, Menu } from "lucide-react";
 import { useState } from "react";
-import dynamic from "next/dynamic";
+import Link from "next/link";
 
-const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
+export default function SideMenu() {
+  const [isOpen, setIsOpen] = useState(false);
 
-export function Header() {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [sideOpen, setSideOpen] = useState(false);
+  const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
     <>
-      {/* OVERLAY */}
-      <div
-        className={`overlay ${sideOpen ? "show" : ""}`}
-        onClick={() => setSideOpen(false)}
-      />
-
-      {/* SIDE MENU */}
-      <div className={`side-menu ${sideOpen ? "active" : ""}`}>
-        <div className="menu-content">
-
-          <div
-            className="side-menu-header"
-            onClick={() => setSideOpen(false)}
-          >
-            ×
-          </div>
-
-          <ul>
-            <li><Link href="/boutique">Boutique</Link></li>
-            <li><Link href="/boutique?category=homme">Homme</Link></li>
-            <li><Link href="/boutique?category=femme">Femme</Link></li>
-            <li><Link href="/boutique?category=accessoires">Accessoires</Link></li>
-            <li><Link href="/about">À propos</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
-          </ul>
-
-          <div className="social-links">
-            <a href="#"><i className="fa-brands fa-instagram" /></a>
-            <a href="#"><i className="fa-brands fa-tiktok" /></a>
-            <a href="#"><i className="fa-brands fa-twitter" /></a>
-          </div>
-        </div>
-      </div>
-
-      {/* HEADER */}
-      <header>
-
-        {/* BURGER MENU */}
-        <Menu
-          className="menu-burger"
-          onClick={() => setSideOpen(true)}
+      {/* Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={toggleMenu}
         />
+      )}
 
-        {/* SEARCH BAR */}
-        <div className={`search-bar ${searchOpen ? "active" : ""}`}>
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            onFocus={() => setSearchOpen(true)}
-            onBlur={() => setSearchOpen(false)}
-          />
-          <button>
-            <Search size={20} />
+      {/* Menu burger button */}
+      <button
+        className="fixed top-4 left-4 z-50 p-2 text-black bg-white rounded-md shadow-md"
+        onClick={toggleMenu}
+      >
+        <i className="fas fa-bars"></i>
+      </button>
+
+      {/* Side menu */}
+      <aside
+        className={`fixed top-0 left-0 h-full w-64 bg-white z-50 transform transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } shadow-lg`}
+      >
+        <div className="flex justify-between items-center p-4 border-b">
+          <h2 className="font-bold text-lg">Menu</h2>
+          <button onClick={toggleMenu} className="text-2xl font-bold">
+            &times;
           </button>
         </div>
 
-        {/* LOGO */}
-        <Link
-          href="/"
-          className="ml-3"
-          style={{ fontSize: "1.6rem", fontWeight: 600 }}
-        >
-          DIVN
-        </Link>
+        <nav className="p-4 space-y-4">
+          <Link href="#" className="flex items-center gap-2 hover:text-primary">
+            <i className="fas fa-box"></i> Tous nos produits
+          </Link>
+          <Link href="#" className="flex items-center gap-2 hover:text-primary">
+            <i className="fas fa-book-open"></i> L'histoire de DIVN
+          </Link>
+          <Link href="#" className="flex items-center gap-2 hover:text-primary">
+            <i className="fas fa-question-circle"></i> Besoin d'aide ?
+          </Link>
+          <Link href="#" className="flex items-center gap-2 hover:text-primary">
+            <i className="fas fa-users"></i> The FAM
+          </Link>
+          <Link href="#" className="flex items-center gap-2 hover:text-primary">
+            <i className="fas fa-ship"></i> L’équipage
+          </Link>
+          <Link href="#" className="flex items-center gap-2 hover:text-primary">
+            <i className="fas fa-user-plus"></i> Créer un compte
+          </Link>
+        </nav>
 
-        {/* CART */}
-        <div style={{ marginLeft: "auto" }}>
-          <HeaderCart />
+        <div className="p-4 flex gap-4 border-t">
+          <a href="https://www.tiktok.com" target="_blank" rel="noreferrer">
+            <i className="fab fa-tiktok text-xl"></i>
+          </a>
+          <a href="https://www.instagram.com" target="_blank" rel="noreferrer">
+            <i className="fab fa-instagram text-xl"></i>
+          </a>
+          <a href="https://www.twitter.com" target="_blank" rel="noreferrer">
+            <i className="fab fa-twitter text-xl"></i>
+          </a>
         </div>
-
-      </header>
+      </aside>
     </>
   );
-}
+            }
+            
