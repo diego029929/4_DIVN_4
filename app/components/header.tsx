@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 
@@ -17,11 +17,12 @@ export function Header() {
       <div
         className={`overlay ${sideOpen ? "show" : ""}`}
         onClick={() => setSideOpen(false)}
-      ></div>
+      />
 
       {/* SIDE MENU */}
       <div className={`side-menu ${sideOpen ? "active" : ""}`}>
         <div className="menu-content">
+
           <div
             className="side-menu-header"
             onClick={() => setSideOpen(false)}
@@ -48,7 +49,8 @@ export function Header() {
 
       {/* HEADER */}
       <header>
-        {/* MENU BURGER */}
+
+        {/* BURGER MENU */}
         <Menu
           className="menu-burger"
           onClick={() => setSideOpen(true)}
@@ -67,8 +69,12 @@ export function Header() {
           </button>
         </div>
 
-        {/* LOGO CENTRE */}
-        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>
+        {/* LOGO */}
+        <Link
+          href="/"
+          className="ml-3"
+          style={{ fontSize: "1.6rem", fontWeight: 600 }}
+        >
           DIVN
         </Link>
 
@@ -76,6 +82,7 @@ export function Header() {
         <div style={{ marginLeft: "auto" }}>
           <HeaderCart />
         </div>
+
       </header>
     </>
   );
