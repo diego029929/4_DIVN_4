@@ -1,5 +1,3 @@
-import { Header } from "@/components/header";
-import SideMenu from "@/components/side-menu";
 import { ProductCard } from "@/components/product-card";
 
 export default function ShopPage() {
