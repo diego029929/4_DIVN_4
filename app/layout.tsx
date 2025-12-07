@@ -1,4 +1,4 @@
-import "./globals.css";
+import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/context/cart-context";
 import { Header } from "@/components/header";
