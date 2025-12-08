@@ -64,7 +64,7 @@ export function Header() {
 
       {/* IMAGE PRINCIPALE */}
       <div className="main-image">
-        <img src="/luxury-fashion-dark-minimalist.jpg" alt="Image principale" />
+        <img src="image1jpg"pg" alt="Image principale" />
       </div>
     </>
   );
