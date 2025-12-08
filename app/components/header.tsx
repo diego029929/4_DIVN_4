@@ -1,3 +1,5 @@
+
+
 import Link from "next/link";
 import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -5,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
-export function Header() {
+export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sideOpen, setSideOpen] = useState(false);
 
@@ -15,7 +17,7 @@ export function Header() {
       <div
         className={`overlay ${sideOpen ? "show" : ""}`}
         onClick={() => setSideOpen(false)}
-      ></div>
+      />
 
       {/* SIDE MENU */}
       <aside className={`side-menu ${sideOpen ? "active" : ""}`}>
@@ -34,16 +36,19 @@ export function Header() {
           </ul>
 
           <div className="social-links">
-            <a href="#"><i className="fa-brands fa-instagram"></i></a>
-            <a href="#"><i className="fa-brands fa-tiktok"></i></a>
-            <a href="#"><i className="fa-brands fa-twitter"></i></a>
+            <a href="#"><i className="fa-brands fa-instagram" /></a>
+            <a href="#"><i className="fa-brands fa-tiktok" /></a>
+            <a href="#"><i className="fa-brands fa-twitter" /></a>
           </div>
         </div>
       </aside>
 
       {/* HEADER */}
       <header>
-        <Menu className="menu-burger" onClick={() => setSideOpen(true)} />
+        <Menu
+          className="menu-burger"
+          onClick={() => setSideOpen(true)}
+        />
 
         <div className={`search-bar ${searchOpen ? "active" : ""}`}>
           <input
@@ -52,7 +57,9 @@ export function Header() {
             onFocus={() => setSearchOpen(true)}
             onBlur={() => setSearchOpen(false)}
           />
-          <button><Search size={18} /></button>
+          <button>
+            <Search size={18} />
+          </button>
         </div>
 
         <Link href="/" className="logo">DIVN</Link>
@@ -64,8 +71,12 @@ export function Header() {
 
       {/* IMAGE PRINCIPALE */}
       <div className="main-image">
-        <img src="image1jpg"pg" alt="Image principale" />
+        <img
+          src="image1jpg"pg"
+          alt="Image principale"
+        />
       </div>
     </>
   );
-      }
+            }
+            
