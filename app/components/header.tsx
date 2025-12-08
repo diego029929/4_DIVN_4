@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -20,13 +18,10 @@ export function Header() {
       ></div>
 
       {/* SIDE MENU */}
-      <div className={`side-menu ${sideOpen ? "active" : ""}`}>
+      <aside className={`side-menu ${sideOpen ? "active" : ""}`}>
         <div className="menu-content">
-          <div
-            className="side-menu-header"
-            onClick={() => setSideOpen(false)}
-          >
-            ×
+          <div className="side-menu-header" onClick={() => setSideOpen(false)}>
+            <X size={30} />
           </div>
 
           <ul>
@@ -39,22 +34,17 @@ export function Header() {
           </ul>
 
           <div className="social-links">
-            <a href="#"><i className="fa-brands fa-instagram" /></a>
-            <a href="#"><i className="fa-brands fa-tiktok" /></a>
-            <a href="#"><i className="fa-brands fa-twitter" /></a>
+            <a href="#"><i className="fa-brands fa-instagram"></i></a>
+            <a href="#"><i className="fa-brands fa-tiktok"></i></a>
+            <a href="#"><i className="fa-brands fa-twitter"></i></a>
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* HEADER */}
       <header>
-        {/* MENU BURGER */}
-        <Menu
-          className="menu-burger"
-          onClick={() => setSideOpen(true)}
-        />
+        <Menu className="menu-burger" onClick={() => setSideOpen(true)} />
 
-        {/* SEARCH BAR */}
         <div className={`search-bar ${searchOpen ? "active" : ""}`}>
           <input
             type="text"
@@ -62,21 +52,20 @@ export function Header() {
             onFocus={() => setSearchOpen(true)}
             onBlur={() => setSearchOpen(false)}
           />
-          <button>
-            <Search size={20} />
-          </button>
+          <button><Search size={18} /></button>
         </div>
 
-        {/* LOGO CENTRE */}
-        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>
-          DIVN
-        </Link>
+        <Link href="/" className="logo">DIVN</Link>
 
-        {/* CART */}
-        <div style={{ marginLeft: "auto" }}>
+        <div className="cart-wrapper">
           <HeaderCart />
         </div>
       </header>
+
+      {/* IMAGE PRINCIPALE */}
+      <div className="main-image">
+        <img src="/luxury-fashion-dark-minimalist.jpg" alt="Image principale" />
+      </div>
     </>
   );
-}
+      }
