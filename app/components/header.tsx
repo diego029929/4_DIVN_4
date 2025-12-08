@@ -1,5 +1,4 @@
 
-
 import Link from "next/link";
 import { Search, Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -17,7 +16,7 @@ export default function Header() {
       <div
         className={`overlay ${sideOpen ? "show" : ""}`}
         onClick={() => setSideOpen(false)}
-      />
+      ></div>
 
       {/* SIDE MENU */}
       <aside className={`side-menu ${sideOpen ? "active" : ""}`}>
@@ -72,11 +71,11 @@ export default function Header() {
       {/* IMAGE PRINCIPALE */}
       <div className="main-image">
         <img
-          src="image1jpg"pg"
+          src="image1.jpg"
           alt="Image principale"
         />
       </div>
     </>
   );
-            }
-            
+      }
+      
