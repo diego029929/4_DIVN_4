@@ -7,40 +7,76 @@ import dynamic from "next/dynamic";
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
-export default function Header() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+export function Header() {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [sideOpen, setSideOpen] = useState(false);
 
   return (
-    <header className="header">
-      <div className="header-top">
-        <img src="/header-image.jpg" alt="Bannière" className="header-banner" />
-      </div>
+    <>
+      {/* OVERLAY */}
+      <div
+        className={`overlay ${sideOpen ? "show" : ""}`}
+        onClick={() => setSideOpen(false)}
+      ></div>
 
-      <div className="header-bar">
-        <button
-          className="menu-btn"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X size={26} /> : <Menu size={26} />}
-        </button>
+      {/* SIDE MENU */}
+      <div className={`side-menu ${sideOpen ? "active" : ""}`}>
+        <div className="menu-content">
+          <div
+            className="side-menu-header"
+            onClick={() => setSideOpen(false)}
+          >
+            ×
+          </div>
 
-        <Link href="/" className="logo">
-          MaBoutique
-        </Link>
+          <ul>
+            <li><Link href="/boutique">Boutique</Link></li>
+            <li><Link href="/boutique?category=homme">Homme</Link></li>
+            <li><Link href="/boutique?category=femme">Femme</Link></li>
+            <li><Link href="/boutique?category=accessoires">Accessoires</Link></li>
+            <li><Link href="/about">À propos</Link></li>
+            <li><Link href="/contact">Contact</Link></li>
+          </ul>
 
-        <div className="header-right">
-          <Search size={24} className="icon" />
-          <HeaderCart />
+          <div className="social-links">
+            <a href="#"><i className="fa-brands fa-instagram" /></a>
+            <a href="#"><i className="fa-brands fa-tiktok" /></a>
+            <a href="#"><i className="fa-brands fa-twitter" /></a>
+          </div>
         </div>
       </div>
 
-      {mobileOpen && (
-        <nav className="mobile-nav">
-          <Link href="/">Accueil</Link>
-          <Link href="/products">Produits</Link>
-          <Link href="/contact">Contact</Link>
-        </nav>
-      )}
-    </header>
+      {/* HEADER */}
+      <header>
+        {/* MENU BURGER */}
+        <Menu
+          className="menu-burger"
+          onClick={() => setSideOpen(true)}
+        />
+
+        {/* SEARCH BAR */}
+        <div className={`search-bar ${searchOpen ? "active" : ""}`}>
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            onFocus={() => setSearchOpen(true)}
+            onBlur={() => setSearchOpen(false)}
+          />
+          <button>
+            <Search size={20} />
+          </button>
+        </div>
+
+        {/* LOGO CENTRE */}
+        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>
+          DIVN
+        </Link>
+
+        {/* CART */}
+        <div style={{ marginLeft: "auto" }}>
+          <HeaderCart />
+        </div>
+      </header>
+    </>
   );
-}
+      }
