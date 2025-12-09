@@ -58,10 +58,10 @@ export function ProductCard({ product }: ProductCardProps) {
                 {formatPrice(product.priceInCents)}
               </p>
             </div>
+
           </CardContent>
         </Card>
       </motion.div>
     </Link>
   );
-        }
-                
+}
