@@ -37,8 +37,8 @@ export default function ShopPage() {
             name: "Écharpe Solis",
             description: "Écharpe chaude et élégante",
             priceInCents: 2990,
-            images: [
-              "https://via.placeholder.com/300x300?text=Produit+1A"
+            <img
+              src="@/image1.jpg"
             ],
             inStock: true,
             category: "femme", // catégorie valide
