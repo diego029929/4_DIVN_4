@@ -61,6 +61,11 @@ export function ProductCard({ product }: ProductCardProps) {
                 {formatPrice(product.priceInCents)}
               </p>
             </div>
+            <Link href={`/product/${product.id}`}>
+  <div className="card-glow">
+    <Card className="group overflow-hidden border border-border/40 bg-card transition-all duration-300 hover:border-primary/50">
+      <CardContent className="p-0">
+        
           </CardContent>
         </Card>
       </motion.div>
