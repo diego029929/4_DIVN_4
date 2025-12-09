@@ -1,6 +1,6 @@
 "use client";
 
-import  Header  from "@/components/header"
+import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { getProductById } from "@/lib/products"
 import { notFound } from "next/navigation"
