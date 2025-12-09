@@ -2,8 +2,8 @@ import { ProductCard } from "@/components/product-card";
 
 export default function ShopPage() {
   return (
-<main className="pt-20 bg-black min-h-screen text-white">
-
+<main className="pt-20 bg-neutral-900 min-h-screen text-white">
+  
       {/* MAIN IMAGE */}
       <div className="w-full">
         <img
