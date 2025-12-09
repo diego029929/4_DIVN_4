@@ -9,7 +9,7 @@ export default function ShopPage() {
       <div className="w-full">
         <img
           src="image1.jpg"
-          className="w-full h-64 md:h-96 object-cover"
+          className="w-full h-154 md:h-96 object-cover"
           alt="Image principale"
         />
       </div>
