@@ -7,7 +7,7 @@ export default function ShopPage() {
       {/* MAIN IMAGE */}
       <div className="w-full">
         <img
-          src="@/image1.jpg"
+          src="/image1.jpg"
           className="w-full h-64 object-cover"
         />
       </div>
@@ -30,18 +30,16 @@ export default function ShopPage() {
 
       {/* PRODUITS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-16">
-
+        
         <ProductCard
           product={{
             id: "1",
             name: "Écharpe Solis",
             description: "Écharpe chaude et élégante",
             priceInCents: 2990,
-            <img
-              src="@/image1.jpg"
-            ],
+            images: ["/image1.jpg"],
             inStock: true,
-            category: "femme", // catégorie valide
+            category: "femme",
           }}
         />
 
@@ -76,5 +74,4 @@ export default function ShopPage() {
       </div>
     </main>
   );
-      }
-            
+}
