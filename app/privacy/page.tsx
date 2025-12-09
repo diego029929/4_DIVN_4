@@ -1,6 +1,6 @@
 "use client";
 
-import  Header  from "@/components/header";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/context/cart-context";
 export const dynamic = "force-dynamic";
