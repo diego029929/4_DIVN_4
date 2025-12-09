@@ -1,6 +1,6 @@
 "use client";
 
-import  Header  from "@/components/header";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartContent } from "@/components/cart-content";
 
