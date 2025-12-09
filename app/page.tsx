@@ -2,7 +2,7 @@ import { ProductCard } from "@/components/product-card";
 
 export default function ShopPage() {
   return (
-    <main className="pt-20 bg-neutral-100 min-h-screen">
+<main className="pt-20 bg-gray-100 min-h-screen">
 
       {/* MAIN IMAGE */}
       <div className="w-full">
