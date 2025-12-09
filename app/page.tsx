@@ -7,7 +7,7 @@ export default function ShopPage() {
       {/* MAIN IMAGE */}
       <div className="w-full">
         <img
-          src="/image1.jpg"
+          src="./image1.jpg"
           className="w-full h-64 object-cover"
         />
       </div>
@@ -37,7 +37,7 @@ export default function ShopPage() {
             name: "Écharpe Solis",
             description: "Écharpe chaude et élégante",
             priceInCents: 2990,
-            images: ["/image1.jpg"],
+            images: ["image1.jpg"],
             inStock: true,
             category: "femme",
           }}
