@@ -7,7 +7,7 @@ export default function ShopPage() {
       {/* MAIN IMAGE */}
       <div className="w-full">
         <img
-          src="./image1.jpg"
+          src="image1.jpg"
           className="w-full h-64 object-cover"
         />
       </div>
