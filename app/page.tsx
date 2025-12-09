@@ -18,8 +18,6 @@ export default function ShopPage() {
           href="/"
           className="px-4 py-2 bg-black text-white rounded-lg"
         >
-          Accueil
-        </a>
 
         <select className="border p-2 rounded-lg">
           <option>Pertinence</option>
