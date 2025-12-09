@@ -1,6 +1,6 @@
 "use client";
 
-import  Header  from "@/components/header";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/context/cart-context";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
