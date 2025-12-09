@@ -16,8 +16,7 @@ export default function BoutiquePage({ searchParams }: any) {
     <CartProvider>
       <div className="min-h-screen flex flex-col">
         <Header />
-
-        <main className="flex-1 container mx-auto px-4 py-8">
+        <main className="pt-20 bg-black min-h-screen text-white">
           <h1 className="text-3xl font-bold mb-6">{category}</h1>
           <ProductsGrid />
         </main>
