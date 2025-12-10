@@ -62,10 +62,10 @@ export default function ShopPage() {
         />
 
         <ProductCard
-       Accessoires{{
+          product={{
             id: "4",
             name: "Echarpe Oslo",
-            description:"Cconfortet confort avec",
+            description: "Confort et chaleur premium",
             priceInCents: 4990,
             images: ["https://via.placeholder.com/300x300?text=Produit+4A"],
             inStock: true,
@@ -77,15 +77,16 @@ export default function ShopPage() {
           product={{
             id: "5",
             name: "Écharpe Liora",
-            description:"Design élégant et intemporel",
+            description: "Design élégant et intemporel",
             priceInCents: 2990,
             images: ["https://via.placeholder.com/300x300?text=Produit+5A"],
-            inStock: truecessoiressoirescessoires",
+            inStock: true,
+            category: "accessoires",
           }}
         />
 
       </div>
     </main>
   );
-        }
-              
+          }
+            
