@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { CartProvider } from "@/context/cart-context";
+import { CartProvider } from "@/components/cart-provider";
 export const dynamic = "force-dynamic";
 
 export default function PrivacyPage() {
