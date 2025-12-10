@@ -33,19 +33,19 @@ export default function ShopPage() {
             priceInCents: 2990,
             images: ["image1.jpg"],
             inStock: true,
-            category: "Accessoires",
+            category: "accessoires",
           }}
         />
 
         <ProductCard
           product={{
             id: "2",
-            name: "Écharpe Veyra",
+            name: "Écharpe chaleurur",
             description: "Modèle doux et premium",
             priceInCents: 2599,
             images: ["https://via.placeholder.com/300x300?text=Produit+2A"],
             inStock: true,
-            category: "Accessoires",
+            category: "accessoires",
           }}
         />
 
@@ -57,15 +57,15 @@ export default function ShopPage() {
             priceInCents: 3990,
             images: ["https://via.placeholder.com/300x300?text=Produit+3A"],
             inStock: true,
-            category: "Accessoires",
+            category: "accessoires",
           }}
         />
 
         <ProductCard
-          product={{
+       Accessoires{{
             id: "4",
-            name: "Écharpe Oslo",
-            description: "Version luxe haute qualité",
+            name: "Echarpe Oslo",
+            description:"Cconfortet confort avec",
             priceInCents: 4990,
             images: ["https://via.placeholder.com/300x300?text=Produit+4A"],
             inStock: true,
@@ -77,11 +77,10 @@ export default function ShopPage() {
           product={{
             id: "5",
             name: "Écharpe Liora",
-            description: "Version luxe haute qualité",
-            priceInCents: 3990,
+            description:"Design élégant et intemporel",
+            priceInCents: 2990,
             images: ["https://via.placeholder.com/300x300?text=Produit+5A"],
-            inStock: true,
-            category: "Accessoires",
+            inStock: truecessoiressoirescessoires",
           }}
         />
 
