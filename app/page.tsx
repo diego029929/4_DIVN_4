@@ -1,16 +1,45 @@
+import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/product-card";
 
 export default function ShopPage() {
+
+  // Image au début, vidéo ensuite
+  const [showVideo, setShowVideo] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowVideo(true);
+    }, 2000); // 2 secondes avant la vidéo
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Quand la vidéo se termine → on revient à l'image
+  const handleVideoEnd = () => {
+    setShowVideo(false);
+  };
+
   return (
     <main className="pt-20 bg-neutral-900 min-h-screen text-white">
 
-      {/* IMAGE PRINCIPALE */}
+      {/* IMAGE / VIDEO AVEC RETOUR A L'IMAGE */}
       <div className="w-full">
-        <img
-          src="image1.jpg"
-          className="w-full h-154 md:h-96 object-cover"
-          alt="Image principale"
-        />
+        {!showVideo ? (
+          <img
+            src="image1.jpg"
+            className="w-full h-154 md:h-96 object-cover"
+            alt="Image principale"
+          />
+        ) : (
+          <video
+            src="/video.mp4"
+            className="w-full h-154 md:h-96 object-cover"
+            autoPlay
+            muted
+            playsInline
+            onEnded={handleVideoEnd}   // ⬅ REVIENT À L’IMAGE
+          />
+        )}
       </div>
 
       {/* TRI */}
@@ -64,7 +93,7 @@ export default function ShopPage() {
         <ProductCard
           product={{
             id: "4",
-            name: "Echarpe Oslo",
+            name: "Écharpe Oslo",
             description: "Confort et chaleur premium",
             priceInCents: 4990,
             images: ["https://via.placeholder.com/300x300?text=Produit+4A"],
@@ -88,5 +117,4 @@ export default function ShopPage() {
       </div>
     </main>
   );
-          }
-            
+            }
