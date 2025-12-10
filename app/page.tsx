@@ -1,4 +1,3 @@
-
 import { ProductCard } from "@/components/product-card";
 
 export default function ShopPage() {
@@ -25,6 +24,7 @@ export default function ShopPage() {
 
       {/* GRILLE DE PRODUITS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-4 pb-16">
+
         <ProductCard
           product={{
             id: "1",
@@ -60,28 +60,33 @@ export default function ShopPage() {
             category: "Accessoires",
           }}
         />
-       <ProductCard
+
+        <ProductCard
           product={{
-            id: "3",
+            id: "4",
             name: "Écharpe Oslo",
             description: "Version luxe haute qualité",
             priceInCents: 4990,
-            images: ["https://via.placeholder.com/300x300?text=Produit+3A"],
-            inStock: true,
-            category:"Accessoires"femme          }}
-        />
-        
-        <ProductCard
-          product={{
-            id: "3",
-            name: "Écharpe Liora",         
-            description: "Version luxe haute qualité",
-            priceInCents: 3990,
-            images: ["https://via.placeholder.com/300x300?text=Produit+3A"],
+            images: ["https://via.placeholder.com/300x300?text=Produit+4A"],
             inStock: true,
             category: "Accessoires",
           }}
         />
+
+        <ProductCard
+          product={{
+            id: "5",
+            name: "Écharpe Liora",
+            description: "Version luxe haute qualité",
+            priceInCents: 3990,
+            images: ["https://via.placeholder.com/300x300?text=Produit+5A"],
+            inStock: true,
+            category: "Accessoires",
+          }}
+        />
+
+      </div>
     </main>
   );
-}
+        }
+              
