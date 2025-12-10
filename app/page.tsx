@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/product-card";
 
@@ -14,7 +16,6 @@ export default function ShopPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Quand la vidéo se termine → on revient à l'image
   const handleVideoEnd = () => {
     setShowVideo(false);
   };
@@ -22,7 +23,7 @@ export default function ShopPage() {
   return (
     <main className="pt-20 bg-neutral-900 min-h-screen text-white">
 
-      {/* IMAGE / VIDEO AVEC RETOUR A L'IMAGE */}
+      {/* IMAGE → VIDEO → IMAGE */}
       <div className="w-full">
         {!showVideo ? (
           <img
@@ -37,7 +38,7 @@ export default function ShopPage() {
             autoPlay
             muted
             playsInline
-            onEnded={handleVideoEnd}   // ⬅ REVIENT À L’IMAGE
+            onEnded={handleVideoEnd}
           />
         )}
       </div>
@@ -117,4 +118,4 @@ export default function ShopPage() {
       </div>
     </main>
   );
-            }
+}
