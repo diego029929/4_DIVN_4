@@ -8,8 +8,14 @@ export function CartContent() {
     return <p className="text-lg">Votre panier est vide.</p>;
   }
 
-  // Calcul du total à la volée
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Calcul du total en centimes
+  const totalInCents = items.reduce(
+    (sum, item) => sum + item.priceInCents * item.quantity,
+    0
+  );
+
+  // Conversion en euros
+  const total = (totalInCents / 100).toFixed(2);
 
   return (
     <div className="space-y-6">
@@ -17,11 +23,11 @@ export function CartContent() {
 
       <ul className="space-y-4">
         {items.map((item) => (
-          <li key={item.id} className="flex justify-between border-b pb-2">
+          <li key={item.productId} className="flex justify-between border-b pb-2">
             <span>
               {item.name} × {item.quantity}
             </span>
-            <span>{item.price * item.quantity} €</span>
+            <span>{((item.priceInCents * item.quantity) / 100).toFixed(2)} €</span>
           </li>
         ))}
       </ul>
