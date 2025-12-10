@@ -69,7 +69,7 @@ export default function ShopPage() {
             priceInCents: 4990,
             images: ["https://via.placeholder.com/300x300?text=Produit+4A"],
             inStock: true,
-            category: "Accessoires",
+            category: "accessoires",
           }}
         />
 
