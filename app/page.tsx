@@ -33,7 +33,7 @@ export default function ShopPage() {
             priceInCents: 2990,
             images: ["image1.jpg"],
             inStock: true,
-            category: "femme",
+            category: "Accessoires",
           }}
         />
 
@@ -45,7 +45,7 @@ export default function ShopPage() {
             priceInCents: 2599,
             images: ["https://via.placeholder.com/300x300?text=Produit+2A"],
             inStock: true,
-            category: "femme",
+            category: "Accessoires",
           }}
         />
 
@@ -57,10 +57,31 @@ export default function ShopPage() {
             priceInCents: 3990,
             images: ["https://via.placeholder.com/300x300?text=Produit+3A"],
             inStock: true,
-            category: "femme",
+            category: "Accessoires",
           }}
         />
-      </div>
+       <ProductCard
+          product={{
+            id: "3",
+            name: "Écharpe Oslo",
+            description: "Version luxe haute qualité",
+            priceInCents: 4990,
+            images: ["https://via.placeholder.com/300x300?text=Produit+3A"],
+            inStock: true,
+            category:"Accessoires"femme          }}
+        />
+        
+        <ProductCard
+          product={{
+            id: "3",
+            name: "Écharpe Liora",         
+            description: "Version luxe haute qualité",
+            priceInCents: 3990,
+            images: ["https://via.placeholder.com/300x300?text=Produit+3A"],
+            inStock: true,
+            category: "Accessoires",
+          }}
+        />
     </main>
   );
 }
