@@ -1,6 +1,6 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
-import { CartProvider } from "@/context/cart-context";
+import { CartProvider } from "@/components/cart-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter } from "next/font/google";
