@@ -8,13 +8,12 @@ export function CheckoutContent() {
     return <p className="text-lg">Votre panier est vide.</p>;
   }
 
-  // Calcul du total à la volée avec arrondi
-  const total = items.reduce(
-    (sum, item) => sum + Math.round(item.price * item.quantity * 100) / 100,
+  // Calcul du total depuis priceInCents
+  const totalInCents = items.reduce(
+    (sum, item) => sum + item.priceInCents * item.quantity,
     0
   );
 
-  // Formatage en euros
   const formatter = new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "EUR",
@@ -26,19 +25,24 @@ export function CheckoutContent() {
 
       <ul className="space-y-4">
         {items.map((item) => (
-          <li key={item.id} className="flex justify-between border-b pb-2">
+          <li
+            key={item.productId}
+            className="flex justify-between border-b pb-2"
+          >
             <span>
               {item.name} × {item.quantity}
             </span>
-            <span>{formatter.format(item.price * item.quantity)}</span>
+            <span>
+              {formatter.format((item.priceInCents * item.quantity) / 100)}
+            </span>
           </li>
         ))}
       </ul>
 
       <div className="text-xl font-bold flex justify-between pt-4 border-t">
         <span>Total :</span>
-        <span>{formatter.format(total)}</span>
+        <span>{formatter.format(totalInCents / 100)}</span>
       </div>
     </div>
   );
-            }
+}
