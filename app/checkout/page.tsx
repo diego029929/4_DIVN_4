@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { CartProvider } from "@/context/cart-context";
+import { CartProvider } from "@/components/cart-provider";
 import { CheckoutForm } from "@/components/checkout-form";
 
 export default function CheckoutPage() {
