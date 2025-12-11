@@ -1,17 +1,14 @@
-"use client"
-
 import { getProductById } from "@/lib/products";
 import { notFound } from "next/navigation";
 import { AddToCartForm } from "@/components/add-to-cart-form";
 import Image from "next/image";
 
-export default function ProductPage({
-  params,
-}: {
+interface ProductPageProps {
   params: { id: string };
-}) {
-  const { id } = params;
-  const product = getProductById(id);
+}
+
+export default function ProductPage({ params }: ProductPageProps) {
+  const product = getProductById(params.id);
 
   if (!product) {
     notFound();
