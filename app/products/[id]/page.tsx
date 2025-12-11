@@ -1,5 +1,6 @@
-import { getProductById } from "@/lib/products";
-import { notFound } from "next/navigation";
+"use client"
+
+import { getProductById } from "@/lib/products";importt { notFound } from "next/navigation";
 import { AddToCartForm } from "@/components/add-to-cart-form";
 import Image from "next/image";
 
