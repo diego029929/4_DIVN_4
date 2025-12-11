@@ -34,7 +34,7 @@ export default function ShopPage() {
         ) : (
           <video
             src="/video.mp4"
-            className="w-full h-90 md:h-96 object-cover"
+            className="w-full h-84 md:h-96 object-cover"
             autoPlay
             muted
             playsInline
