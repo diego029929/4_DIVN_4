@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { CartContent } from "@/components/cart-content";
 
 // Empêche toute tentative de prerender côté serveur
@@ -19,15 +17,9 @@ export default function CartPage() {
   if (!mounted) return null; // ⛔ Rien côté serveur → safe build
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-
-      <main className="flex-1 container mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
-        <CartContent />
-      </main>
-
-      <Footer />
-    </div>
+    <main className="flex-1 container mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
+      <CartContent />
+    </main>
   );
 }
