@@ -3,11 +3,7 @@ import { notFound } from "next/navigation";
 import { AddToCartForm } from "@/components/add-to-cart-form";
 import Image from "next/image";
 
-interface ProductPageProps {
-  params: { id: string };
-}
-
-export default function ProductPage({ params }: ProductPageProps) {
+export default function ProductPage({ params }: any) {
   const product = getProductById(params.id);
 
   if (!product) {
@@ -59,4 +55,5 @@ export default function ProductPage({ params }: ProductPageProps) {
       </div>
     </main>
   );
-}
+            }
+            
