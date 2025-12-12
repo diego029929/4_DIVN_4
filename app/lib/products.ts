@@ -1,6 +1,6 @@
 // types et interface
 export interface Product {
-  id: 1
+  id: number 
   name: string
   description: string
   priceInCents: number
