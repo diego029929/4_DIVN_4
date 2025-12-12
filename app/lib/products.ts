@@ -1,58 +1,37 @@
-import { getProductById } from "@/data/products";
-import Image from "next/image";
-import { notFound } from "next/navigation";
-
-interface PageProps {
-  params: {
-    id: string;
-  };
+// types et interface
+export interface Product {
+  id: string
+  name: string
+  description: string
+  priceInCents: number
+  category: "homme" | "femme" | "accessoires"
+  images: string[]
+  sizes?: string[]
+  inStock: boolean
+  featured?: boolean
 }
 
-export default function ProductPage({ params }: PageProps) {
-  const product = getProductById(params.id);
+// liste des produits
+export const PRODUCTS: Product[] = [
+  // (tes produits ici, exactement comme tu m’as envoyé)
+]
 
-  if (!product) {
-    return notFound();
-  }
+// fonctions utilitaires
+export function getProductById(id: string): Product | undefined {
+  return PRODUCTS.find((p) => p.id === id)
+}
 
-  return (
-    <div className="max-w-5xl mx-auto p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-        <div>
-          <Image
-            src={product.images[0]}
-            alt={product.name}
-            width={600}
-            height={600}
-            className="rounded-xl object-cover"
-          />
-        </div>
+export function getProductsByCategory(category: string): Product[] {
+  return PRODUCTS.filter((p) => p.category === category)
+}
 
-        <div>
-          <h1 className="text-3xl font-bold">{product.name}</h1>
-          <p className="mt-4 text-gray-600">{product.description}</p>
+export function getFeaturedProducts(): Product[] {
+  return PRODUCTS.filter((p) => p.featured)
+}
 
-          <p className="text-2xl font-semibold mt-6">
-            {(product.priceInCents / 100).toFixed(2)} €
-          </p>
-
-          {product.sizes?.length ? (
-            <div className="mt-6">
-              <h3 className="font-semibold mb-2">Tailles disponibles</h3>
-              <div className="flex gap-3">
-                {product.sizes.map((size) => (
-                  <span
-                    key={size}
-                    className="px-4 py-2 rounded-lg border cursor-pointer hover:bg-gray-100"
-                  >
-                    {size}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
+export function formatPrice(priceInCents: number): string {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  }).format(priceInCents / 100)
 }
