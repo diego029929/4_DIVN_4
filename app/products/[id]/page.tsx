@@ -1,7 +1,5 @@
-import { getProductById } from "@/lib/products";
+import { getProductById, formatPrice } from "@/lib/products";
 import { notFound } from "next/navigation";
-import Image from "next/image";
-import { AddToCartForm } from "@/components/add-to-cart-form";
 
 export default function ProductPage({ params }: { params: { id: string } }) {
   const product = getProductById(params.id);
@@ -9,19 +7,11 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   if (!product) return notFound();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 gap-12">
-          <div>
-            <Image src={product.images[0] || "/placeholder.svg"} alt={product.name} width={500} height={500} />
-          </div>
-          <div>
-            <h1>{product.name}</h1>
-            <p>{product.description}</p>
-            <AddToCartForm product={product} />
-          </div>
-        </div>
-      </main>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold">{product.name}</h1>
+      <p className="text-gray-600">{product.description}</p>
+      <p className="text-xl font-semibold mt-4">{formatPrice(product.priceInCents)}</p>
+      <img src={product.images[0]} className="mt-4 w-64 rounded-lg" />
     </div>
   );
 }
