@@ -8,9 +8,9 @@ import { Footer } from "@/components/footer"
 export default function ProductPage({
   params,
 }: {
-  params: { id: number }
+  params: { id: string } // <- toujours string
 }) {
-  const product = getProductById(params.id)
+  const product = getProductById(Number(params.id)) // <- conversion en number ici
 
   if (!product) {
     notFound()
