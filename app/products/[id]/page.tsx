@@ -8,7 +8,7 @@ import { Footer } from "@/components/footer"
 export default function ProductPage({
   params,
 }: {
-  params: { id: string }
+  params: { id: number }
 }) {
   const product = getProductById(params.id)
 
