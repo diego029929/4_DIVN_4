@@ -1,6 +1,6 @@
 // types et interface
 export interface Product {
-  id: number 
+  id: number
   name: string
   description: string
   priceInCents: number
@@ -13,11 +13,13 @@ export interface Product {
 
 // liste des produits
 export const PRODUCTS: Product[] = [
-  // (tes produits ici, exactement comme tu m’as envoyé)
+  { id: 1, name: "T-Shirt Premium Noir", description: "T-shirt en coton premium...", priceInCents: 4900, category: "homme", images: ["/premium-black-tshirt-minimalist.jpg"], sizes: ["S","M","L","XL"], inStock: true, featured: true },
+  { id: 2, name: "Hoodie Gold Edition", description: "Sweat à capuche exclusif...", priceInCents: 8900, category: "homme", images: ["/black-hoodie-with-gold-accents.jpg"], sizes: ["S","M","L","XL","XXL"], inStock: true, featured: true },
+  // ... continue pour tous les produits
 ]
 
 // fonctions utilitaires
-export function getProductById(id: string): Product | undefined {
+export function getProductById(id: number): Product | undefined {
   return PRODUCTS.find((p) => p.id === id)
 }
 
