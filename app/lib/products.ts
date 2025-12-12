@@ -1,5 +1,6 @@
+// products.ts
 export interface Product {
-  id: string; // RESTE string ici
+  id: string;
   name: string;
   description: string;
   priceInCents: number;
@@ -12,8 +13,7 @@ export interface Product {
 
 export const PRODUCTS: Product[] = [
   { id: "1", name: "Écharpe Solis", description: "Écharpe chaude et élégante", priceInCents: 2990, category: "accessoires", images: ["image1.jpg"], inStock: true },
-  { id: "2", name: "Écharpe chaleurur", description: "Modèle doux et premium", priceInCents: 2599, category: "accessoires", images: ["image2.jpg"], inStock: true },
-  // ...etc
+  // ...autres produits
 ];
 
 export function getProductById(id: string): Product | undefined {
