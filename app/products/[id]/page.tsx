@@ -8,7 +8,7 @@ export default async function ProductPage({
 }) {
   const { id } = await params;
 
-  const product = getProductById(Number(id));
+  const product = getProductById(id); // <-- ici on enlève Number()
 
   if (!product) {
     return (
