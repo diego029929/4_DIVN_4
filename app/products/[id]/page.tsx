@@ -5,12 +5,13 @@ import { AddToCartForm } from "@/components/add-to-cart-form"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 
-export default function ProductPage({
+export default async function ProductPage({
   params,
 }: {
-  params: { id: string } // <- toujours string
+  params: { id: string } // Next.js passe toujours un string
 }) {
-  const product = getProductById(Number(params.id)) // <- conversion en number ici
+  // Convertir id en number
+  const product = getProductById(Number(params.id))
 
   if (!product) {
     notFound()
