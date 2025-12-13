@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CartContent } from "@/components/cart-content";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react"; // si tu utilises next-auth
+import { useSession } from "next-auth/react";
+import { CartContent } from "@/components/cart-content";
 
 export const dynamic = "force-dynamic";
 
@@ -11,8 +11,9 @@ export default function CartPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { data: session } = useSession(); // récupère l'utilisateur connecté
+  const { data: session } = useSession();
 
+  // Assurer que le composant est rendu côté client
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -21,14 +22,14 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (!session?.user?.email) {
-      // utilisateur non connecté → redirige vers login
-      router.push("/login");
+      router.push("/login"); // Redirige vers la page de connexion si pas connecté
       return;
     }
 
     setLoading(true);
+
     try {
-      const res = await fetch("/api/checkout", {
+      const response = await fetch("/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,15 +37,16 @@ export default function CartPage() {
         body: JSON.stringify({ email: session.user.email }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
+
       if (data.url) {
-        window.location.href = data.url; // redirection vers Stripe
+        window.location.href = data.url; // Redirection vers Stripe
       } else {
-        alert("Erreur lors de la création de la session de paiement.");
+        alert("Impossible de créer la session de paiement.");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Erreur lors du paiement.");
+    } catch (error) {
+      console.error(error);
+      alert("Une erreur est survenue lors du paiement.");
     } finally {
       setLoading(false);
     }
