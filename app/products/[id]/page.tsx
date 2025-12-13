@@ -2,26 +2,30 @@ import Image from "next/image";
 import { getProductById, formatPrice } from "@/lib/products";
 import { AddToCartForm } from "@/components/add-to-cart-form";
 
-export default function ProductPage({
+export default async function ProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const product = getProductById(params.id);
+  const { id } = await params;
+  const product = getProductById(id);
 
   if (!product) {
     return (
-      <main className="pt-32 pb-32 text-center text-white">
+      <main className="pt-32 pb-32 text-white text-center">
         <h1 className="text-3xl font-semibold">Produit introuvable</h1>
+        <p className="text-neutral-400 mt-4">
+          Ce produit n’est plus disponible.
+        </p>
       </main>
     );
   }
 
   return (
-    <main className="pt-24 pb-32 px-6 max-w-7xl mx-auto text-white">
+    <main className="pt-28 pb-32 px-6 max-w-7xl mx-auto text-white">
       <div className="grid lg:grid-cols-2 gap-20 items-start">
 
-        {/* GALERIE MULTI-IMAGES (CSS only) */}
+        {/* GALERIE */}
         <div className="space-y-4">
           <div className="relative aspect-[3/4] rounded-3xl overflow-hidden bg-neutral-900">
             <Image
@@ -32,9 +36,8 @@ export default function ProductPage({
               className="object-cover transition-transform duration-700 hover:scale-105"
             />
 
-            {/* BADGE LUXE */}
-            <span className="absolute top-4 left-4 bg-black/70 backdrop-blur px-4 py-1 text-xs uppercase tracking-widest rounded-full">
-              Édition limitée
+            <span className="absolute top-4 left-4 bg-black/70 backdrop-blur px-4 py-1 text-xs tracking-widest rounded-full">
+              COLLECTION
             </span>
           </div>
 
@@ -58,7 +61,7 @@ export default function ProductPage({
           )}
         </div>
 
-        {/* INFOS PRODUIT */}
+        {/* INFOS */}
         <div className="flex flex-col gap-10">
 
           {/* TITRE */}
@@ -81,23 +84,16 @@ export default function ProductPage({
             {product.description}
           </p>
 
-          {/* TAILLES CLIQUABLES (CSS ONLY) */}
-          {product.sizes && (
+          {/* TAILLES */}
+          {product.sizes && product.sizes.length > 0 && (
             <div>
               <p className="text-sm text-neutral-400 mb-4">
-                Choisir une taille
+                Sélectionner une taille
               </p>
               <div className="flex flex-wrap gap-3">
                 {product.sizes.map((size) => (
-                  <label
-                    key={size}
-                    className="cursor-pointer"
-                  >
-                    <input
-                      type="radio"
-                      name="size"
-                      className="peer hidden"
-                    />
+                  <label key={size} className="cursor-pointer">
+                    <input type="radio" name="size" className="peer hidden" />
                     <span className="px-6 py-2 rounded-full border border-neutral-600 text-sm transition
                       peer-checked:bg-white peer-checked:text-black
                       hover:border-white">
@@ -112,12 +108,12 @@ export default function ProductPage({
           {/* PANIER */}
           <AddToCartForm product={product} />
 
-          {/* INFOS PREMIUM */}
+          {/* INFOS BAS */}
           <div className="border-t border-neutral-800 pt-8 grid grid-cols-2 gap-6 text-sm text-neutral-400">
             <p>✓ Livraison offerte dès 100€</p>
             <p>✓ Retours sous 30 jours</p>
-            <p>✓ Fabrication premium</p>
             <p>✓ Paiement sécurisé</p>
+            <p>✓ Qualité premium</p>
           </div>
         </div>
       </div>
