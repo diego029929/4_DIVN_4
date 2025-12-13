@@ -16,36 +16,53 @@ export default function CartPage() {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // rien côté serveur
+  if (!mounted) return null; // ⛔ évite tout SSR / prerender
 
   const handleCheckout = async () => {
-    // Vérifie si l'utilisateur est connecté
-    const res = await fetch("/api/check-session"); // à créer côté API
-    const data = await res.json();
-
-    if (!data.loggedIn) {
-      // redirige vers login si non connecté
-      router.push("/login");
-      return;
-    }
-
+    if (loading) return; // ⛔ évite double clic
     setLoading(true);
+
     try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.userEmail }),
+      // 1️⃣ Vérifier la session utilisateur
+      const sessionRes = await fetch("/api/check-session", {
+        method: "GET",
+        cache: "no-store",
       });
 
-      const checkoutData = await res.json();
-      if (checkoutData.url) {
-        window.location.href = checkoutData.url;
-      } else {
-        alert("Erreur lors de la création de la session de paiement.");
+      if (!sessionRes.ok) {
+        throw new Error("Session check failed");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Erreur lors du paiement.");
+
+      const sessionData = await sessionRes.json();
+
+      if (!sessionData.loggedIn) {
+        router.push("/login");
+        return;
+      }
+
+      // 2️⃣ Créer la session Stripe
+      const checkoutRes = await fetch("/api/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!checkoutRes.ok) {
+        throw new Error("Checkout creation failed");
+      }
+
+      const checkoutData = await checkoutRes.json();
+
+      if (!checkoutData.url) {
+        throw new Error("No checkout URL returned");
+      }
+
+      // 3️⃣ Redirection Stripe
+      window.location.href = checkoutData.url;
+    } catch (error) {
+      console.error("[CART_CHECKOUT_ERROR]", error);
+      alert("Une erreur est survenue lors du paiement. Réessaie.");
     } finally {
       setLoading(false);
     }
@@ -54,15 +71,17 @@ export default function CartPage() {
   return (
     <main className="flex-1 container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
+
       <CartContent />
 
-      <div className="mt-8">
+      <div className="mt-10 flex justify-end">
         <button
           onClick={handleCheckout}
           disabled={loading}
-          className="px-6 py-3 bg-black text-white font-bold rounded hover:bg-gray-800 disabled:opacity-50"
+          className="px-8 py-4 bg-black text-white font-bold rounded-lg
+                     hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? "Chargement..." : "Payer maintenant"}
+          {loading ? "Redirection..." : "Payer maintenant"}
         </button>
       </div>
     </main>
