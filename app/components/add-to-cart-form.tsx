@@ -3,9 +3,15 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/components/cart-provider"
-import { type Product, formatPrice } from "@/lib/products"
+import { type Product } from "@/lib/products"
 import { useToast } from "@/hooks/use-toast"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface AddToCartFormProps {
   product: Product
@@ -41,18 +47,20 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-3xl font-bold text-primary">{formatPrice(product.priceInCents)}</p>
-      </div>
 
+      {/* TAILLES */}
       {product.sizes && (
         <div className="space-y-2">
-          <label className="text-sm font-medium">Taille</label>
+          <label className="text-xs uppercase tracking-widest text-neutral-400">
+            Taille
+          </label>
+
           <Select value={selectedSize} onValueChange={setSelectedSize}>
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner une taille" />
+            <SelectTrigger className="bg-neutral-900 border-neutral-700 hover:border-neutral-500 transition">
+              <SelectValue placeholder="Choisir une taille" />
             </SelectTrigger>
-            <SelectContent>
+
+            <SelectContent className="bg-neutral-900 border-neutral-700">
               {product.sizes.map((size) => (
                 <SelectItem key={size} value={size}>
                   {size}
@@ -63,11 +71,32 @@ export function AddToCartForm({ product }: AddToCartFormProps) {
         </div>
       )}
 
-      <Button size="lg" className="w-full" onClick={handleAddToCart} disabled={!product.inStock}>
+      {/* BOUTON PANIER */}
+      <Button
+        size="lg"
+        className="
+          w-full
+          rounded-full
+          py-6
+          text-sm
+          uppercase
+          tracking-widest
+          bg-white
+          text-black
+          hover:bg-neutral-200
+          transition
+        "
+        onClick={handleAddToCart}
+        disabled={!product.inStock}
+      >
         {product.inStock ? "Ajouter au panier" : "Rupture de stock"}
       </Button>
 
-      {product.inStock && <p className="text-sm text-green-500">En stock - Expédition sous 48h</p>}
+      {product.inStock && (
+        <p className="text-xs text-green-500">
+          En stock — expédition sous 48h
+        </p>
+      )}
     </div>
   )
 }
