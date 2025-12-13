@@ -8,54 +8,50 @@ interface OrderItem {
   price: number
 }
 
-interface ManufacturerNotification {
+interface CustomerNotification {
   orderId: string
   customerEmail: string
   items: OrderItem[]
   totalAmount: number
-  orderDate: Date
+  estimatedDelivery: string
 }
 
-export async function notifyManufacturer(notification: ManufacturerNotification) {
-  const manufacturerEmail = process.env.MANUFACTURER_EMAIL || "fabricant@divn.com"
+export async function notifyCustomer(notification: CustomerNotification) {
+  const customerEmail = notification.customerEmail
 
   const itemsList = notification.items
     .map(
       (item) =>
-        `- ${item.productName} ${item.size ? `(Taille: ${item.size})` : ""} x ${item.quantity} - ${(item.price / 100).toFixed(2)}€`,
+        `- ${item.productName} ${item.size ? `(Taille: ${item.size})` : ""} x ${item.quantity} - ${(item.price / 100).toFixed(2)}€`
     )
     .join("\n")
 
   const emailBody = `
-Nouvelle commande reçue sur DIVN
+Merci pour votre commande sur DIVN !
 
 Commande ID: ${notification.orderId}
-Date: ${notification.orderDate.toLocaleString("fr-FR")}
-Client: ${notification.customerEmail}
-
-Articles commandés:
+Produits commandés:
 ${itemsList}
 
 Montant total: ${(notification.totalAmount / 100).toFixed(2)}€
+Délai estimé de livraison: ${notification.estimatedDelivery}
 
----
-Veuillez préparer cette commande pour expédition.
+Nous vous remercions pour votre confiance.
   `.trim()
 
-  console.log("[v0] Manufacturer notification:")
-  console.log("To:", manufacturerEmail)
-  console.log("Subject:", `Nouvelle commande DIVN - ${notification.orderId}`)
+  console.log("[v0] Customer notification:")
+  console.log("To:", customerEmail)
+  console.log("Subject:", `Confirmation de commande DIVN - ${notification.orderId}`)
   console.log("Body:", emailBody)
 
   // En production, remplacer par un vrai service d'email (Resend, SendGrid, etc.)
-  // Exemple avec Resend:
   // const resend = new Resend(process.env.RESEND_API_KEY)
   // await resend.emails.send({
-  //   from: 'commandes@divn.com',
-  //   to: manufacturerEmail,
-  //   subject: `Nouvelle commande DIVN - ${notification.orderId}`,
+  //   from: 'contact@divn.com',
+  //   to: customerEmail,
+  //   subject: `Confirmation de commande DIVN - ${notification.orderId}`,
   //   text: emailBody,
   // })
 
-  return { success: true, message: "Fabricant notifié avec succès" }
+  return { success: true, message: "Client notifié avec succès" }
 }
