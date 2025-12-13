@@ -1,37 +1,48 @@
-"use client"; // ✅ assure que le composant est client-side
+
+"use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { CartContent } from "@/components/cart-content";
+import { useRouter } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // évite le rendu côté serveur
+  if (!mounted) return null; // rien côté serveur
 
   const handleCheckout = async () => {
-    if (!session?.user?.email) {
+    // Vérifie si l'utilisateur est connecté
+    const res = await fetch("/api/check-session"); // à créer côté API
+    const data = await res.json();
+
+    if (!data.loggedIn) {
+      // redirige vers login si non connecté
       router.push("/login");
       return;
     }
+
     setLoading(true);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: session.user.email }),
+        body: JSON.stringify({ email: data.userEmail }),
       });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else alert("Erreur lors de la création de la session Stripe.");
+
+      const checkoutData = await res.json();
+      if (checkoutData.url) {
+        window.location.href = checkoutData.url;
+      } else {
+        alert("Erreur lors de la création de la session de paiement.");
+      }
     } catch (err) {
       console.error(err);
       alert("Erreur lors du paiement.");
@@ -44,6 +55,7 @@ export default function CartPage() {
     <main className="flex-1 container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
       <CartContent />
+
       <div className="mt-8">
         <button
           onClick={handleCheckout}
