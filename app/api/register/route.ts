@@ -1,34 +1,42 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  const { email, password } = await req.json();
+  try {
+    const { email, password } = await req.json();
 
-  if (!email || !password) {
-    return NextResponse.json(
-      { message: "Champs manquants" },
-      { status: 400 }
-    );
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email et mot de passe requis" }, { status: 400 });
+    }
+
+    // Vérifie si l'utilisateur existe déjà
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return NextResponse.json({ error: "Utilisateur déjà existant" }, { status: 400 });
+    }
+
+    // Hash le mot de passe
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crée l'utilisateur
+    const user = await prisma.user.create({
+      data: { email, password: hashedPassword },
+    });
+
+    // Crée un cookie de session
+    cookies().set({
+      name: "user-email",
+      value: user.email,
+      httpOnly: true,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 jours
+    });
+
+    return NextResponse.json({ message: "Utilisateur créé avec succès" });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
-
-  const exists = await prisma.user.findUnique({ where: { email } });
-  if (exists) {
-    return NextResponse.json(
-      { message: "Email déjà utilisé" },
-      { status: 400 }
-    );
-  }
-
-  const hashed = await bcrypt.hash(password, 10);
-
-  await prisma.user.create({
-    data: { email, password: hashed },
-  });
-
-  const cookieStore = await cookies();
-  cookieStore.set("user-email", email, { httpOnly: true });
-
-  return NextResponse.json({ success: true });
 }
