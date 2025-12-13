@@ -1,18 +1,29 @@
-// app/api/login/route.ts
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt";
+import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { email } = body;
+  const { email, password } = await req.json();
 
-  if (!email) {
-    return NextResponse.json({ success: false }, { status: 400 });
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return NextResponse.json(
+      { message: "Identifiants invalides" },
+      { status: 401 }
+    );
   }
 
-  // Ici tu pourrais créer un cookie/session réelle
-  // Pour tester, on stocke juste l’email dans un cookie simulé
-  const response = NextResponse.json({ success: true });
-  response.cookies.set("user-email", email, { path: "/" });
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return NextResponse.json(
+      { message: "Identifiants invalides" },
+      { status: 401 }
+    );
+  }
 
-  return response;
+  const cookieStore = await cookies();
+  cookieStore.set("user-email", email, { httpOnly: true });
+
+  return NextResponse.json({ success: true });
 }
