@@ -64,6 +64,12 @@ export async function createCheckoutSession() {
     mode: "payment",
     metadata: {
       source: "divn-ecommerce",
+      cart: JSON.stringify(cartItems), // on garde tout le panier
+    },
+    payment_intent_data: {
+      transfer_data: {
+        destination: process.env.SUPPLIER_ACCOUNT_ID, // Paiement automatique au fournisseur
+      },
     },
   })
 
