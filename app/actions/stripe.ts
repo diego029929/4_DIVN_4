@@ -11,6 +11,7 @@ interface CartItem {
 }
 
 export async function createCheckoutSession() {
+  // Récupération du panier depuis les cookies
   const cookieStore = await cookies()
   const cartData = cookieStore.get("divn-cart")
 
@@ -24,6 +25,7 @@ export async function createCheckoutSession() {
     }
   }
 
+  // Si le panier est vide, ajout d’un produit par défaut
   if (cartItems.length === 0) {
     const defaultProduct = getProductById("tee-premium-noir")
     if (!defaultProduct) {
@@ -38,6 +40,7 @@ export async function createCheckoutSession() {
     ]
   }
 
+  // Création des line_items pour Stripe
   const lineItems = cartItems.map((item) => {
     const product = getProductById(item.productId)
     if (!product) {
@@ -57,20 +60,27 @@ export async function createCheckoutSession() {
     }
   })
 
+  // Vérification de la variable d'environnement
+  if (!process.env.SUPPLIER_ACCOUNT_ID) {
+    throw new Error("SUPPLIER_ACCOUNT_ID non défini dans les variables d'environnement")
+  }
+
+  // Création de la session Stripe
   const session = await stripe.checkout.sessions.create({
-    ui_mode: "embedded",
-    redirect_on_completion: "never",
     line_items: lineItems,
     mode: "payment",
-    metadata: {
-      source: "divn-ecommerce",
-      cart: JSON.stringify(cartItems), // on garde tout le panier
-    },
+    customer_email: "client@example.com", // ici récupère l'email du client connecté
     payment_intent_data: {
       transfer_data: {
-        destination: process.env.SUPPLIER_ACCOUNT_ID, // Paiement automatique au fournisseur
+        destination: process.env.SUPPLIER_ACCOUNT_ID!, // paiement automatique au fournisseur
       },
     },
+    metadata: {
+      source: "divn-ecommerce",
+      cart: JSON.stringify(cartItems), // pour le webhook
+    },
+    success_url: "https://tonsite.com/success",
+    cancel_url: "https://tonsite.com/cancel",
   })
 
   return session.client_secret
