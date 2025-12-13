@@ -1,61 +1,82 @@
-// app/login/page.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (type: "login" | "register") => {
     setLoading(true);
+    setError("");
 
-    // Simuler un login (en vrai, tu appellerais une API pour vérifier)
     try {
-      const res = await fetch("/api/login", {
+      const res = await fetch(`/api/${type}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-      if (data.success) {
-        // redirige vers le panier après login
-        router.push("/cart");
-      } else {
-        alert("Échec de la connexion. Essaie encore !");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Erreur serveur, réessaie plus tard.");
+
+      router.push("/cart"); // retour panier
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="flex-1 container mx-auto px-4 py-12 max-w-md">
-      <h1 className="text-4xl font-bold mb-8">Connexion</h1>
-      <form onSubmit={handleLogin} className="flex flex-col gap-4">
+    <main className="min-h-screen flex items-center justify-center px-4">
+      <div className="w-full max-w-md bg-white p-8 rounded shadow">
+        <h1 className="text-2xl font-bold mb-6 text-center">
+          Connexion / Inscription
+        </h1>
+
+        {error && (
+          <p className="mb-4 text-red-600 text-sm text-center">{error}</p>
+        )}
+
         <input
           type="email"
-          placeholder="Ton email"
+          placeholder="Adresse email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
-          className="px-4 py-2 border rounded"
+          className="w-full mb-4 p-3 border rounded"
         />
+
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-6 p-3 border rounded"
+        />
+
         <button
-          type="submit"
+          onClick={() => handleSubmit("login")}
           disabled={loading}
-          className="px-6 py-3 bg-black text-white font-bold rounded hover:bg-gray-800 disabled:opacity-50"
+          className="w-full mb-3 py-3 bg-black text-white rounded"
         >
-          {loading ? "Connexion..." : "Se connecter"}
+          Se connecter
         </button>
-      </form>
+
+        <button
+          onClick={() => handleSubmit("register")}
+          disabled={loading}
+          className="w-full py-3 border rounded"
+        >
+          Créer un compte
+        </button>
+      </div>
     </main>
   );
-}
+        }
