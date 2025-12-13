@@ -2,36 +2,49 @@
 
 import { useEffect, useState } from "react";
 import { CartContent } from "@/components/cart-content";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react"; // si tu utilises next-auth
 
-// Empêche toute tentative de prerender côté serveur
 export const dynamic = "force-dynamic";
 
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { data: session } = useSession(); // récupère l'utilisateur connecté
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ Rien côté serveur → safe build
+  if (!mounted) return null;
 
-  // Fonction pour lancer le paiement
   const handleCheckout = async () => {
+    if (!session?.user?.email) {
+      // utilisateur non connecté → redirige vers login
+      router.push("/login");
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: session.user.email }),
       });
+
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url; // redirection vers Stripe
       } else {
-        alert("Erreur lors de la création de la session de paiement.")
+        alert("Erreur lors de la création de la session de paiement.");
       }
     } catch (err) {
       console.error(err);
-      alert("Erreur lors du paiement.")
+      alert("Erreur lors du paiement.");
     } finally {
       setLoading(false);
     }
@@ -42,7 +55,6 @@ export default function CartPage() {
       <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
       <CartContent />
 
-      {/* Bouton payer maintenant */}
       <div className="mt-8">
         <button
           onClick={handleCheckout}
