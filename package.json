@@ -50,7 +50,7 @@
     "embla-carousel-react": "8.6.0",
     "input-otp": "1.4.2",
     "lucide-react": "0.454.0",
-    "@prisma/client": "^5.8.1",
+    "@prisma/client": "^5.x",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "next": "15.1.3",
