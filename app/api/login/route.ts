@@ -9,37 +9,17 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email et mot de passe requis" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email et mot de passe requis" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Identifiants incorrects" },
-        { status: 401 }
-      );
-    }
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return NextResponse.json({ error: "Identifiants incorrects" }, { status: 401 });
 
     const valid = await bcrypt.compare(password, user.password);
-
-    if (!valid) {
-      return NextResponse.json(
-        { error: "Identifiants incorrects" },
-        { status: 401 }
-      );
-    }
+    if (!valid) return NextResponse.json({ error: "Identifiants incorrects" }, { status: 401 });
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message ?? "Erreur serveur" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: err.message ?? "Erreur serveur" }, { status: 500 });
   }
 }
