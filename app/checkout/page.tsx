@@ -1,8 +1,12 @@
+// app/checkout/page.tsx
 "use client";
-
 export const dynamic = "force-dynamic";
 
-import { CheckoutForm } from "@/components/checkout-form";
+import dynamic from "next/dynamic";
+
+const CheckoutForm = dynamic(() => import("@/components/checkout-form"), {
+  ssr: false, // 🚫 ne pas exécuter côté serveur
+});
 
 export default function CheckoutPage() {
   return (
