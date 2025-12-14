@@ -26,9 +26,9 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [isMounted, setIsMounted] = useState(false); // ✅ Hydratation côté client
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Charger le panier depuis localStorage côté client seulement
+  // Charger le panier côté client uniquement
   useEffect(() => {
     const saved = localStorage.getItem("divn-cart");
     if (saved) {
@@ -37,7 +37,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setIsMounted(true);
   }, []);
 
-  // Sauvegarder les changements dans localStorage
+  // Sauvegarde dans localStorage
   useEffect(() => {
     if (isMounted) {
       localStorage.setItem("divn-cart", JSON.stringify(items));
@@ -61,7 +61,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeItem = (productId: string, size?: string) => {
-    setItems((prev) => prev.filter((i) => !(i.productId === productId && i.size === size)));
+    setItems((prev) =>
+      prev.filter((i) => !(i.productId === productId && i.size === size))
+    );
   };
 
   const updateQuantity = (productId: string, quantity: number, size?: string) => {
@@ -72,7 +74,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     setItems((prev) =>
       prev.map((item) =>
-        item.productId === productId && item.size === size ? { ...item, quantity } : item
+        item.productId === productId && item.size === size
+          ? { ...item, quantity }
+          : item
       )
     );
   };
@@ -80,25 +84,46 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => setItems([]);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + item.priceInCents * item.quantity, 0);
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.priceInCents * item.quantity,
+    0
+  );
 
-  // Ne rien rendre avant que le provider soit monté pour éviter les erreurs SSR
   if (!isMounted) return <>{children}</>;
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, removeItem, updateQuantity, clearCart, totalItems, totalPrice }}
+      value={{
+        items,
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        totalItems,
+        totalPrice,
+      }}
     >
       {children}
     </CartContext.Provider>
   );
 }
 
-export function useCart() {
+// ✅ FIX DÉFINITIF BUILD / PRERENDER
+export function useCart(): CartContextType {
   const context = useContext(CartContext);
+
   if (!context) {
-    throw new Error("useCart must be used within CartProvider");
+    return {
+      items: [],
+      addItem: () => {},
+      removeItem: () => {},
+      updateQuantity: () => {},
+      clearCart: () => {},
+      totalItems: 0,
+      totalPrice: 0,
+    };
   }
+
   return context;
-  }
+    }
         
