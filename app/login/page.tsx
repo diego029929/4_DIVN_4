@@ -7,50 +7,40 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (type: "login" | "register") => {
-    setLoading(true);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
     setError("");
 
-    try {
-      const res = await fetch(`/api/${type}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message);
-      }
+    const data = await res.json();
 
-      router.push("/cart"); // retour panier
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      setError(data.error || "Erreur");
+      return;
     }
-  };
+
+    // ✅ ICI la redirection (OBLIGATOIRE)
+    router.push("/checkout"); // ou "/"
+  }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded shadow">
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Connexion / Inscription
-        </h1>
+    <main className="max-w-md mx-auto mt-20">
+      <h1 className="text-2xl font-bold mb-4">Connexion</h1>
 
-        {error && (
-          <p className="mb-4 text-red-600 text-sm text-center">{error}</p>
-        )}
-
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
-          placeholder="Adresse email"
+          placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full mb-4 p-3 border rounded"
+          className="w-full border p-2"
         />
 
         <input
@@ -58,25 +48,15 @@ export default function LoginPage() {
           placeholder="Mot de passe"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full mb-6 p-3 border rounded"
+          className="w-full border p-2"
         />
 
-        <button
-          onClick={() => handleSubmit("login")}
-          disabled={loading}
-          className="w-full mb-3 py-3 bg-black text-white rounded"
-        >
+        {error && <p className="text-red-500">{error}</p>}
+
+        <button className="w-full bg-black text-white py-2">
           Se connecter
         </button>
-
-        <button
-          onClick={() => handleSubmit("register")}
-          disabled={loading}
-          className="w-full py-3 border rounded"
-        >
-          Créer un compte
-        </button>
-      </div>
+      </form>
     </main>
   );
-        }
+      }
