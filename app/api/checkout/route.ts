@@ -3,13 +3,13 @@ import Stripe from "stripe";
 import { cookies } from "next/headers";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16", // version Stripe compatible
+  apiVersion: "2023-10-16",
 });
 
 export async function POST(req: Request) {
   try {
-    // Récupérer l'email du client depuis le cookie
-    const cookieStore = cookies();
+    // Récupérer correctement le cookie
+    const cookieStore = await cookies(); // <- await ici
     const email = cookieStore.get("user-email")?.value;
 
     if (!email) {
@@ -21,35 +21,27 @@ export async function POST(req: Request) {
       name: string;
       price: number;
       quantity: number;
-      manufacturerShare?: number; // % du fabricant
+      manufacturerShare?: number;
     }[] = body.items;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "Panier vide" }, { status: 400 });
     }
 
-    // Préparer les produits pour Stripe
-    const line_items = items.map((item) => {
-      const unitAmount = Math.round(item.price * 100); // en cents
-      return {
-        price_data: {
-          currency: "eur",
-          product_data: {
-            name: item.name,
-          },
-          unit_amount: unitAmount,
-        },
-        quantity: item.quantity,
-      };
-    });
+    const line_items = items.map((item) => ({
+      price_data: {
+        currency: "eur",
+        product_data: { name: item.name },
+        unit_amount: Math.round(item.price * 100),
+      },
+      quantity: item.quantity,
+    }));
 
-    // Calcul de la part fabricant (optionnel)
     const application_fee_amount = items.reduce((acc, item) => {
       const share = item.manufacturerShare ?? 0;
-      return acc + Math.round((item.price * share) * 100 * item.quantity);
+      return acc + Math.round(item.price * share * 100 * item.quantity);
     }, 0);
 
-    // Créer la session Stripe
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -57,9 +49,7 @@ export async function POST(req: Request) {
       customer_email: email,
       success_url: `${process.env.NEXT_PUBLIC_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout`,
-      payment_intent_data: {
-        application_fee_amount, // part fabricant
-      },
+      payment_intent_data: { application_fee_amount },
     });
 
     return NextResponse.json({ url: session.url });
@@ -67,5 +57,5 @@ export async function POST(req: Request) {
     console.error("Erreur checkout:", err);
     return NextResponse.json({ error: err.message || "Erreur serveur" }, { status: 500 });
   }
-}
-  
+      }
+        
