@@ -1,19 +1,19 @@
 "use client";
 
-import { CartItem, useCart } from "@/context/cart-context";
+import { useCart } from "@/context/cart-context";
 import { useState } from "react";
 
-interface CheckoutFormProps {
-  items: CartItem[];
-}
-
-export function CheckoutForm({ items }: CheckoutFormProps) {
-  const { clearCart } = useCart();
+export function CheckoutForm() {
+  const { items } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleCheckout = async () => {
-    if (items.length === 0) return;
+    if (items.length === 0) {
+      setError("Panier vide");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -25,25 +25,27 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
       });
 
       const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url; // redirige vers Stripe
-      } else {
-        setError("Erreur lors de la création du paiement");
+
+      if (!res.ok || !data.url) {
+        throw new Error("Stripe error");
       }
-    } catch (err) {
-      console.error(err);
-      setError("Erreur serveur");
+
+      window.location.href = data.url;
+    } catch (e) {
+      setError("Erreur lors du paiement");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 max-w-lg">
       {items.map((item) => (
         <div key={item.id} className="flex justify-between">
-          <span>{item.name} x {item.quantity}</span>
-          <span>${item.price * item.quantity}</span>
+          <span>
+            {item.name} × {item.quantity}
+          </span>
+          <span>{item.price * item.quantity}€</span>
         </div>
       ))}
 
@@ -52,10 +54,10 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
       <button
         onClick={handleCheckout}
         disabled={loading || items.length === 0}
-        className="bg-black text-white px-6 py-2 rounded disabled:opacity-50"
+        className="w-full bg-black text-white py-3 rounded disabled:opacity-50"
       >
-        {loading ? "Chargement..." : "Payer"}
+        {loading ? "Paiement..." : "Payer"}
       </button>
     </div>
   );
-                 }
+    }
