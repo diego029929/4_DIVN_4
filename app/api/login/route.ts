@@ -2,87 +2,43 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-// bcrypt = Node runtime obligatoire
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    // 1️⃣ Sécurité : JSON invalide
-    let body;
-    try {
-      body = await req.json();
-    } catch {
+    const { email, password } = await req.json();
+
+    if (!email || !password) {
       return NextResponse.json(
-        { error: "Requête invalide" },
+        { error: "Email et mot de passe requis" },
         { status: 400 }
       );
     }
 
-    const { email, password } = body;
-
-    // 2️⃣ Validation
-    if (
-      typeof email !== "string" ||
-      typeof password !== "string" ||
-      !email ||
-      !password
-    ) {
-      return NextResponse.json(
-        { error: "Email ou mot de passe invalide" },
-        { status: 400 }
-      );
-    }
-
-    // 3️⃣ Normalisation email
-    const normalizedEmail = email.toLowerCase().trim();
-
-    // 4️⃣ Recherche utilisateur
     const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail },
+      where: { email },
     });
 
     if (!user) {
       return NextResponse.json(
-        { error: "Identifiants invalides" },
+        { error: "Identifiants incorrects" },
         { status: 401 }
       );
     }
 
-    // 5️⃣ Vérification mot de passe
-    const isValid = await bcrypt.compare(password, user.password);
+    const valid = await bcrypt.compare(password, user.password);
 
-    if (!isValid) {
+    if (!valid) {
       return NextResponse.json(
-        { error: "Identifiants invalides" },
+        { error: "Identifiants incorrects" },
         { status: 401 }
       );
     }
 
-    // 6️⃣ Cookie de session
-    const response = NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-      },
-    });
-
-    response.cookies.set({
-      name: "user",
-      value: user.id,
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
-    });
-
-    return response;
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
-
+    return NextResponse.json({ success: true });
+  } catch (err: any) {
     return NextResponse.json(
-      { error: "Erreur serveur" },
+      { error: err.message ?? "Erreur serveur" },
       { status: 500 }
     );
   }
