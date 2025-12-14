@@ -2,11 +2,22 @@
 
 import { useState } from "react";
 
-export function CheckoutForm({ items }: { items: { name: string; price: number; quantity: number; manufacturerShare?: number }[] }) {
+interface CheckoutItem {
+  name: string;
+  price: number;
+  quantity: number;
+  manufacturerShare?: number;
+}
+
+interface CheckoutFormProps {
+  items: CheckoutItem[];
+}
+
+export function CheckoutForm({ items }: CheckoutFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleCheckout() {
+  const handleCheckout = async () => {
     setLoading(true);
     setError("");
 
@@ -25,22 +36,20 @@ export function CheckoutForm({ items }: { items: { name: string; price: number; 
         return;
       }
 
-      // Redirige vers Stripe
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError("Erreur serveur");
+      // Redirection vers Stripe Checkout
+      window.location.href = data.url;
+    } catch (err) {
+      setError("Erreur réseau");
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-4">
       {items.map((item, idx) => (
-        <div key={idx}>
-          {item.name} x {item.quantity} - {item.price}€
+        <div key={idx} className="flex justify-between border-b py-2">
+          <span>{item.name} x {item.quantity}</span>
+          <span>${item.price * item.quantity}</span>
         </div>
       ))}
 
@@ -49,10 +58,10 @@ export function CheckoutForm({ items }: { items: { name: string; price: number; 
       <button
         onClick={handleCheckout}
         disabled={loading}
-        className="w-full bg-black text-white py-2"
+        className="w-full bg-black text-white py-2 mt-4"
       >
         {loading ? "Chargement..." : "Payer"}
       </button>
     </div>
   );
-    }
+}
