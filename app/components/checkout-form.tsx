@@ -1,25 +1,21 @@
 "use client";
 
+import { CartItem, useCart } from "@/context/cart-context";
 import { useState } from "react";
 
-interface CheckoutItem {
-  name: string;
-  price: number;
-  quantity: number;
-  manufacturerShare?: number;
-}
-
 interface CheckoutFormProps {
-  items: CheckoutItem[];
+  items: CartItem[];
 }
 
 export function CheckoutForm({ items }: CheckoutFormProps) {
+  const { clearCart } = useCart();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleCheckout = async () => {
+    if (items.length === 0) return;
     setLoading(true);
-    setError("");
+    setError(null);
 
     try {
       const res = await fetch("/api/checkout", {
@@ -29,25 +25,23 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
       });
 
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Erreur lors du paiement");
-        setLoading(false);
-        return;
+      if (data.url) {
+        window.location.href = data.url; // redirige vers Stripe
+      } else {
+        setError("Erreur lors de la création du paiement");
       }
-
-      // Redirection vers Stripe Checkout
-      window.location.href = data.url;
     } catch (err) {
-      setError("Erreur réseau");
+      console.error(err);
+      setError("Erreur serveur");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
     <div className="space-y-4">
-      {items.map((item, idx) => (
-        <div key={idx} className="flex justify-between border-b py-2">
+      {items.map((item) => (
+        <div key={item.id} className="flex justify-between">
           <span>{item.name} x {item.quantity}</span>
           <span>${item.price * item.quantity}</span>
         </div>
@@ -57,11 +51,11 @@ export function CheckoutForm({ items }: CheckoutFormProps) {
 
       <button
         onClick={handleCheckout}
-        disabled={loading}
-        className="w-full bg-black text-white py-2 mt-4"
+        disabled={loading || items.length === 0}
+        className="bg-black text-white px-6 py-2 rounded disabled:opacity-50"
       >
         {loading ? "Chargement..." : "Payer"}
       </button>
     </div>
   );
-}
+                 }
