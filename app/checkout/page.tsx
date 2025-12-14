@@ -3,9 +3,11 @@
 
 import dynamic from "next/dynamic";
 
-const CheckoutForm = dynamic(() => import("@/components/checkout-form"), {
-  ssr: false, // never render server-side
-});
+const CheckoutForm = dynamic(
+  () =>
+    import("@/components/checkout-form").then((mod) => mod.CheckoutForm),
+  { ssr: false }
+);
 
 export default function CheckoutPage() {
   return (
