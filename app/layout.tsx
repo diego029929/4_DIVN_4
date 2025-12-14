@@ -1,11 +1,10 @@
-"use client"; // Important pour que CartProvider fonctionne côté client
-
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { Inter, Bebas_Neue } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Bebas_Neue } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,7 +34,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
-        {/* ✅ CartProvider englobe tout l'arbre */}
         <CartProvider>
           <Header />
 
@@ -54,4 +52,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </body>
     </html>
   );
-}
+      }
