@@ -89,7 +89,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     0
   );
 
-  if (!isMounted) return <>{children}</>;
+  // ⚠️ Ne rien rendre tant que le provider n'est pas prêt
+  if (!isMounted) return null;
 
   return (
     <CartContext.Provider
@@ -125,5 +126,5 @@ export function useCart(): CartContextType {
   }
 
   return context;
-    }
-        
+                             }
+  
