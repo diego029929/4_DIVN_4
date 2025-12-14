@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,17 +23,16 @@ export default function LoginPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      setError(data.error || "Erreur");
+      setError(data.error);
       return;
     }
 
-    // ✅ ICI la redirection (OBLIGATOIRE)
-    router.push("/checkout"); // ou "/"
+    router.push("/checkout");
   }
 
   return (
     <main className="max-w-md mx-auto mt-20">
-      <h1 className="text-2xl font-bold mb-4">Connexion</h1>
+      <h1 className="text-2xl font-bold mb-6">Connexion</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -41,6 +41,7 @@ export default function LoginPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full border p-2"
+          required
         />
 
         <input
@@ -49,6 +50,7 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full border p-2"
+          required
         />
 
         {error && <p className="text-red-500">{error}</p>}
@@ -57,6 +59,14 @@ export default function LoginPage() {
           Se connecter
         </button>
       </form>
+
+      <p className="mt-4 text-center text-sm">
+        Pas de compte ?{" "}
+        <Link href="/register" className="underline">
+          Créer un compte
+        </Link>
+      </p>
     </main>
   );
-      }
+        }
+                                       
