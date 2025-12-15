@@ -2,7 +2,13 @@
 
 import { useCart } from "@/components/cart-provider";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/utils";
+
+function formatCents(priceInCents: number) {
+  return (priceInCents / 100).toLocaleString("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  });
+}
 
 export function CheckoutForm() {
   const { items, totalPrice } = useCart();
@@ -17,7 +23,7 @@ export function CheckoutForm() {
 
   return (
     <div className="space-y-6 max-w-lg">
-      {/* Liste des articles */}
+      {/* Articles */}
       <div className="space-y-3">
         {items.map((item) => (
           <div
@@ -33,7 +39,7 @@ export function CheckoutForm() {
             </span>
 
             <span>
-              {formatPrice(item.priceInCents * item.quantity)}
+              {formatCents(item.priceInCents * item.quantity)}
             </span>
           </div>
         ))}
@@ -42,7 +48,7 @@ export function CheckoutForm() {
       {/* Total */}
       <div className="flex justify-between font-semibold text-lg border-t border-neutral-800 pt-4">
         <span>Total</span>
-        <span>{formatPrice(totalPrice)}</span>
+        <span>{formatCents(totalPrice)}</span>
       </div>
 
       {/* Paiement */}
@@ -51,5 +57,5 @@ export function CheckoutForm() {
       </Button>
     </div>
   );
-            }
+        }
         
