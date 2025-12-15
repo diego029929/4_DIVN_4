@@ -1,63 +1,55 @@
 "use client";
 
 import { useCart } from "@/components/cart-provider";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/utils";
 
 export function CheckoutForm() {
-  const { items } = useCart();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { items, totalPrice } = useCart();
 
-  const handleCheckout = async () => {
-    if (items.length === 0) {
-      setError("Panier vide");
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || !data.url) {
-        throw new Error("Stripe error");
-      }
-
-      window.location.href = data.url;
-    } catch (e) {
-      setError("Erreur lors du paiement");
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (items.length === 0) {
+    return (
+      <p className="text-neutral-400">
+        Votre panier est vide.
+      </p>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-lg">
-      {items.map((item) => (
-        <div key={item.id} className="flex justify-between">
-          <span>
-            {item.name} × {item.quantity}
-          </span>
-          <span>{item.price * item.quantity}€</span>
-        </div>
-      ))}
+      {/* Liste des articles */}
+      <div className="space-y-3">
+        {items.map((item) => (
+          <div
+            key={`${item.productId}-${item.size ?? "default"}`}
+            className="flex justify-between text-sm"
+          >
+            <span>
+              {item.name}
+              {item.size && (
+                <span className="text-neutral-400"> ({item.size})</span>
+              )}{" "}
+              × {item.quantity}
+            </span>
 
-      {error && <p className="text-red-500">{error}</p>}
+            <span>
+              {formatPrice(item.priceInCents * item.quantity)}
+            </span>
+          </div>
+        ))}
+      </div>
 
-      <button
-        onClick={handleCheckout}
-        disabled={loading || items.length === 0}
-        className="w-full bg-black text-white py-3 rounded disabled:opacity-50"
-      >
-        {loading ? "Paiement..." : "Payer"}
-      </button>
+      {/* Total */}
+      <div className="flex justify-between font-semibold text-lg border-t border-neutral-800 pt-4">
+        <span>Total</span>
+        <span>{formatPrice(totalPrice)}</span>
+      </div>
+
+      {/* Paiement */}
+      <Button className="w-full">
+        Payer
+      </Button>
     </div>
   );
-    }
+            }
+        
