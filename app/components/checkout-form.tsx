@@ -1,6 +1,6 @@
 "use client";
 
-import { useCart } from "@/context/cart-context";
+import { useCart } from "@/components/cart-provider";
 import { useState } from "react";
 
 export function CheckoutForm() {
