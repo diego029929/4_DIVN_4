@@ -4,7 +4,7 @@ import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter, Bebas_Neue } from "next/font/google";
-import { cookies } from "next/headers";
+import { cookies } from "next/headers"; // pour les cookies serveur
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +24,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   // 🔑 LECTURE DU COOKIE
-  const cookieStore = cookies(); // côté serveur
+  const cookieStore = await cookies(); // 👈 attendre la promesse
   const authCookie = cookieStore.get("auth"); // récupère le cookie
   const isAuthenticated = Boolean(authCookie?.value); // true si cookie existe
 
@@ -57,5 +57,4 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </body>
     </html>
   );
-  }
-      
+}
