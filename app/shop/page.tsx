@@ -6,11 +6,7 @@ import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
-interface BoutiquePageProps {
-  searchParams?: { category?: string };
-}
-
-export default async function BoutiquePage({ searchParams }: BoutiquePageProps) {
+export default function BoutiquePage({ searchParams }: { searchParams?: { category?: string } }) {
   const cookieStore = cookies();
   const authCookie = cookieStore.get("auth");
   const isAuthenticated = Boolean(authCookie?.value);
