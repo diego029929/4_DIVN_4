@@ -4,6 +4,7 @@ import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter, Bebas_Neue } from "next/font/google";
+import { cookies } from "next/headers"; // accès serveur
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
@@ -13,7 +14,12 @@ export const metadata = {
   description: "Boutique DIVN",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Lecture du cookie côté serveur
+  const cookieStore = cookies();
+  const authCookie = cookieStore.get("auth");
+  const isAuthenticated = Boolean(authCookie?.value);
+
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -26,7 +32,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "
       >
         <CartProvider>
-          <Header />
+          {/* Passe l’info au Header côté client */}
+          <Header isAuthenticated={isAuthenticated} />
           <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">{children}</main>
           <Footer />
         </CartProvider>
