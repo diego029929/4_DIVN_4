@@ -1,11 +1,10 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter } from "next/font/google";
 import { Bebas_Neue } from "next/font/google";
-import { AuthProvider, useAuth } from "@/context/auth-context"; // <-- chemin correct
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,30 +34,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
-        <AuthProvider>
-          <CartProvider>
-            <HeaderWrapper />
-            <main
-              className="
-                flex-1
-                px-4 sm:px-8 lg:px-16
-                pt-6 sm:pt-10
-              "
-            >
-              {children}
-            </main>
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
+        <CartProvider>
+          <Header />
+
+          <main
+            className="
+              flex-1
+              px-4 sm:px-8 lg:px-16
+              pt-6 sm:pt-10
+            "
+          >
+            {children}
+          </main>
+
+          <Footer />
+        </CartProvider>
       </body>
     </html>
   );
-}
-
-// Composant pour récupérer le contexte et passer isAuthenticated à Header
-function HeaderWrapper() {
-  const { user } = useAuth();
-  const isAuthenticated = !!user;
-
-  return <Header isAuthenticated={isAuthenticated} />;
 }
