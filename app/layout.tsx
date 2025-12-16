@@ -1,10 +1,11 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
-import  Header  from "@/components/header";
+import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter } from "next/font/google";
 import { Bebas_Neue } from "next/font/google";
+import { useAuth } from "@/contexts/auth-context"; // ton contexte d'authentification
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,6 +24,9 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const { user } = useAuth(); // récupère l'utilisateur connecté
+  const isAuthenticated = !!user; // true si connecté, false sinon
+
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -35,7 +39,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "
       >
         <CartProvider>
-          <Header />
+          <Header isAuthenticated={isAuthenticated} />
 
           <main
             className="
