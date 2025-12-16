@@ -4,18 +4,14 @@ import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { CartProvider } from "@/components/cart-provider";
 import ProductsGrid from "@/components/products-grid";
+import { useSearchParams } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
-interface BoutiquePageProps {
-  searchParams?: {
-    category?: string;
-  };
-}
-
-export default function BoutiquePage({ searchParams }: BoutiquePageProps) {
-  const category = searchParams?.category
-    ? decodeURIComponent(searchParams.category)
+export default function BoutiquePage() {
+  const searchParams = useSearchParams();
+  const category = searchParams?.get("category")
+    ? decodeURIComponent(searchParams.get("category")!)
     : "Tous les produits";
 
   return (
@@ -31,5 +27,3 @@ export default function BoutiquePage({ searchParams }: BoutiquePageProps) {
     </CartProvider>
   );
 }
-
-
