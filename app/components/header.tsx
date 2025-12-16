@@ -5,30 +5,23 @@ import { Search, Menu } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth"; // <-- nouveau
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
-export default function Header() {
+type HeaderProps = {
+  isAuthenticated: boolean;
+};
+
+export default function Header({ isAuthenticated }: HeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sideOpen, setSideOpen] = useState(false);
-  const { isAuthenticated } = useAuth(); // <-- récupère l'état
 
   return (
     <>
-      {/* OVERLAY */}
-      <div
-        className={`overlay ${sideOpen ? "show" : ""}`}
-        onClick={() => setSideOpen(false)}
-      />
-
-      {/* SIDE MENU */}
+      <div className={`overlay ${sideOpen ? "show" : ""}`} onClick={() => setSideOpen(false)} />
       <div className={`side-menu ${sideOpen ? "active" : ""}`}>
         <div className="menu-content">
-          <div className="side-menu-header" onClick={() => setSideOpen(false)}>
-            ×
-          </div>
-
+          <div className="side-menu-header" onClick={() => setSideOpen(false)}>×</div>
           <ul>
             <li><Link href="/boutique">Boutique</Link></li>
             <li><Link href="/boutique?category=homme">Homme</Link></li>
@@ -37,8 +30,6 @@ export default function Header() {
             <li><Link href="/about">À propos</Link></li>
             <li><Link href="/contact">Contact</Link></li>
           </ul>
-
-          {/* AUTH LINKS */}
           <div className="mt-6 flex flex-col gap-3">
             {isAuthenticated ? (
               <form action="/api/logout" method="POST">
@@ -53,10 +44,8 @@ export default function Header() {
         </div>
       </div>
 
-      {/* HEADER */}
       <header className="flex items-center gap-4">
         <Menu className="menu-burger" onClick={() => setSideOpen(true)} />
-
         <div className={`search-bar ${searchOpen ? "active" : ""}`}>
           <input
             type="text"
@@ -64,20 +53,11 @@ export default function Header() {
             onFocus={() => setSearchOpen(true)}
             onBlur={() => setSearchOpen(false)}
           />
-          <button>
-            <Search size={20} />
-          </button>
+          <button><Search size={20} /></button>
         </div>
-
-        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>
-          DIVN
-        </Link>
-
-        <div className="ml-auto flex items-center gap-4">
-          <HeaderCart />
-        </div>
+        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>DIVN</Link>
+        <div className="ml-auto flex items-center gap-4"><HeaderCart /></div>
       </header>
     </>
   );
-        }
-          
+      }
