@@ -1,63 +1,35 @@
-"use client";
+import "@/globals.css";
+import type { ReactNode } from "react";
+import { CartProvider } from "@/components/cart-provider";
+import Header from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Inter, Bebas_Neue } from "next/font/google";
+import { cookies } from "next/headers";
 
-import Link from "next/link";
-import { Search, Menu } from "lucide-react";
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import { Button } from "@/components/ui/button";
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
 
-const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
-
-type HeaderProps = {
-  isAuthenticated: boolean;
+export const metadata = {
+  title: "DIVN",
+  description: "Boutique DIVN",
 };
 
-export default function Header({ isAuthenticated }: HeaderProps) {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [sideOpen, setSideOpen] = useState(false);
+export default function RootLayout({ children }: { children: ReactNode }) {
+  // Lecture du cookie côté serveur (pas de await)
+  const cookieStore = cookies();
+  const authCookie = cookieStore.get("auth");
+  const isAuthenticated = Boolean(authCookie?.value);
 
   return (
-    <>
-      <div className={`overlay ${sideOpen ? "show" : ""}`} onClick={() => setSideOpen(false)} />
-      <div className={`side-menu ${sideOpen ? "active" : ""}`}>
-        <div className="menu-content">
-          <div className="side-menu-header" onClick={() => setSideOpen(false)}>×</div>
-          <ul>
-            <li><Link href="/boutique">Boutique</Link></li>
-            <li><Link href="/boutique?category=homme">Homme</Link></li>
-            <li><Link href="/boutique?category=femme">Femme</Link></li>
-            <li><Link href="/boutique?category=accessoires">Accessoires</Link></li>
-            <li><Link href="/about">À propos</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
-          </ul>
-          <div className="mt-6 flex flex-col gap-3">
-            {isAuthenticated ? (
-              <form action="/api/logout" method="POST">
-                <Button variant="outline" className="w-full">Déconnexion</Button>
-              </form>
-            ) : (
-              <Link href="/login">
-                <Button className="w-full">Connexion</Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <header className="flex items-center gap-4">
-        <Menu className="menu-burger" onClick={() => setSideOpen(true)} />
-        <div className={`search-bar ${searchOpen ? "active" : ""}`}>
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            onFocus={() => setSearchOpen(true)}
-            onBlur={() => setSearchOpen(false)}
-          />
-          <button><Search size={20} /></button>
-        </div>
-        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>DIVN</Link>
-        <div className="ml-auto flex items-center gap-4"><HeaderCart /></div>
-      </header>
-    </>
+    <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
+      <body className="min-h-screen flex flex-col bg-[#0A0A0A] text-neutral-200 antialiased transition-colors duration-300 selection:bg-[#E6B400]/40 selection:text-white">
+        <CartProvider>
+          <Header isAuthenticated={isAuthenticated} />
+          <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">{children}</main>
+          <Footer />
+        </CartProvider>
+      </body>
+    </html>
   );
-      }
+}
+
