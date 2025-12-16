@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { Bebas_Neue } from "next/font/google";
 
@@ -23,16 +22,7 @@ export const metadata = {
   description: "Boutique DIVN",
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  // ✅ cookies() est async en Next 15
-  const cookieStore = await cookies();
-  const userEmail = cookieStore.get("auth-user")?.value;
-  const isAuthenticated = Boolean(userEmail);
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -45,7 +35,7 @@ export default async function RootLayout({
         "
       >
         <CartProvider>
-          <Header isAuthenticated={isAuthenticated} />
+          <Header />
 
           <main
             className="
