@@ -5,7 +5,7 @@ import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter } from "next/font/google";
 import { Bebas_Neue } from "next/font/google";
-import { useAuth } from "@/contexts/auth-context"; // ton contexte d'authentification
+import { AuthProvider, useAuth } from "@/context/auth-context"; // <-- chemin correct
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,9 +24,6 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const { user } = useAuth(); // récupère l'utilisateur connecté
-  const isAuthenticated = !!user; // true si connecté, false sinon
-
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -38,22 +35,30 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
-        <CartProvider>
-          <Header isAuthenticated={isAuthenticated} />
-
-          <main
-            className="
-              flex-1
-              px-4 sm:px-8 lg:px-16
-              pt-6 sm:pt-10
-            "
-          >
-            {children}
-          </main>
-
-          <Footer />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <HeaderWrapper />
+            <main
+              className="
+                flex-1
+                px-4 sm:px-8 lg:px-16
+                pt-6 sm:pt-10
+              "
+            >
+              {children}
+            </main>
+            <Footer />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
+}
+
+// Composant pour récupérer le contexte et passer isAuthenticated à Header
+function HeaderWrapper() {
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
+
+  return <Header isAuthenticated={isAuthenticated} />;
 }
