@@ -5,16 +5,14 @@ import { Search, Menu } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth"; // <-- nouveau
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
-type HeaderProps = {
-  isAuthenticated?: boolean;
-};
-
-export default function Header({ isAuthenticated = false }: HeaderProps) {
+export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sideOpen, setSideOpen] = useState(false);
+  const { isAuthenticated } = useAuth(); // <-- récupère l'état
 
   return (
     <>
@@ -27,10 +25,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
       {/* SIDE MENU */}
       <div className={`side-menu ${sideOpen ? "active" : ""}`}>
         <div className="menu-content">
-          <div
-            className="side-menu-header"
-            onClick={() => setSideOpen(false)}
-          >
+          <div className="side-menu-header" onClick={() => setSideOpen(false)}>
             ×
           </div>
 
@@ -47,9 +42,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
           <div className="mt-6 flex flex-col gap-3">
             {isAuthenticated ? (
               <form action="/api/logout" method="POST">
-                <Button variant="outline" className="w-full">
-                  Déconnexion
-                </Button>
+                <Button variant="outline" className="w-full">Déconnexion</Button>
               </form>
             ) : (
               <Link href="/login">
@@ -76,11 +69,7 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
           </button>
         </div>
 
-        <Link
-          href="/"
-          className="ml-3"
-          style={{ fontSize: "1.6rem", fontWeight: 600 }}
-        >
+        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>
           DIVN
         </Link>
 
@@ -90,4 +79,5 @@ export default function Header({ isAuthenticated = false }: HeaderProps) {
       </header>
     </>
   );
-}
+        }
+          
