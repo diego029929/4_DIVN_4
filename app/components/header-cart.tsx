@@ -1,22 +1,32 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { useCart } from "./cart-provider";
+import { useCart } from "@/components/cart-provider"
+import { ShoppingBag } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export default function HeaderCart() {
-  const { items } = useCart();
-  const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
+  let totalItems = 0
+
+  // Vérifie si useCart est disponible
+  try {
+    const cart = useCart()
+    totalItems = cart.totalItems
+  } catch {
+    // useCart appelé avant que le provider soit monté
+    return null
+  }
 
   return (
-    <Link href="/cart" className="relative">
-      <button className="relative">
-        🛒
-        {totalQuantity > 0 && (
-          <span className="absolute -top-2 -right-2 bg-yellow-400 text-black rounded-full w-5 h-5 text-xs flex items-center justify-center">
-            {totalQuantity}
+    <Link href="/cart">
+      <Button variant="ghost" size="icon" className="relative">
+        <ShoppingBag className="h-5 w-5" />
+        {totalItems > 0 && (
+          <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+            {totalItems}
           </span>
         )}
-      </button>
+      </Button>
     </Link>
-  );
+  )
 }
