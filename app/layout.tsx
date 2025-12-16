@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { cookies } from "next/headers";
 import { Inter } from "next/font/google";
 import { Bebas_Neue } from "next/font/google";
 
@@ -23,6 +24,10 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // ✅ Lecture serveur du cookie
+  const userEmail = cookies().get("auth-user")?.value;
+  const isAuthenticated = Boolean(userEmail);
+
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -35,7 +40,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "
       >
         <CartProvider>
-          <Header />
+          {/* ✅ Header informé de l’état de connexion */}
+          <Header isAuthenticated={isAuthenticated} />
 
           <main
             className="
@@ -52,4 +58,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </body>
     </html>
   );
-      }
+}
