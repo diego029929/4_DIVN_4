@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "
       >
         <CartProvider>
-          <Header></Header>
+          <Header isAuthenticated={false} />
 
           <main
             className="
@@ -46,7 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
           </main>
 
-          <Footer></Footer>
+          <Footer />
         </CartProvider>
       </body>
     </html>
