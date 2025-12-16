@@ -4,30 +4,16 @@ import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter, Bebas_Neue } from "next/font/google";
-import { cookies } from "next/headers"; // pour les cookies serveur
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const bebas = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-bebas",
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
 
 export const metadata = {
   title: "DIVN",
   description: "Boutique DIVN",
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
-  // 🔑 LECTURE DU COOKIE
-  const cookieStore = await cookies(); // 👈 attendre la promesse
-  const authCookie = cookieStore.get("auth"); // récupère le cookie
-  const isAuthenticated = Boolean(authCookie?.value); // true si cookie existe
-
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -40,18 +26,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         "
       >
         <CartProvider>
-          <Header isAuthenticated={isAuthenticated} />
-
-          <main
-            className="
-              flex-1
-              px-4 sm:px-8 lg:px-16
-              pt-6 sm:pt-10
-            "
-          >
-            {children}
-          </main>
-
+          <Header />
+          <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">{children}</main>
           <Footer />
         </CartProvider>
       </body>
