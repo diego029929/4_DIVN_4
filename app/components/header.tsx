@@ -12,28 +12,19 @@ type HeaderProps = {
   isAuthenticated: boolean;
 };
 
-export function Header({ isAuthenticated }: HeaderProps) {
+export default function Header({ isAuthenticated }: HeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sideOpen, setSideOpen] = useState(false);
 
   return (
     <>
       {/* OVERLAY */}
-      <div
-        className={`overlay ${sideOpen ? "show" : ""}`}
-        onClick={() => setSideOpen(false)}
-      />
+      <div className={`overlay ${sideOpen ? "show" : ""}`} onClick={() => setSideOpen(false)} />
 
       {/* SIDE MENU */}
       <div className={`side-menu ${sideOpen ? "active" : ""}`}>
         <div className="menu-content">
-          <div
-            className="side-menu-header"
-            onClick={() => setSideOpen(false)}
-          >
-            ×
-          </div>
-
+          <div className="side-menu-header" onClick={() => setSideOpen(false)}>×</div>
           <ul>
             <li><Link href="/boutique">Boutique</Link></li>
             <li><Link href="/boutique?category=homme">Homme</Link></li>
@@ -47,9 +38,7 @@ export function Header({ isAuthenticated }: HeaderProps) {
           <div className="mt-6 flex flex-col gap-3">
             {isAuthenticated ? (
               <form action="/api/logout" method="POST">
-                <Button variant="outline" className="w-full">
-                  Déconnexion
-                </Button>
+                <Button variant="outline" className="w-full">Déconnexion</Button>
               </form>
             ) : (
               <Link href="/login">
@@ -61,14 +50,8 @@ export function Header({ isAuthenticated }: HeaderProps) {
       </div>
 
       {/* HEADER */}
-      <header>
-        {/* MENU BURGER */}
-        <Menu
-          className="menu-burger"
-          onClick={() => setSideOpen(true)}
-        />
-
-        {/* SEARCH BAR */}
+      <header className="flex items-center gap-4">
+        <Menu className="menu-burger" onClick={() => setSideOpen(true)} />
         <div className={`search-bar ${searchOpen ? "active" : ""}`}>
           <input
             type="text"
@@ -76,21 +59,9 @@ export function Header({ isAuthenticated }: HeaderProps) {
             onFocus={() => setSearchOpen(true)}
             onBlur={() => setSearchOpen(false)}
           />
-          <button>
-            <Search size={20} />
-          </button>
+          <button><Search size={20} /></button>
         </div>
-
-        {/* LOGO */}
-        <Link
-          href="/"
-          className="ml-3"
-          style={{ fontSize: "1.6rem", fontWeight: 600 }}
-        >
-          DIVN
-        </Link>
-
-        {/* RIGHT */}
+        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>DIVN</Link>
         <div className="ml-auto flex items-center gap-4">
           <HeaderCart />
         </div>
