@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
-export function Header() {
+type HeaderProps = {
+  isAuthenticated: boolean;
+};
+
+export function Header({ isAuthenticated }: HeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [sideOpen, setSideOpen] = useState(false);
 
@@ -17,7 +22,7 @@ export function Header() {
       <div
         className={`overlay ${sideOpen ? "show" : ""}`}
         onClick={() => setSideOpen(false)}
-      ></div>
+      />
 
       {/* SIDE MENU */}
       <div className={`side-menu ${sideOpen ? "active" : ""}`}>
@@ -38,10 +43,19 @@ export function Header() {
             <li><Link href="/contact">Contact</Link></li>
           </ul>
 
-          <div className="social-links">
-            <a href="#"><i className="fa-brands fa-instagram" /></a>
-            <a href="#"><i className="fa-brands fa-tiktok" /></a>
-            <a href="#"><i className="fa-brands fa-twitter" /></a>
+          {/* AUTH LINKS */}
+          <div className="mt-6 flex flex-col gap-3">
+            {isAuthenticated ? (
+              <form action="/api/logout" method="POST">
+                <Button variant="outline" className="w-full">
+                  Déconnexion
+                </Button>
+              </form>
+            ) : (
+              <Link href="/login">
+                <Button className="w-full">Connexion</Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -67,16 +81,20 @@ export function Header() {
           </button>
         </div>
 
-        {/* LOGO CENTRE */}
-        <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>
+        {/* LOGO */}
+        <Link
+          href="/"
+          className="ml-3"
+          style={{ fontSize: "1.6rem", fontWeight: 600 }}
+        >
           DIVN
         </Link>
 
-        {/* CART */}
-        <div style={{ marginLeft: "auto" }}>
+        {/* RIGHT */}
+        <div className="ml-auto flex items-center gap-4">
           <HeaderCart />
         </div>
       </header>
     </>
   );
-      }
+}
