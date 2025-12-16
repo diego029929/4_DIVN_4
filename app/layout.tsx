@@ -23,9 +23,14 @@ export const metadata = {
   description: "Boutique DIVN",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  // ✅ Lecture serveur du cookie
-  const userEmail = cookies().get("auth-user")?.value;
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  // ✅ cookies() est async en Next 15
+  const cookieStore = await cookies();
+  const userEmail = cookieStore.get("auth-user")?.value;
   const isAuthenticated = Boolean(userEmail);
 
   return (
@@ -40,7 +45,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "
       >
         <CartProvider>
-          {/* ✅ Header informé de l’état de connexion */}
           <Header isAuthenticated={isAuthenticated} />
 
           <main
