@@ -1,3 +1,4 @@
+// app/layout.tsx
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
@@ -15,21 +16,30 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  // 🔑 lecture serveur des cookies (await nécessaire)
-  const cookieStore = await cookies(); // <-- ici await
-  const authCookie = cookieStore.get("auth"); 
+  // Lecture serveur des cookies
+  const cookieStore = cookies();
+  const authCookie = cookieStore.get("auth");
   const isAuthenticated = Boolean(authCookie?.value);
 
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
-      <body className="min-h-screen flex flex-col bg-[#0A0A0A] text-neutral-200 antialiased transition-colors duration-300 selection:bg-[#E6B400]/40 selection:text-white">
+      <body
+        className="
+          min-h-screen flex flex-col
+          bg-[#0A0A0A] text-neutral-200
+          antialiased
+          transition-colors duration-300
+          selection:bg-[#E6B400]/40 selection:text-white
+        "
+      >
         <CartProvider>
           <Header isAuthenticated={isAuthenticated} />
-          <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">{children}</main>
+          <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
+            {children}
+          </main>
           <Footer />
         </CartProvider>
       </body>
     </html>
   );
 }
-
