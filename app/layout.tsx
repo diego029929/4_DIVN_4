@@ -1,10 +1,9 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
-import  Header  from "@/components/header";
+import Header from "@/components/header";
 import { Footer } from "@/components/footer";
-import { Inter } from "next/font/google";
-import { Bebas_Neue } from "next/font/google";
+import { Inter, Bebas_Neue } from "next/font/google";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,7 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "
       >
         <CartProvider>
-          <Header>
+          <Header></Header>
 
           <main
             className="
@@ -47,7 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
           </main>
 
-          <Footer>
+          <Footer></Footer>
         </CartProvider>
       </body>
     </html>
