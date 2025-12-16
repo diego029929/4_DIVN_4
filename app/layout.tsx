@@ -4,6 +4,7 @@ import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter, Bebas_Neue } from "next/font/google";
+import { cookies } from "next/headers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,6 +23,9 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // 🔑 LECTURE DU COOKIE
+  const isAuthenticated = cookies().has("auth");
+
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -29,20 +33,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           min-h-screen flex flex-col
           bg-[#0A0A0A] text-neutral-200
           antialiased
-          transition-colors duration-300
-          selection:bg-[#E6B400]/40 selection:text-white
         "
       >
         <CartProvider>
-          <Header isAuthenticated={false} />
+          <Header isAuthenticated={isAuthenticated} />
 
-          <main
-            className="
-              flex-1
-              px-4 sm:px-8 lg:px-16
-              pt-6 sm:pt-10
-            "
-          >
+          <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
             {children}
           </main>
 
@@ -51,4 +47,5 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </body>
     </html>
   );
-}
+            }
+        
