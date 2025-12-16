@@ -2,7 +2,7 @@ import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
 import  Header  from "@/components/header";
-import  Footer  from "@/components/footer";
+import { Footer } from "@/components/footer";
 import { Inter } from "next/font/google";
 import { Bebas_Neue } from "next/font/google";
 
