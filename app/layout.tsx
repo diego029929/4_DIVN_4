@@ -4,7 +4,7 @@ import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter, Bebas_Neue } from "next/font/google";
-import { cookies } from "next/headers"; // <-- pour lire les cookies côté serveur
+import { cookies } from "next/headers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,11 +22,11 @@ export const metadata = {
   description: "Boutique DIVN",
 };
 
-// ⚠️ Async car on lit les cookies côté serveur
 export default async function RootLayout({ children }: { children: ReactNode }) {
   // 🔑 LECTURE DU COOKIE
-  const cookieStore = cookies(); // c'est un objet ReadonlyRequestCookies
-  const isAuthenticated = cookieStore.get("auth")?.value ? true : false;
+  const cookieStore = cookies(); // côté serveur
+  const authCookie = cookieStore.get("auth"); // récupère le cookie
+  const isAuthenticated = Boolean(authCookie?.value); // true si cookie existe
 
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
@@ -57,4 +57,5 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </body>
     </html>
   );
-          }
+  }
+      
