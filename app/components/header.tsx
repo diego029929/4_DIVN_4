@@ -4,7 +4,7 @@ import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Inter, Bebas_Neue } from "next/font/google";
-import { cookies } from "next/headers"; // pour lire les cookies côté serveur
+import { cookies } from "next/headers"; // OK côté serveur
 
 const inter = Inter({
   subsets: ["latin"],
@@ -22,11 +22,11 @@ export const metadata = {
   description: "Boutique DIVN",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
   // 🔑 Lecture du cookie côté serveur
-  const cookieStore = cookies(); // PAS de await ici !
-  const authCookie = cookieStore.get("auth"); // récupère le cookie "auth"
-  const isAuthenticated = Boolean(authCookie?.value); // true si cookie existe
+  const cookieStore = cookies();
+  const authCookie = cookieStore.get("auth");
+  const isAuthenticated = Boolean(authCookie?.value);
 
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
@@ -39,27 +39,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
-        {/* PROVIDERS */}
         <CartProvider>
-          {/* HEADER avec l'état d'authentification */}
+          {/* Header côté client mais reçoit prop du serveur */}
           <Header isAuthenticated={isAuthenticated} />
 
-          {/* MAIN CONTENT */}
-          <main
-            className="
-              flex-1
-              px-4 sm:px-8 lg:px-16
-              pt-6 sm:pt-10
-            "
-          >
+          <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
             {children}
           </main>
 
-          {/* FOOTER */}
           <Footer />
         </CartProvider>
       </body>
     </html>
   );
-}
+          }
 
