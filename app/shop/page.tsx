@@ -1,89 +1,28 @@
 "use client";
 
-import Link from "next/link";
-import { Search, Menu } from "lucide-react";
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import { Button } from "@/components/ui/button";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { CartProvider } from "@/components/cart-provider";
+import ProductsGrid from "@/components/products-grid"; // exemple
 
-const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
+export const dynamic = "force-dynamic";
 
-type HeaderProps = {
-  isAuthenticated?: boolean; // ✅ optionnel
-};
-
-export function Header({ isAuthenticated = false }: HeaderProps) {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [sideOpen, setSideOpen] = useState(false);
+export default function BoutiquePage({ searchParams }: any) {
+  const category = searchParams?.category
+    ? decodeURIComponent(searchParams.category)
+    : "Tous les produits";
 
   return (
-    <>
-      {/* OVERLAY */}
-      <div
-        className={`overlay ${sideOpen ? "show" : ""}`}
-        onClick={() => setSideOpen(false)}
-      />
+    <CartProvider>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="pt-20 bg-black min-h-screen text-white">
+          <h1 className="text-3xl font-bold mb-6">{category}</h1>
+          <ProductsGrid />
+        </main>
 
-      {/* SIDE MENU */}
-      <div className={`side-menu ${sideOpen ? "active" : ""}`}>
-        <div className="menu-content">
-          <div
-            className="side-menu-header"
-            onClick={() => setSideOpen(false)}
-          >
-            ×
-          </div>
-
-          <ul>
-            <li><Link href="/boutique">Boutique</Link></li>
-            <li><Link href="/boutique?category=homme">Homme</Link></li>
-            <li><Link href="/boutique?category=femme">Femme</Link></li>
-            <li><Link href="/boutique?category=accessoires">Accessoires</Link></li>
-            <li><Link href="/about">À propos</Link></li>
-            <li><Link href="/contact">Contact</Link></li>
-          </ul>
-
-          {/* AUTH */}
-          <div className="mt-6 flex flex-col gap-3">
-            {isAuthenticated ? (
-              <form action="/api/logout" method="POST">
-                <Button variant="outline" className="w-full">
-                  Déconnexion
-                </Button>
-              </form>
-            ) : (
-              <Link href="/login">
-                <Button className="w-full">Connexion</Button>
-              </Link>
-            )}
-          </div>
-        </div>
+        <Footer />
       </div>
-
-      {/* HEADER */}
-      <header>
-        <Menu className="menu-burger" onClick={() => setSideOpen(true)} />
-
-        <div className={`search-bar ${searchOpen ? "active" : ""}`}>
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            onFocus={() => setSearchOpen(true)}
-            onBlur={() => setSearchOpen(false)}
-          />
-          <button>
-            <Search size={20} />
-          </button>
-        </div>
-
-        <Link href="/" className="ml-3 text-xl font-semibold">
-          DIVN
-        </Link>
-
-        <div className="ml-auto flex items-center gap-4">
-          <HeaderCart />
-        </div>
-      </header>
-    </>
+    </CartProvider>
   );
 }
