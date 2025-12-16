@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -44,10 +45,15 @@ export default function Header({ isAuthenticated }: HeaderProps) {
       </div>
 
       {/* Header */}
-      <header className="flex items-center gap-4">
-        <Menu className="menu-burger" onClick={() => setSideOpen(true)} />
+      <header className="flex items-center gap-4 px-4 py-2">
+        <Menu className="menu-burger cursor-pointer" onClick={() => setSideOpen(true)} />
         <div className={`search-bar ${searchOpen ? "active" : ""}`}>
-          <input type="text" placeholder="Rechercher..." onFocus={() => setSearchOpen(true)} onBlur={() => setSearchOpen(false)} />
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            onFocus={() => setSearchOpen(true)}
+            onBlur={() => setSearchOpen(false)}
+          />
           <button><Search size={20} /></button>
         </div>
         <Link href="/" className="ml-3" style={{ fontSize: "1.6rem", fontWeight: 600 }}>DIVN</Link>
@@ -57,5 +63,5 @@ export default function Header({ isAuthenticated }: HeaderProps) {
       </header>
     </>
   );
-            }
+          }
         
