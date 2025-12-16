@@ -16,8 +16,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  // Lecture serveur des cookies
-  const cookieStore = cookies();
+  // 🔑 Lecture serveur des cookies avec await
+  const cookieStore = await cookies();
   const authCookie = cookieStore.get("auth");
   const isAuthenticated = Boolean(authCookie?.value);
 
@@ -33,10 +33,13 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         "
       >
         <CartProvider>
+          {/* Header reçoit la prop côté client */}
           <Header isAuthenticated={isAuthenticated} />
+
           <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
             {children}
           </main>
+
           <Footer />
         </CartProvider>
       </body>
