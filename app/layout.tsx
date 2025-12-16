@@ -12,7 +12,8 @@ const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-
 export const metadata = { title: "DIVN", description: "Boutique DIVN" };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const cookieStore = cookies();
+  // ✅ await la promesse
+  const cookieStore = await cookies();
   const authCookie = cookieStore.get("auth");
   const isAuthenticated = Boolean(authCookie?.value);
 
@@ -20,7 +21,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body className="min-h-screen flex flex-col bg-[#0A0A0A] text-neutral-200 antialiased transition-colors duration-300 selection:bg-[#E6B400]/40 selection:text-white">
         <CartProvider>
-          {/* Header côté client reçoit la prop du serveur */}
           <Header isAuthenticated={isAuthenticated} />
 
           <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
@@ -32,5 +32,5 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </body>
     </html>
   );
-            }
+}
 
