@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Menu, Search } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import SideMenu from "@/app/components/side-menu";
+import SideMenu from "@/components/side-menu";
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
