@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         "
       >
         <CartProvider>
-          <Header />
+          <Header>
 
           <main
             className="
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             {children}
           </main>
 
-          <Footer />
+          <Footer>
         </CartProvider>
       </body>
     </html>
