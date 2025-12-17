@@ -7,26 +7,27 @@ import { Footer } from "@/components/footer";
 import { Inter, Bebas_Neue } from "next/font/google";
 import { cookies } from "next/headers";
 
-// Import de l'initialisation Prisma
-import { initDB } from "/prisma/init";
-
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
+const bebas = Bebas_Neue({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-bebas",
+});
 
 export const metadata = {
   title: "DIVN",
   description: "Boutique DIVN",
 };
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   // 🔑 Lecture serveur des cookies
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const authCookie = cookieStore.get("auth");
   const isAuthenticated = Boolean(authCookie?.value);
-
-  // --- Initialisation DB ---
-  // ⚠️ Attention : initDB() est async, on attend qu'elle se termine
-  await initDB();
 
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
@@ -40,7 +41,6 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         "
       >
         <CartProvider>
-          {/* Header côté client */}
           <Header isAuthenticated={isAuthenticated} />
 
           <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
