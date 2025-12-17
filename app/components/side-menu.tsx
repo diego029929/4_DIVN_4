@@ -2,71 +2,91 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
+import {
+  FaInstagram,
+  FaTiktok,
+  FaXTwitter,
+} from "react-icons/fa6";
 
 type SideMenuProps = {
   open: boolean;
   onClose: () => void;
 };
 
-export default function SideMenu({ open, onClose }: SideMenuProps) {
-  if (!open) return null;
+const menuItems = [
+  { label: "Tous nos produits", href: "/shop" },
+  { label: "L’histoire de DIVN", href: "/about" },
+  { label: "Besoin d’aide ?", href: "/contact" },
+  { label: "The FAM", href: "/register" },
+  { label: "Mon panier", href: "/cart" },
+];
 
+export default function SideMenu({ open, onClose }: SideMenuProps) {
   return (
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-40 bg-black/70"
+        className={`
+          fixed inset-0 z-40 bg-black/60
+          transition-opacity duration-300
+          ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
+        `}
         onClick={onClose}
       />
 
       {/* Menu */}
-      <aside className="fixed inset-0 z-50 bg-[#0b0b0b] text-white">
+      <aside
+        className={`
+          fixed top-0 left-0 z-50 h-full
+          w-[280px] sm:w-[320px]
+          bg-[#0b0b0b] text-white
+          transform transition-transform duration-300
+          ${open ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-3xl"
+          className="absolute top-5 right-5 text-2xl opacity-80 hover:opacity-100"
         >
           <X />
         </button>
 
+        {/* Logo */}
+        <div className="pt-8 px-6 text-2xl font-bold tracking-wide">
+          DIVN
+        </div>
+
         {/* Menu items */}
-        <div className="pt-24 px-6">
-          <ul className="space-y-6 text-[18px] font-medium">
-            {[
-              "Tous nos produits",
-              "L'histoire de DIVN",
-              "Besoin d'aide ?",
-              "The FAM",
-              "L’équipage",
-              "Créer un compte",
-            ].map((item) => (
-              <li
-                key={item}
-                className="border-b border-white/10 pb-4"
-              >
-                <Link href="#" onClick={onClose}>
-                  {item}
+        <nav className="pt-10 px-6">
+          <ul className="space-y-6 text-[16px] font-medium">
+            {menuItems.map((item) => (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  onClick={onClose}
+                  className="block border-b border-white/10 pb-3 opacity-90 hover:opacity-100 transition"
+                >
+                  {item.label}
                 </Link>
               </li>
             ))}
           </ul>
+        </nav>
+
+        {/* Social */}
+        <div className="absolute bottom-10 left-6 flex gap-5 text-xl opacity-80">
+          <a href="#" aria-label="Instagram">
+            <FaInstagram />
+          </a>
+          <a href="#" aria-label="TikTok">
+            <FaTiktok />
+          </a>
+          <a href="#" aria-label="X">
+            <FaXTwitter />
+          </a>
         </div>
-
-        {/* Social icons (EXACT) */}
-<div className="absolute bottom-10 left-6 flex gap-6 text-white">
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12.34 2c1.2 0 2.38.35 3.37 1.01l.36.24-2.36 2.36a3.96 3.96 0 00-1.37-.25A4 4 0 008 9.36v5.28a4 4 0 104.34-3.98v-2.8l3.14-3.14v6.07A7 7 0 1112.34 2z" />
-  </svg>
-
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5a5 5 0 100 10 5 5 0 000-10zm6.5-.9a1.1 1.1 0 11-2.2 0 1.1 1.1 0 012.2 0z" />
-  </svg>
-
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.9 2L13.2 8.6 19.8 22h-3.9l-4.5-9.2L5.8 22H2l7.1-8.3L2.6 2h4l4.1 8.4L16 2h2.9z" />
-  </svg>
-</div>
       </aside>
     </>
   );
-                }
+}
