@@ -8,7 +8,7 @@ import { Inter, Bebas_Neue } from "next/font/google";
 import { cookies } from "next/headers";
 
 // Import de l'initialisation Prisma
-import { initDB } from "@/prisma/init";
+import { initDB } from "/prisma/init";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const bebas = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas" });
