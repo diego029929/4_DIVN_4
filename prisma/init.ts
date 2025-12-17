@@ -1,49 +1,69 @@
+// prisma/init.ts
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Initialisation de la base de données DIVN...");
+  console.log("Début de l'initialisation de la base de données...");
 
-  // --- USERS ---
-  const userCount = await prisma.user.count();
-  if (userCount === 0) {
-    const hashedPassword = await bcrypt.hash("admin123", 10); // mot de passe admin
-    await prisma.user.create({
-      data: {
-        email: "admin@divn.com",
-        password: hashedPassword,
-        name: "Admin",
-      },
-    });
-    console.log("Utilisateur admin créé ✅");
-  }
+  // Création d'utilisateurs de test
+  const user1 = await prisma.user.upsert({
+    where: { email: "user1@example.com" },
+    update: {},
+    create: {
+      id: "user1",
+      name: "Utilisateur 1",
+      email: "user1@example.com",
+      password: "password123", // idéalement hashé
+    },
+  });
 
-  // --- PRODUCTS ---
-  const productCount = await prisma.product.count();
-  if (productCount === 0) {
-    await prisma.product.createMany({
-      data: [
-        { name: "T-shirt Noir", price: 29.99, description: "T-shirt minimaliste noir", stock: 50 },
-        { name: "Hoodie Gold", price: 79.99, description: "Hoodie premium noir avec détails dorés", stock: 30 },
-      ],
-    });
-    console.log("Produits initiaux créés ✅");
-  }
+  const user2 = await prisma.user.upsert({
+    where: { email: "user2@example.com" },
+    update: {},
+    create: {
+      id: "user2",
+      name: "Utilisateur 2",
+      email: "user2@example.com",
+      password: "password123",
+    },
+  });
 
-  // --- ORDERS (optionnel) ---
-  const orderCount = await prisma.order.count();
-  if (orderCount === 0) {
-    console.log("Aucune commande initiale à créer pour le moment");
-  }
+  // Création de produits
+  await prisma.product.createMany({
+    data: [
+      { id: "prod1", name: "Produit 1", description: "Description produit 1", price: 29.99 },
+      { id: "prod2", name: "Produit 2", description: "Description produit 2", price: 49.99 },
+      { id: "prod3", name: "Produit 3", description: "Description produit 3", price: 19.99 },
+    ],
+    skipDuplicates: true,
+  });
 
-  console.log("Initialisation terminée ✅");
+  // Création de paniers pour chaque utilisateur
+  await prisma.cart.createMany({
+    data: [
+      { id: "cart1", userId: user1.id, createdAt: new Date() },
+      { id: "cart2", userId: user2.id, createdAt: new Date() },
+    ],
+    skipDuplicates: true,
+  });
+
+  // Création de commandes (order)
+  await prisma.order.createMany({
+    data: [
+      { id: "order1", userId: user1.id, total: 79.98 },
+      { id: "order2", userId: user2.id, total: 19.99 },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log("Initialisation terminée !");
 }
 
 main()
   .catch((e) => {
     console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
