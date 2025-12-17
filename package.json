@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && ts-node prisma/init.ts"
   },
   "dependencies": {
+    "ts-node": "^10.9.1",
     "@hookform/resolvers": "5.2.2",
     "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-alert-dialog": "1.0.5",
