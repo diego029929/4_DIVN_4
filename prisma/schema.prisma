@@ -1,37 +1,11 @@
-// prisma/schema.prisma
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-model User {
-  id       String   @id @default(cuid())
-  name     String
-  email    String   @unique
-  password String
-  carts    Cart[]
-  orders   Order[]
-}
-
 model Product {
-  id       String  @id @default(cuid())
-  name     String
+  id          String       @id @default(cuid())
+  name        String
   description String
-  price    Float
-  image    String
-}
-
-model Cart {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  items     CartItem[]
+  price       Float
+  image       String
+  cartItems   CartItem[]   // ✅ Ajout du lien inverse
+  orderItems  OrderItem[]  // ✅ Ajout du lien inverse
 }
 
 model CartItem {
@@ -41,15 +15,6 @@ model CartItem {
   quantity  Int
   cart      Cart     @relation(fields: [cartId], references: [id])
   product   Product  @relation(fields: [productId], references: [id])
-}
-
-model Order {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  total     Float
-  createdAt DateTime @default(now())
-  items     OrderItem[]
 }
 
 model OrderItem {
