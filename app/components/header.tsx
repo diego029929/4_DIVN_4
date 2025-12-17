@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { Menu, Search } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import SideMenu from "@/components/side-menu";
+import SideMenu from "./side-menu";
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
@@ -15,57 +15,37 @@ type HeaderProps = {
 export default function Header({ isAuthenticated }: HeaderProps) {
   const [sideOpen, setSideOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  // Détecte le scroll pour changer le fond
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <>
-      {/* Side menu (au-dessus du header) */}
+      {/* Side menu au-dessus */}
       <SideMenu open={sideOpen} onClose={() => setSideOpen(false)} />
 
-      {/* HEADER */}
-      <header
-        className={`
-          fixed top-0 left-0 w-full
-          z-50
-          transition-all duration-300
-          ${scrolled ? "bg-white/90 backdrop-blur shadow-sm" : "bg-white"}
-        `}
-      >
+      {/* HEADER FIXE NOIR */}
+      <header className="fixed top-0 left-0 z-20 w-full bg-black text-white shadow-md">
         <div className="flex items-center gap-4 px-4 h-16">
-          {/* Burger */}
+          {/* Burger (toggle) */}
           <Menu
-            className="cursor-pointer"
-            onClick={() => setSideOpen(true)}
+            className="cursor-pointer text-white"
+            onClick={() => setSideOpen((v) => !v)}
           />
 
           {/* Search */}
-          <div className="relative">
+          <div className={`search-bar relative ${searchOpen ? "active" : ""}`}>
             <input
               type="text"
               placeholder="Rechercher..."
-              className={`
-                transition-all duration-300
-                border rounded px-3 py-1 text-sm
-                ${searchOpen ? "w-48 opacity-100" : "w-32 opacity-70"}
-              `}
               onFocus={() => setSearchOpen(true)}
               onBlur={() => setSearchOpen(false)}
+              className="rounded-md px-2 py-1 text-black focus:outline-none"
             />
-            <Search
-              size={18}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
-            />
+            <button className="absolute right-1 top-1/2 -translate-y-1/2">
+              <Search size={20} className="text-black" />
+            </button>
           </div>
 
           {/* Logo */}
-          <Link href="/" className="ml-3 text-xl font-bold tracking-wide">
+          <Link href="/" className="ml-3 text-xl font-semibold text-white">
             DIVN
           </Link>
 
@@ -76,7 +56,7 @@ export default function Header({ isAuthenticated }: HeaderProps) {
         </div>
       </header>
 
-      {/* Spacer pour le contenu */}
+      {/* Spacer pour que le contenu ne soit pas caché */}
       <div className="h-16" />
     </>
   );
