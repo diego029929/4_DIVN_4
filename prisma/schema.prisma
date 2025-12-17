@@ -1,7 +1,8 @@
 // prisma/schema.prisma
+
 datasource db {
   provider = "postgresql"
-  url      = env("DB_URL") // Assure-toi que DB_URL est défini dans ton .env
+  url      = env("DATABASE_URL") // Assure-toi que DATABASE_URL est défini dans ton .env
 }
 
 generator client {
@@ -18,13 +19,13 @@ model User {
 }
 
 model Product {
-  id         String      @id @default(cuid())
-  name       String
+  id          String      @id @default(cuid())
+  name        String
   description String?
-  price      Float
-  imageUrl   String?
-  cartItems  CartItem[]  // relation inverse
-  orderItems OrderItem[] // relation inverse
+  price       Float
+  imageUrl    String?
+  cartItems   CartItem[]  // relation inverse avec CartItem
+  orderItems  OrderItem[] // relation inverse avec OrderItem
 }
 
 model Cart {
