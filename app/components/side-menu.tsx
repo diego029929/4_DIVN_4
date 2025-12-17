@@ -83,7 +83,7 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
             <FaTiktok />
           </a>
           <a href="#" aria-label="X">
-            <FaXTwitter />
+            <FaTwitter />
           </a>
         </div>
       </aside>
