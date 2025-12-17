@@ -1,6 +1,5 @@
-// prisma/init.ts
-import { PrismaClient } from "@prisma/client";
-
+// prisma/init.js
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
@@ -14,7 +13,7 @@ async function main() {
       id: "user1",
       name: "Utilisateur 1",
       email: "user1@example.com",
-      password: "password123", // idéalement hashé
+      password: "password123",
     },
   });
 
@@ -29,7 +28,7 @@ async function main() {
     },
   });
 
-  // Création de produits
+  // Produits
   await prisma.product.createMany({
     data: [
       { id: "prod1", name: "Produit 1", description: "Description produit 1", price: 29.99 },
@@ -39,7 +38,7 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Création de paniers pour chaque utilisateur
+  // Paniers
   await prisma.cart.createMany({
     data: [
       { id: "cart1", userId: user1.id, createdAt: new Date() },
@@ -48,7 +47,7 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Création de commandes (order)
+  // Commandes
   await prisma.order.createMany({
     data: [
       { id: "order1", userId: user1.id, total: 79.98 },
