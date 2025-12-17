@@ -6,7 +6,7 @@ import {
   FaInstagram,
   FaTiktok,
   FaXTwitter,
-} from "react-icons/fa6";
+} from "react-icons/fa";
 
 type SideMenuProps = {
   open: boolean;
