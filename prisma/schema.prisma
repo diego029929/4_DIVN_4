@@ -1,27 +1,64 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL") // Assure-toi que DB_URL est défini dans ton .env
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  carts     Cart[]
+  orders    Order[]
+}
+
 model Product {
-  id          String       @id @default(cuid())
-  name        String
-  description String
-  price       Float
-  image       String
-  cartItems   CartItem[]   // ✅ Ajout du lien inverse
-  orderItems  OrderItem[]  // ✅ Ajout du lien inverse
+  id         String      @id @default(cuid())
+  name       String
+  description String?
+  price      Float
+  imageUrl   String?
+  cartItems  CartItem[]  // relation inverse
+  orderItems OrderItem[] // relation inverse
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  items     CartItem[]
+  createdAt DateTime   @default(now())
 }
 
 model CartItem {
   id        String   @id @default(cuid())
   cartId    String
-  productId String
-  quantity  Int
   cart      Cart     @relation(fields: [cartId], references: [id])
+  productId String
   product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id])
+  total     Float
+  items     OrderItem[]
+  createdAt DateTime    @default(now())
 }
 
 model OrderItem {
   id        String   @id @default(cuid())
   orderId   String
-  productId String
-  quantity  Int
   order     Order    @relation(fields: [orderId], references: [id])
+  productId String
   product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  price     Float
 }
