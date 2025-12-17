@@ -24,8 +24,8 @@ export default async function RootLayout({
 }: {
   children: ReactNode;
 }) {
-  // 🔑 Lecture serveur des cookies
-  const cookieStore = cookies();
+  // 🔑 Lecture serveur des cookies (Next 15 = async)
+  const cookieStore = await cookies();
   const authCookie = cookieStore.get("auth");
   const isAuthenticated = Boolean(authCookie?.value);
 
