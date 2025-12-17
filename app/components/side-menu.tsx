@@ -5,7 +5,7 @@ import { X } from "lucide-react";
 import {
   FaInstagram,
   FaTiktok,
-  FaXTwitter,
+  FaTwitter,
 } from "react-icons/fa";
 
 type SideMenuProps = {
