@@ -6,55 +6,39 @@ async function main() {
   console.log("Début de l'initialisation de la base de données...");
 
   // Création d'utilisateurs de test
-  const user1 = await prisma.user.upsert({
-    where: { email: "user1@example.com" },
+  await prisma.user.upsert({
+    where: { email: "test@example.com" },
     update: {},
     create: {
-      id: "user1",
-      name: "Utilisateur 1",
-      email: "user1@example.com",
+      name: "Test User",
+      email: "test@example.com",
       password: "password123",
     },
   });
 
-  const user2 = await prisma.user.upsert({
-    where: { email: "user2@example.com" },
-    update: {},
-    create: {
-      id: "user2",
-      name: "Utilisateur 2",
-      email: "user2@example.com",
-      password: "password123",
+  // Création de produits de test
+  const products = [
+    {
+      name: "Produit 1",
+      description: "Description du produit 1",
+      price: 19.99,
+      image: "/images/product1.jpg",
     },
-  });
+    {
+      name: "Produit 2",
+      description: "Description du produit 2",
+      price: 29.99,
+      image: "/images/product2.jpg",
+    },
+  ];
 
-  // Produits
-  await prisma.product.createMany({
-    data: [
-      { id: "prod1", name: "Produit 1", description: "Description produit 1", price: 29.99 },
-      { id: "prod2", name: "Produit 2", description: "Description produit 2", price: 49.99 },
-      { id: "prod3", name: "Produit 3", description: "Description produit 3", price: 19.99 },
-    ],
-    skipDuplicates: true,
-  });
-
-  // Paniers
-  await prisma.cart.createMany({
-    data: [
-      { id: "cart1", userId: user1.id, createdAt: new Date() },
-      { id: "cart2", userId: user2.id, createdAt: new Date() },
-    ],
-    skipDuplicates: true,
-  });
-
-  // Commandes
-  await prisma.order.createMany({
-    data: [
-      { id: "order1", userId: user1.id, total: 79.98 },
-      { id: "order2", userId: user2.id, total: 19.99 },
-    ],
-    skipDuplicates: true,
-  });
+  for (const p of products) {
+    await prisma.product.upsert({
+      where: { name: p.name },
+      update: {},
+      create: p,
+    });
+  }
 
   console.log("Initialisation terminée !");
 }
