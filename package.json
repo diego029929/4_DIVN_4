@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "postinstall": "prisma generate && ts-node prisma/init.ts"
+    "postinstall": "prisma generate && ts-node prisma/init.js"
   },
   "dependencies": {
     "ts-node": "^10.9.1",
