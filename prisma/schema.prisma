@@ -1,3 +1,5 @@
+// prisma/schema.prisma
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -8,22 +10,37 @@ generator client {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  createdAt DateTime @default(now())
-
-  orders    Order[]  // <-- inverse de Order.user
-  carts     Cart[]   // <-- inverse de Cart.user
+  id       String   @id @default(cuid())
+  name     String
+  email    String   @unique
+  password String
+  carts    Cart[]
+  orders   Order[]
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  price       Float
-  createdAt   DateTime @default(now())
+  id       String  @id @default(cuid())
+  name     String
+  description String
+  price    Float
+  image    String
+}
+
+model Cart {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  items     CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 }
 
 model Order {
@@ -32,11 +49,14 @@ model Order {
   user      User     @relation(fields: [userId], references: [id])
   total     Float
   createdAt DateTime @default(now())
+  items     OrderItem[]
 }
 
-model Cart {
+model OrderItem {
   id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  orderId   String
+  productId String
+  quantity  Int
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 }
