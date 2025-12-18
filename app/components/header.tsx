@@ -14,7 +14,7 @@ export default function Header() {
   const [sideOpen, setSideOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  if (loading) return null; // ⚡️ éviter flash déco
+  if (loading) return null; // ⚡ éviter flash déconnecté
 
   return (
     <>
@@ -24,7 +24,7 @@ export default function Header() {
         <div className="flex items-center gap-4 px-4 h-16">
           <Menu
             className="cursor-pointer text-white"
-            onClick={() => setSideOpen(v => !v)}
+            onClick={() => setSideOpen((v) => !v)}
           />
 
           <div className={`search-bar relative ${searchOpen ? "active" : ""}`}>
@@ -59,8 +59,7 @@ export default function Header() {
         </div>
       </header>
 
-      <div className="h-16" /> {/* spacer header fixe */}
+      <div className="h-16" /> {/* spacer pour header fixe */}
     </>
   );
 }
-
