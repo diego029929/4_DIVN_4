@@ -1,11 +1,10 @@
-// app/layout.tsx
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
-import { Inter, Bebas_Neue } from "next/font/google";
 import { AuthProvider } from "@/context/auth-context";
+import { Inter, Bebas_Neue } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const bebas = Bebas_Neue({
@@ -19,11 +18,7 @@ export const metadata = {
   description: "Boutique DIVN",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
       <body
@@ -35,19 +30,16 @@ export default function RootLayout({
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
-        {/* 🔐 Auth global (UNE seule fois) */}
         <AuthProvider>
           <CartProvider>
             <Header />
-
             <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
               {children}
             </main>
-
             <Footer />
           </CartProvider>
         </AuthProvider>
       </body>
     </html>
   );
-      }
+}
