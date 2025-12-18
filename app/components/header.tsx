@@ -5,16 +5,18 @@ import { Menu, Search } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import SideMenu from "./side-menu";
+import { useAuth } from "@/context/auth-context";
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
-type HeaderProps = {
-  isAuthenticated: boolean;
-};
+export default function Header() {
+  const { user, loading } = useAuth();
 
-export default function Header({ isAuthenticated }: HeaderProps) {
   const [sideOpen, setSideOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  // ⏳ Évite le flash déconnecté
+  if (loading) return null;
 
   return (
     <>
@@ -24,7 +26,7 @@ export default function Header({ isAuthenticated }: HeaderProps) {
       {/* HEADER FIXE NOIR */}
       <header className="fixed top-0 left-0 z-20 w-full bg-black text-white shadow-md">
         <div className="flex items-center gap-4 px-4 h-16">
-          {/* Burger (toggle) */}
+          {/* Burger */}
           <Menu
             className="cursor-pointer text-white"
             onClick={() => setSideOpen((v) => !v)}
@@ -51,13 +53,21 @@ export default function Header({ isAuthenticated }: HeaderProps) {
 
           {/* Right */}
           <div className="ml-auto flex items-center gap-4">
+            {/* Exemple d’usage auth (optionnel) */}
+            {user && (
+              <span className="text-sm text-neutral-300">
+                Bonjour {user.email}
+              </span>
+            )}
+
             <HeaderCart />
           </div>
         </div>
       </header>
 
-      {/* Spacer pour que le contenu ne soit pas caché */}
+      {/* Spacer pour éviter le chevauchement */}
       <div className="h-16" />
     </>
   );
-}
+            }
+              
