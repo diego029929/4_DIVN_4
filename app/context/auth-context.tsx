@@ -1,10 +1,9 @@
-
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type User = {
-  id: number;
+  id: string;
   email: string;
 };
 
@@ -26,9 +25,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function checkSession() {
       try {
         const res = await fetch("/api/check-session", {
-          credentials: "include", // 🔑 envoie le cookie HttpOnly
+          credentials: "include", // 🔑 cookie envoyé
         });
-
         if (!res.ok) {
           setUser(null);
         } else {
@@ -54,4 +52,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   return useContext(AuthContext);
-}
+    }
