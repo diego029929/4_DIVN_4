@@ -2,13 +2,16 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type User = { id: number; email: string };
+type User = {
+  id: number;
+  email: string;
+};
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
-  refreshUser: () => Promise<void>;
+  refresh: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -17,19 +20,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async () => {
-    try {
-      const res = await fetch("/api/check-session", { credentials: "include" });
-      if (!res.ok) return setUser(null);
-      const data = await res.json();
-      setUser(data.user ?? null);
-    } catch {
-      setUser(null);
-    }
+  const refresh = async () => {
+    const res = await fetch("/api/check-session", {
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    setUser(data.user ?? null);
   };
 
   useEffect(() => {
-    fetchUser().finally(() => setLoading(false));
+    refresh().finally(() => setLoading(false));
   }, []);
 
   return (
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         isAuthenticated: !!user,
-        refreshUser: fetchUser,
+        refresh,
       }}
     >
       {children}
@@ -50,4 +51,4 @@ export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
-}
+    }
