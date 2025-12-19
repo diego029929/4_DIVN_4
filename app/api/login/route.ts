@@ -9,28 +9,43 @@ export async function POST(req: Request) {
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Email et mot de passe requis" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email et mot de passe requis" },
+        { status: 400 }
+      );
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return NextResponse.json({ error: "Identifiants incorrects" }, { status: 401 });
+    if (!user)
+      return NextResponse.json(
+        { error: "Identifiants incorrects" },
+        { status: 401 }
+      );
 
     const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return NextResponse.json({ error: "Identifiants incorrects" }, { status: 401 });
+    if (!valid)
+      return NextResponse.json(
+        { error: "Identifiants incorrects" },
+        { status: 401 }
+      );
 
-    // ✅ Création de la réponse
+    // ✅ Création de la réponse JSON
     const response = NextResponse.json({ success: true });
 
-    // ✅ Poser le cookie via la réponse
+    // ✅ Poser le cookie de session
     response.cookies.set("auth", user.id.toString(), {
-      httpOnly: true,
-      sameSite: "lax",
-      path: "/",
+      httpOnly: true,   // ✅ impossible à lire via JS
+      sameSite: "lax",  // ✅ supporte navigation normale
+      path: "/",        // ✅ disponible sur tout le site
       maxAge: 60 * 60 * 24 * 7, // 7 jours
+      // secure: true // seulement si HTTPS en prod
     });
 
     return response;
   } catch (err: any) {
-    return NextResponse.json({ error: err.message ?? "Erreur serveur" }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message ?? "Erreur serveur" },
+      { status: 500 }
+    );
   }
-                             }
+}
