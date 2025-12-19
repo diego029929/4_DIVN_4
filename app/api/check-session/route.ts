@@ -1,38 +1,24 @@
+// /app/api/check-session/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
 export async function GET(req: Request) {
-  try {
-    const cookieHeader = req.headers.get("cookie") || "";
-    const cookies = Object.fromEntries(
-      cookieHeader
-        .split(";")
-        .map(c => c.trim().split("="))
-        .map(([k, v]) => [k, decodeURIComponent(v)])
-    );
+  const cookie = req.headers.get("cookie") ?? "";
+  const auth = cookie
+    .split(";")
+    .find(c => c.trim().startsWith("auth="))
+    ?.split("=")[1];
 
-    const userId = cookies["auth"];
-    if (!userId) {
-      return NextResponse.json({ user: null }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: parseInt(userId) },
-      select: { id: true, email: true },
-    });
-
-    if (!user) {
-      return NextResponse.json({ user: null }, { status: 401 });
-    }
-
-    return NextResponse.json({ user });
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err.message ?? "Erreur serveur" },
-      { status: 500 }
-    );
+  if (!auth) {
+    return NextResponse.json({ user: null });
   }
-      }
 
+  const user = await prisma.user.findUnique({
+    where: { id: Number(auth) },
+    select: { id: true, email: true },
+  });
+
+  return NextResponse.json({ user: user ?? null });
+}
