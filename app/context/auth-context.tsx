@@ -1,35 +1,23 @@
-"use client";
-
-import { createContext, useContext, useEffect, useState } from "react";
-
-type User = {
-  id: number;
-  email: string;
-};
-
-type AuthContextType = {
-  user: User | null;
-  loading: boolean;
-  isAuthenticated: boolean;
-};
-
-const AuthContext = createContext<AuthContextType | null>(null);
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/check-session", { credentials: "include" })
-      .then(res => (res.ok ? res.json() : null))
-      .then(data => {
-        setUser(data?.user ?? null);
-        setLoading(false);
-      })
-      .catch(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/check-session", { credentials: "include" });
+      if (!res.ok) {
         setUser(null);
-        setLoading(false);
-      });
+        return;
+      }
+      const data = await res.json();
+      setUser(data.user ?? null);
+    } catch {
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser().finally(() => setLoading(false));
   }, []);
 
   return (
@@ -38,17 +26,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         loading,
         isAuthenticated: !!user,
+        refreshUser: fetchUser, // ✅ expose la fonction
       }}
     >
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used inside AuthProvider");
-  }
-  return ctx;
 }
