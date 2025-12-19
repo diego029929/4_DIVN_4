@@ -1,12 +1,17 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
-import { CartProvider } from "@/components/cart-provider";
-import Header from "@/components/header";
-import { Footer } from "@/components/footer";
-import { AuthProvider } from "@/context/auth-context";
 import { Inter, Bebas_Neue } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+import { CartProvider } from "@/components/cart-provider";
+import { AuthProvider } from "@/context/auth-context";
+import Header from "@/components/header";
+import { Footer } from "@/components/footer";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
 const bebas = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],
@@ -30,12 +35,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
+        {/* ✅ Provider AUTH (client) */}
         <AuthProvider>
+          {/* ✅ Provider PANIER (client) */}
           <CartProvider>
             <Header />
+
             <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
               {children}
             </main>
+
             <Footer />
           </CartProvider>
         </AuthProvider>
