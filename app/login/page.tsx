@@ -1,17 +1,18 @@
+// /app/login/page.tsx
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
-  const { user, loading, refresh } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "connected">("idle");
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setStatus("loading");
 
     const res = await fetch("/api/login", {
       method: "POST",
@@ -20,24 +21,35 @@ export default function LoginPage() {
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await res.json();
     if (!res.ok) {
-      setError(data.error);
+      const data = await res.json();
+      setError(data.error || "Erreur");
+      setStatus("idle");
       return;
     }
 
-    await refresh();
-  }
+    // 🔥 TEST DIRECT DE LA SESSION
+    const check = await fetch("/api/check-session", {
+      credentials: "include",
+    });
 
-  if (loading) return <p>Chargement...</p>;
+    const data = await check.json();
+
+    if (data.user) {
+      setStatus("connected");
+    } else {
+      setError("Session non créée");
+      setStatus("idle");
+    }
+  }
 
   return (
     <main className="max-w-md mx-auto mt-20">
       <h1 className="text-2xl font-bold mb-6">Connexion</h1>
 
-      {user ? (
-        <p className="text-green-500">
-          ✅ Connecté en tant que {user.email}
+      {status === "connected" ? (
+        <p className="text-green-500 text-lg">
+          ✅ CONNECTÉ
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -61,12 +73,14 @@ export default function LoginPage() {
 
           {error && <p className="text-red-500">{error}</p>}
 
-          <button className="w-full bg-black text-white py-2">
-            Se connecter
+          <button
+            type="submit"
+            className="w-full bg-black text-white py-2"
+          >
+            {status === "loading" ? "Connexion..." : "Se connecter"}
           </button>
         </form>
       )}
     </main>
   );
-            }
-          
+               }
