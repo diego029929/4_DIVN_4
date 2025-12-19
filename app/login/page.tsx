@@ -1,24 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
-  const router = useRouter();
   const { user, loading } = useAuth();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  // ✅ Si déjà connecté → redirection
-  useEffect(() => {
-    if (!loading && user) {
-      router.replace("/checkout"); // ou "/" si tu préfères
-    }
-  }, [user, loading, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,18 +27,21 @@ export default function LoginPage() {
       return;
     }
 
-    // ✅ comportement IDENTIQUE à avant
-    router.push("/checkout");
+    // Tu peux mettre à jour user dans le contexte ici ou recharger la page
+    window.location.reload(); // simple pour récupérer la session
   }
 
-  // ⏳ On évite le flash du formulaire
   if (loading) return null;
 
   return (
     <main className="max-w-md mx-auto mt-20">
       <h1 className="text-2xl font-bold mb-6">Connexion</h1>
 
-      {!user && (
+      {user ? (
+        <p className="text-green-500">
+          Connecté en tant que : {user.email}
+        </p>
+      ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
@@ -76,13 +68,6 @@ export default function LoginPage() {
           </button>
         </form>
       )}
-
-      <p className="mt-4 text-center text-sm">
-        Pas de compte ?{" "}
-        <Link href="/register" className="underline">
-          Créer un compte
-        </Link>
-      </p>
     </main>
   );
 }
