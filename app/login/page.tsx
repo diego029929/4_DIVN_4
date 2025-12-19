@@ -9,7 +9,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -17,23 +17,18 @@ export default function LoginPage() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // ✅ Très important
+        credentials: "include", // ← Très important
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
+      if (!res.ok) return setError(data.error || "Erreur de connexion");
 
-      if (!res.ok) {
-        setError(data.error || "Erreur de connexion");
-        return;
-      }
-
-      // ✅ Met à jour le contexte Auth immédiatement
-      await refreshUser();
+      await refreshUser(); // ← Mise à jour du contexte
     } catch (err: any) {
       setError(err.message || "Erreur réseau");
     }
-  }
+  };
 
   if (loading) return <p>Chargement...</p>;
 
