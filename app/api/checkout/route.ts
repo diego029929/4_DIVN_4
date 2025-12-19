@@ -1,42 +1,28 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import { prisma } from "@/lib/prisma";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-});
+export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
-    const { items } = await req.json();
+    const cookieHeader = req.headers.get("cookie") || "";
+    const cookies = Object.fromEntries(
+      cookieHeader
+        .split(";")
+        .map((c) => c.trim().split("="))
+        .map(([k, v]) => [k, decodeURIComponent(v)])
+    );
 
-    if (!items || !items.length) {
-      return NextResponse.json({ error: "Panier vide" }, { status: 400 });
-    }
+    const userId = cookies["auth"];
+    if (!userId) return NextResponse.json({ user: null });
 
-    const lineItems = items.map((item: any) => ({
-      price_data: {
-        currency: "eur",
-        product_data: {
-          name: item.name,
-        },
-        unit_amount: item.priceInCents, // ✅ FIX MAJEUR
-      },
-      quantity: item.quantity,
-    }));
-
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: lineItems,
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout`,
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(userId) },
+      select: { id: true, email: true },
     });
 
-    return NextResponse.json({ url: session.url });
-  } catch (err: any) {
-    console.error("STRIPE ERROR:", err);
-    return NextResponse.json(
-      { error: "Erreur Stripe" },
-      { status: 500 }
-    );
+    return NextResponse.json({ user: user ?? null });
+  } catch {
+    return NextResponse.json({ user: null });
   }
 }
