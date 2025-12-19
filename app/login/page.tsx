@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,9 +13,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  // ✅ Si déjà connecté → redirection
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/"); // ou /checkout
+      router.replace("/checkout"); // ou "/" si tu préfères
     }
   }, [user, loading, router]);
 
@@ -37,9 +38,11 @@ export default function LoginPage() {
       return;
     }
 
+    // ✅ comportement IDENTIQUE à avant
     router.push("/checkout");
   }
 
+  // ⏳ On évite le flash du formulaire
   if (loading) return null;
 
   return (
