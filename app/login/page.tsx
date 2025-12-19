@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth(); // ajout de refreshUser
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,8 +27,8 @@ export default function LoginPage() {
       return;
     }
 
-    // Recharge la page pour mettre à jour le contexte
-    window.location.reload();
+    // ✅ Met à jour le contexte auth directement
+    if (refreshUser) await refreshUser();
   }
 
   if (loading) return null;
