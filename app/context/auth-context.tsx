@@ -2,10 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 
-type User = {
-  id: number;
-  email: string;
-};
+type User = { id: number; email: string };
 
 type AuthContextType = {
   user: User | null;
@@ -20,14 +17,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fonction pour récupérer l'utilisateur depuis l'API
   const fetchUser = async () => {
     try {
       const res = await fetch("/api/check-session", { credentials: "include" });
-      if (!res.ok) {
-        setUser(null);
-        return;
-      }
+      if (!res.ok) return setUser(null);
       const data = await res.json();
       setUser(data.user ?? null);
     } catch {
@@ -53,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ✅ Hook pour utiliser le contexte
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
