@@ -1,3 +1,4 @@
+// /app/api/login/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -25,11 +26,11 @@ export async function POST(req: Request) {
 
   res.cookies.set("auth", String(user.id), {
     httpOnly: true,
-    secure: true,        // 🔥 OBLIGATOIRE EN PROD
+    secure: true,
     sameSite: "lax",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
 
   return res;
-}
+    }
