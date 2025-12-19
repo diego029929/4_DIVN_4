@@ -27,8 +27,8 @@ export default function LoginPage() {
       return;
     }
 
-    // Tu peux mettre à jour user dans le contexte ici ou recharger la page
-    window.location.reload(); // simple pour récupérer la session
+    // Recharge la page pour mettre à jour le contexte
+    window.location.reload();
   }
 
   if (loading) return null;
@@ -38,8 +38,8 @@ export default function LoginPage() {
       <h1 className="text-2xl font-bold mb-6">Connexion</h1>
 
       {user ? (
-        <p className="text-green-500">
-          Connecté en tant que : {user.email}
+        <p className="text-green-500 text-lg">
+          ✅ Connecté en tant que : {user.email}
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
