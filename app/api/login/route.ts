@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   res.cookies.set("auth", String(user.id), {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "none",
     path: "/",
     maxAge: 60 * 60 * 24 * 7,
   });
