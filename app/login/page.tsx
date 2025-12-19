@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
-  const { user, loading, refreshUser } = useAuth(); // ajout de refreshUser
+  const { user, loading, refreshUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -13,25 +13,29 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // ✅ Très important
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error);
-      return;
+      if (!res.ok) {
+        setError(data.error || "Erreur de connexion");
+        return;
+      }
+
+      // ✅ Met à jour le contexte Auth immédiatement
+      await refreshUser();
+    } catch (err: any) {
+      setError(err.message || "Erreur réseau");
     }
-
-    // ✅ Met à jour le contexte auth directement
-    if (refreshUser) await refreshUser();
   }
 
-  if (loading) return null;
+  if (loading) return <p>Chargement...</p>;
 
   return (
     <main className="max-w-md mx-auto mt-20">
