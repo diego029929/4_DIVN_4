@@ -4,31 +4,30 @@ import { useState } from "react";
 import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
-  const { user, loading, refreshUser } = useAuth();
+  const { user, loading, refresh } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
-    try {
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // ← Très important
-        body: JSON.stringify({ email, password }),
-      });
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ email, password }),
+    });
 
-      const data = await res.json();
-      if (!res.ok) return setError(data.error || "Erreur de connexion");
-
-      await refreshUser(); // ← Mise à jour du contexte
-    } catch (err: any) {
-      setError(err.message || "Erreur réseau");
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error);
+      return;
     }
-  };
+
+    await refresh();
+  }
 
   if (loading) return <p>Chargement...</p>;
 
@@ -37,25 +36,25 @@ export default function LoginPage() {
       <h1 className="text-2xl font-bold mb-6">Connexion</h1>
 
       {user ? (
-        <p className="text-green-500 text-lg">
-          ✅ Connecté en tant que : {user.email}
+        <p className="text-green-500">
+          ✅ Connecté en tant que {user.email}
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
-            placeholder="Email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="Email"
             className="w-full border p-2"
             required
           />
 
           <input
             type="password"
-            placeholder="Mot de passe"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Mot de passe"
             className="w-full border p-2"
             required
           />
@@ -69,4 +68,5 @@ export default function LoginPage() {
       )}
     </main>
   );
-}
+            }
+          
