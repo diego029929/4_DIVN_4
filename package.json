@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm install && pnpm prisma generate && pnpm ts-node prisma/init-db.ts && pnpm prisma migrate deploy && next build",
+    "build": "pnpm install && pnpm prisma generate && tsc prisma/init-db.ts --outDir dist && node dist/init-db.js && pnpm prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
 
     "prisma:generate": "prisma generate",
-    "db:init": "ts-node prisma/init-db.ts",
-    "db:setup": "prisma generate && ts-node prisma/init-db.ts"
+    "db:init": "tsc prisma/init-db.ts --outDir dist && node dist/init-db.js",
+    "db:setup": "prisma generate && tsc prisma/init-db.ts --outDir dist && node dist/init-db.js"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
