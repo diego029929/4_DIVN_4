@@ -6,21 +6,20 @@
   "scripts": {
     "dev": "next dev",
 
-    "build": " node prisma/init-db.js && pnpm prisma migrate deploy && next build",
+    "build": "next build",
 
-    "start": "next start",
+    "start": "pnpm run db:migrate && next start",
 
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
 
-    "postinstall": "pnpm prisma generate",
+    "postinstall": "prisma generate",
 
-    "prisma:generate": "prisma generate",
-    "db:init": "node prisma/init-db.js",
-    "db:setup": "prisma generate && node prisma/init-db.js"
+    "db:migrate": "prisma migrate deploy && node prisma/init-db.js"
   },
 
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
+
     "@radix-ui/react-accordion": "1.2.12",
     "@radix-ui/react-alert-dialog": "1.0.5",
     "@radix-ui/react-aspect-ratio": "1.0.2",
@@ -92,8 +91,8 @@
 
   "devDependencies": {
     "prisma": "^5.22.0",
-    "ts-node": "^10.9.1",
     "typescript": "5.4.5",
+    "ts-node": "^10.9.1",
 
     "postcss": "8.4.31",
     "autoprefixer": "10.4.20",
@@ -108,4 +107,5 @@
   "pnpm": {
     "allowBuilds": ["sharp"]
   }
-}
+  }
+    
