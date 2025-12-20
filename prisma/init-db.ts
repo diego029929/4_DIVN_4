@@ -1,4 +1,4 @@
-import { prisma } from "../app/lib/prisma"; // ajuste le chemin si nécessaire
+import { prisma } from "../app/lib/prisma.ts"; // ajuste le chemin si nécessaire
 
 async function main() {
   try {
