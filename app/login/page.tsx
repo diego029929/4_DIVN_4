@@ -1,86 +1,29 @@
-// /app/login/page.tsx
-"use client";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-import { useState } from "react";
+export async function POST(req: Request) {
+  const { email, password } = await req.json();
 
-export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "connected">("idle");
-  const [error, setError] = useState("");
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setStatus("loading");
-
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error || "Erreur");
-      setStatus("idle");
-      return;
-    }
-
-    // 🔥 TEST DIRECT DE LA SESSION
-    const check = await fetch("/api/check-session", {
-      credentials: "include",
-    });
-
-    const data = await check.json();
-
-    if (data.user) {
-      setStatus("connected");
-    } else {
-      setError("Session non créée");
-      setStatus("idle");
-    }
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) {
+    return NextResponse.json({ error: "Identifiants incorrects" }, { status: 401 });
   }
 
-  return (
-    <main className="max-w-md mx-auto mt-20">
-      <h1 className="text-2xl font-bold mb-6">Connexion</h1>
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return NextResponse.json({ error: "Identifiants incorrects" }, { status: 401 });
+  }
 
-      {status === "connected" ? (
-        <p className="text-green-500 text-lg">
-          ✅ CONNECTÉ
-        </p>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="Email"
-            className="w-full border p-2"
-            required
-          />
+  const res = NextResponse.json({ ok: true });
 
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Mot de passe"
-            className="w-full border p-2"
-            required
-          />
+  res.cookies.set("auth", String(user.id), {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
 
-          {error && <p className="text-red-500">{error}</p>}
-
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-2"
-          >
-            {status === "loading" ? "Connexion..." : "Se connecter"}
-          </button>
-        </form>
-      )}
-    </main>
-  );
-               }
+  return res;
+}
