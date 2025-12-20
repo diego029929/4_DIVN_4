@@ -1,55 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/context/auth-context";
 
 export default function LoginPage() {
-  const { user, loading } = useAuth();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
-    setSubmitting(true);
 
     const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
       credentials: "include",
+      body: JSON.stringify({ email, password }),
     });
 
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error ?? "Erreur");
-      setSubmitting(false);
-      return;
+    if (res.ok) {
+      setStatus("ok");
+    } else {
+      setStatus("error");
     }
-
-    // 🔥 force le rechargement pour relire la session
-    window.location.reload();
-  }
-
-  if (loading) {
-    return <p className="text-center mt-20">Chargement…</p>;
-  }
-
-  if (user) {
-    return (
-      <div className="max-w-md mx-auto mt-20 text-center">
-        <h1 className="text-2xl font-bold">✅ Connecté</h1>
-        <p className="mt-2">{user.email}</p>
-      </div>
-    );
   }
 
   return (
-    <main className="max-w-md mx-auto mt-20">
-      <h1 className="text-2xl font-bold mb-6">Connexion</h1>
+    <main className="max-w-md mx-auto mt-20 space-y-4">
+      <h1 className="text-2xl font-bold">Connexion (test)</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -70,16 +47,13 @@ export default function LoginPage() {
           required
         />
 
-        {error && <p className="text-red-500">{error}</p>}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full bg-black text-white py-2"
-        >
-          {submitting ? "Connexion..." : "Se connecter"}
+        <button className="w-full bg-black text-white py-2">
+          Se connecter
         </button>
       </form>
+
+      {status === "ok" && <p className="text-green-500">✅ LOGIN OK</p>}
+      {status === "error" && <p className="text-red-500">❌ LOGIN FAIL</p>}
     </main>
   );
 }
