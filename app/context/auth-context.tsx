@@ -10,7 +10,6 @@ type User = {
 type AuthContextType = {
   user: User | null;
   loading: boolean;
-  isAuthenticated: boolean;
   refresh: () => Promise<void>;
 };
 
@@ -20,28 +19,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refresh = async () => {
-    const res = await fetch("/api/check-session", {
-      credentials: "include",
-    });
+  async function refresh() {
+    try {
+      const res = await fetch("/api/check-session", {
+        credentials: "include",
+      });
 
-    const data = await res.json();
-    setUser(data.user ?? null);
-  };
+      if (!res.ok) {
+        setUser(null);
+        return;
+      }
+
+      const data = await res.json();
+      setUser(data.user ?? null);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    refresh().finally(() => setLoading(false));
+    refresh();
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        isAuthenticated: !!user,
-        refresh,
-      }}
-    >
+    <AuthContext.Provider value={{ user, loading, refresh }}>
       {children}
     </AuthContext.Provider>
   );
@@ -51,4 +52,4 @@ export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
   return ctx;
-    }
+}
