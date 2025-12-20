@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -26,7 +27,7 @@ export default function LoginPage() {
 
   return (
     <main className="max-w-md mx-auto mt-20 space-y-4">
-      <h1 className="text-2xl font-bold">Connexion (test)</h1>
+      <h1 className="text-2xl font-bold">Connexion</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -52,8 +53,19 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {status === "ok" && <p className="text-green-500">✅ LOGIN OK</p>}
-      {status === "error" && <p className="text-red-500">❌ LOGIN FAIL</p>}
+      {status === "ok" && (
+        <p className="text-green-500 text-center">✅ Connexion réussie</p>
+      )}
+      {status === "error" && (
+        <p className="text-red-500 text-center">❌ Email ou mot de passe incorrect</p>
+      )}
+
+      <p className="text-center text-sm mt-4">
+        Pas encore de compte ?{" "}
+        <Link href="/register" className="underline">
+          Créer un compte
+        </Link>
+      </p>
     </main>
   );
 }
