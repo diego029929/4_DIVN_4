@@ -6,11 +6,13 @@
   "scripts": {
     "dev": "next dev",
 
-    "build": "pnpm prisma generate && node prisma/init-db.js && pnpm prisma migrate deploy && next build",
+    "build": " node prisma/init-db.js && pnpm prisma migrate deploy && next build",
 
     "start": "next start",
 
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+
+    "postinstall": "pnpm prisma generate",
 
     "prisma:generate": "prisma generate",
     "db:init": "node prisma/init-db.js",
