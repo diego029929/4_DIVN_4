@@ -88,7 +88,7 @@
   },
   "scripts": {
   "build": "pnpm install && pnpm prisma generate && tsc prisma/init-db.ts --outDir dist && node dist/init-db.js && pnpm prisma migrate deploy && next build",
-  "db:init": "tsc prisma/init-db.ts --outDir dist && node dist/init-db.js",
+  "db:init": "tsc prisma/init-db.ts --outDir dist",
   "db:setup": "pnpm prisma generate && tsc prisma/init-db.ts --outDir dist && node dist/init-db.js"
     
 },
