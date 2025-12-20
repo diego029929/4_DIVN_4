@@ -1,24 +1,22 @@
-// /app/api/check-session/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 
-export const runtime = "nodejs";
+export async function GET() {
+  const cookie = cookies().get("auth");
 
-export async function GET(req: Request) {
-  const cookie = req.headers.get("cookie") ?? "";
-  const auth = cookie
-    .split(";")
-    .find(c => c.trim().startsWith("auth="))
-    ?.split("=")[1];
-
-  if (!auth) {
-    return NextResponse.json({ user: null });
+  if (!cookie) {
+    return NextResponse.json({ user: null }, { status: 401 });
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: Number(auth) },
+    where: { id: Number(cookie.value) },
     select: { id: true, email: true },
   });
 
-  return NextResponse.json({ user: user ?? null });
+  if (!user) {
+    return NextResponse.json({ user: null }, { status: 401 });
+  }
+
+  return NextResponse.json({ user });
 }
