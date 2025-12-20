@@ -1,4 +1,4 @@
-const { prisma } = require("../app/lib/prisma"); // ajuste selon ton projet
+const { prisma } = require("../app/lib/prisma.ts"); // ajuste selon ton projet
 
 async function main() {
   try {
