@@ -1,6 +1,4 @@
-
-
-import { prisma } from "./lib/prisma";
+import { prisma } from "../app/lib/prisma"; // ajuste selon ton projet
 
 async function main() {
   await prisma.$executeRaw(`
