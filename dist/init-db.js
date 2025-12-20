@@ -1,4 +1,7 @@
-const { prisma } = require("../app/lib/prisma.ts"); // ajuste selon ton projet
+
+const { PrismaClient } = require("@prisma/client");
+
+const prisma = new PrismaClient();
 
 async function main() {
   try {
@@ -10,7 +13,6 @@ async function main() {
         "createdAt" TIMESTAMP DEFAULT NOW()
       );
     `);
-
     console.log("✅ Table User créée ou existait déjà");
   } catch (error) {
     console.error("❌ Erreur lors de la création de la table :", error);
@@ -20,5 +22,4 @@ async function main() {
   }
 }
 
-// Exécute le script
 main();
