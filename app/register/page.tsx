@@ -1,64 +1,34 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { FormEvent } from "react"
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
+    const form = e.currentTarget
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value
 
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
-    });
+    })
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error);
-      return;
+    if (res.ok) {
+      alert("Compte créé")
+    } else {
+      const data = await res.json()
+      alert(data.error || "Erreur")
     }
-
-    router.push("/login");
   }
 
   return (
-    <main className="max-w-md mx-auto mt-20">
-      <h1 className="text-2xl font-bold mb-6">Créer un compte</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-2"
-          required
-        />
-
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-2"
-          required
-        />
-
-        {error && <p className="text-red-500">{error}</p>}
-
-        <button className="w-full bg-black text-white py-2">
-          Créer le compte
-        </button>
-      </form>
-    </main>
-  );
-        }
-            
+    <form onSubmit={handleSubmit}>
+      <input name="email" type="email" placeholder="Email" />
+      <input name="password" type="password" placeholder="Mot de passe" />
+      <button type="submit">Créer un compte</button>
+    </form>
+  )
+}
