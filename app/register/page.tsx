@@ -1,9 +1,24 @@
 "use client"
 
 export default function RegisterPage() {
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    alert("CLICK OK")
+
+    const form = e.currentTarget
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value
+
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+
+    console.log("STATUS", res.status)
+
+    if (res.ok) {
+      alert("Compte créé")
+    }
   }
 
   return (
@@ -13,4 +28,4 @@ export default function RegisterPage() {
       <button type="submit">Créer un compte</button>
     </form>
   )
-}
+      }
