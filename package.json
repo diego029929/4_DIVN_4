@@ -16,7 +16,7 @@
 
     "db:migrate": "prisma migrate deploy",
 
-    "db:init": "node prisma/init-db.js",
+    "db:init": "node prisma/init-db.ts",
 
     "db:setup": "pnpm run db:migrate && pnpm run db:init"
   },
