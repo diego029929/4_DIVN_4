@@ -13,12 +13,15 @@ async function main() {
 
     console.log("✅ Table User créée ou existait déjà");
   } catch (error) {
+    // Log l'erreur mais ne quitte pas brutalement
     console.error("❌ Erreur lors de la création de la table :", error);
-    process.exit(1);
   } finally {
     await prisma.$disconnect();
   }
 }
 
 // Exécute le script
-main();
+main().catch(err => {
+  console.error("Erreur inattendue :", err);
+});
+
