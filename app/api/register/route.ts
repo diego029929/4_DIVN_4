@@ -1,27 +1,38 @@
-import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcryptjs"
+"use client"
 
-const prisma = new PrismaClient()
+import { FormEvent } from "react"
 
-export async function POST(req: Request) {
-  const { email, password } = await req.json()
+export default function RegisterPage() {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
 
-  if (!email || !password) {
-    return NextResponse.json({ error: "Champs manquants" }, { status: 400 })
+    const form = e.currentTarget
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value
+
+    console.log("CLICK REGISTER", email, password)
+
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+
+    console.log("RESPONSE STATUS", res.status)
+
+    if (res.ok) {
+      alert("Compte créé")
+    } else {
+      const data = await res.json()
+      alert(data.error || "Erreur")
+    }
   }
 
-  const existingUser = await prisma.user.findUnique({ where: { email } })
-
-  if (existingUser) {
-    return NextResponse.json({ error: "Utilisateur déjà existant" }, { status: 400 })
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10)
-
-  await prisma.user.create({
-    data: { email, password: hashedPassword },
-  })
-
-  return NextResponse.json({ success: true })
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="email" type="email" placeholder="Email" />
+      <input name="password" type="password" placeholder="Mot de passe" />
+      <button type="submit">Créer un compte</button>
+    </form>
+  )
 }
