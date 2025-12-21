@@ -5,13 +5,46 @@ import bcrypt from "bcryptjs"
 const prisma = new PrismaClient()
 
 export async function POST(req: Request) {
-  const { email, password } = await req.json()
+  try {
+    const body = await req.json()
+    const { email, password } = body
 
-  const hashedPassword = await bcrypt.hash(password, 10)
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: "Email et mot de passe requis" },
+        { status: 400 }
+      )
+    }
 
-  await prisma.user.create({
-    data: { email, password: hashedPassword },
-  })
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    })
 
-  return NextResponse.json({ success: true })
-}
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Utilisateur déjà existant" },
+        { status: 400 }
+      )
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+      },
+    })
+
+    return NextResponse.json(
+      { success: true },
+      { status: 201 }
+    )
+  } catch (error) {
+    console.error("REGISTER ERROR:", error)
+    return NextResponse.json(
+      { error: "Erreur serveur" },
+      { status: 500 }
+    )
+  }
+      }
