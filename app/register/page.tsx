@@ -8,16 +8,16 @@ export default function RegisterPage() {
     const email = (form.elements.namedItem("email") as HTMLInputElement).value
     const password = (form.elements.namedItem("password") as HTMLInputElement).value
 
-    const res = await fetch("/api/register", {
+    const res = await fetch("/api/register/route.ts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     })
 
-    console.log("STATUS", res.status)
-
     if (res.ok) {
       alert("Compte créé")
+    } else {
+      alert("Erreur inscription")
     }
   }
 
@@ -28,4 +28,5 @@ export default function RegisterPage() {
       <button type="submit">Créer un compte</button>
     </form>
   )
-      }
+}
+}
