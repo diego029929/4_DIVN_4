@@ -8,7 +8,7 @@
 
     "build": "next build",
 
-    "db:dev": "prisma migrate dev"
+    "db:dev": "prisma migrate dev",
 
     "start": "next start",
 
