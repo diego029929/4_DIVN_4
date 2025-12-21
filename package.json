@@ -8,13 +8,17 @@
 
     "build": "next build",
 
-    "start": "pnpm run db:migrate && next start",
+    "start": "next start",
 
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
 
     "postinstall": "prisma generate",
 
-    "db:migrate": "prisma migrate deploy && node prisma/init-db.js"
+    "db:migrate": "prisma migrate deploy",
+
+    "db:init": "node prisma/init-db.js",
+
+    "db:setup": "pnpm run db:migrate && pnpm run db:init"
   },
 
   "dependencies": {
