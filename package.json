@@ -107,5 +107,4 @@
   "pnpm": {
     "allowBuilds": ["sharp"]
   }
-  }
-    
+}
