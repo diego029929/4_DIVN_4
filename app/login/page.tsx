@@ -1,30 +1,44 @@
-"use client";
+"use client"
 
-import { signIn } from "next-auth/react"
-import { useState } from "react";
-import Link from "next/link";
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import Link from "next/link"
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
+  const { status } = useSession()
+  const router = useRouter()
+
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+
+  // 🔁 Si déjà connecté → profil
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/profile")
+    }
+  }, [status, router])
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+    e.preventDefault()
+    setError("")
 
     const res = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({ email, password }),
-    });
+    })
 
     if (res.ok) {
-      setStatus("ok");
+      router.push("/profile")
     } else {
-      setStatus("error");
+      setError("Email ou mot de passe incorrect")
     }
   }
+
+  if (status === "loading") return null
 
   return (
     <main className="max-w-md mx-auto mt-20 space-y-4">
@@ -54,11 +68,8 @@ export default function LoginPage() {
         </button>
       </form>
 
-      {status === "ok" && (
-        <p className="text-green-500 text-center">✅ Connexion réussie</p>
-      )}
-      {status === "error" && (
-        <p className="text-red-500 text-center">❌ Email ou mot de passe incorrect</p>
+      {error && (
+        <p className="text-red-500 text-center">❌ {error}</p>
       )}
 
       <p className="text-center text-sm mt-4">
@@ -68,5 +79,5 @@ export default function LoginPage() {
         </Link>
       </p>
     </main>
-  );
-}
+  )
+        }
