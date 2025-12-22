@@ -1,17 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { X } from "lucide-react";
-import {
-  FaInstagram,
-  FaTiktok,
-  FaTwitter,
-} from "react-icons/fa";
+import { Menu, Search, User, X } from "lucide-react";
+import { useState } from "react";
+import dynamic from "next/dynamic";
+import { useAuth } from "@/context/auth-context";
 
-type SideMenuProps = {
-  open: boolean;
-  onClose: () => void;
-};
+const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 
 const menuItems = [
   { label: "Tous nos produits", href: "/shop" },
@@ -21,72 +16,111 @@ const menuItems = [
   { label: "Mon panier", href: "/cart" },
 ];
 
-export default function SideMenu({ open, onClose }: SideMenuProps) {
+export default function Header() {
+  const { user, loading } = useAuth();
+  const [sideOpen, setSideOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
+  if (loading) return null;
+
   return (
     <>
       {/* Overlay */}
-      <div
-        className={`
-          fixed inset-0 z-40 bg-black/60
-          transition-opacity duration-300
-          ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
-        `}
-        onClick={onClose}
-      />
+      {sideOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => setSideOpen(false)}
+        />
+      )}
 
-      {/* Menu */}
+      {/* SideMenu mobile */}
       <aside
-        className={`
-          fixed top-0 left-0 z-50 h-full
-          w-[280px] sm:w-[320px]
-          bg-[#0b0b0b] text-white
-          transform transition-transform duration-300
-          ${open ? "translate-x-0" : "-translate-x-full"}
-        `}
+        className={`fixed top-0 left-0 h-full w-64 sm:w-80 bg-[#0b0b0b] text-white z-50 transform transition-transform duration-300 ${
+          sideOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
-        {/* Close */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-2xl opacity-80 hover:opacity-100"
-        >
-          <X />
-        </button>
-
-        {/* Logo */}
-        <div className="pt-8 px-6 text-2xl font-bold tracking-wide">
-          DIVN
+        <div className="flex justify-between items-center p-4 border-b border-gray-700">
+          <span className="font-bold text-lg">Menu</span>
+          <button onClick={() => setSideOpen(false)}>
+            <X size={24} />
+          </button>
         </div>
-
-        {/* Menu items */}
-        <nav className="pt-10 px-6">
-          <ul className="space-y-6 text-[16px] font-medium">
-            {menuItems.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  onClick={onClose}
-                  className="block border-b border-white/10 pb-3 opacity-90 hover:opacity-100 transition"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <nav className="flex flex-col p-4 gap-4 text-lg">
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setSideOpen(false)}
+              className="border-b border-white/10 pb-2 hover:text-yellow-400 transition"
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
-
-        {/* Social */}
-        <div className="absolute bottom-10 left-6 flex gap-5 text-xl opacity-80">
-          <a href="#" aria-label="Instagram">
-            <FaInstagram />
-          </a>
-          <a href="#" aria-label="TikTok">
-            <FaTiktok />
-          </a>
-          <a href="#" aria-label="X">
-            <FaTwitter />
-          </a>
-        </div>
       </aside>
+
+      {/* Header */}
+      <header className="fixed top-0 left-0 z-30 w-full bg-[#1f1f1f] text-white shadow-md">
+        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 h-16">
+          {/* Menu burger mobile */}
+          <button
+            className="sm:hidden mr-3"
+            onClick={() => setSideOpen(true)}
+            aria-label="Ouvrir le menu"
+          >
+            <Menu size={28} />
+          </button>
+
+          {/* Logo */}
+          <Link href="/" className="text-xl sm:text-2xl font-bold text-white">
+            DIVN
+          </Link>
+
+          {/* Barre de recherche desktop */}
+          <div className="hidden sm:flex flex-1 mx-6 relative max-w-xl">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="w-full rounded-full py-2 pl-4 pr-10 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <Search
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300"
+              size={20}
+            />
+          </div>
+
+          {/* Profil + panier */}
+          <div className="flex items-center gap-4">
+            <Link href={user ? "/profile" : "/login"}>
+              <User size={24} className="text-white hover:text-yellow-400" />
+            </Link>
+            <HeaderCart />
+          </div>
+        </div>
+
+        {/* Barre de recherche mobile */}
+        <div className="sm:hidden px-4 pb-2">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="w-full rounded-full py-2 pl-4 pr-10 bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <Search
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300"
+              size={20}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Spacer pour header fixe */}
+      <div className="h-16 sm:h-16" />
     </>
   );
-}
+      }
+        
