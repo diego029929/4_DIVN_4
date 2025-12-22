@@ -1,11 +1,10 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { Inter, Bebas_Neue } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
 
-import { CartProvider } from "@/components/cart-provider";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
+import Providers from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,20 +34,17 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
-        {/* ✅ NEXTAUTH SESSION PROVIDER */}
-        <SessionProvider>
-          {/* ✅ PANIER */}
-          <CartProvider>
-            <Header />
+        <Providers>
+          <Header />
 
-            <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
-              {children}
-            </main>
+          <main className="flex-1 px-4 sm:px-8 lg:px-16 pt-6 sm:pt-10">
+            {children}
+          </main>
 
-            <Footer />
-          </CartProvider>
-        </SessionProvider>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );
       }
+        
