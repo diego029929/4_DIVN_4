@@ -1,8 +1,8 @@
 "use client"
 
-import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { signIn, useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function LoginPage() {
@@ -13,10 +13,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
-  // 🔁 Si déjà connecté → profil
+  // 🔁 Si déjà connecté
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/profile")
+      router.replace("/profile")
     }
   }, [status, router])
 
@@ -24,18 +24,11 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
 
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
+    await signIn("credentials", {
+      email,
+      password,
+      callbackUrl: "/profile", // ✅ LA CLÉ
     })
-
-    if (res.ok) {
-      router.push("/profile")
-    } else {
-      setError("Email ou mot de passe incorrect")
-    }
   }
 
   if (status === "loading") return null
@@ -80,4 +73,5 @@ export default function LoginPage() {
       </p>
     </main>
   )
-        }
+    }
+      
