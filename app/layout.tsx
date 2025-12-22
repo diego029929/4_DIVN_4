@@ -1,9 +1,9 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
 import { Inter, Bebas_Neue } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
 
 import { CartProvider } from "@/components/cart-provider";
-import { AuthProvider } from "@/context/auth-context";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 
@@ -35,9 +35,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           selection:bg-[#E6B400]/40 selection:text-white
         "
       >
-        {/* ✅ Provider AUTH (client) */}
-        <AuthProvider>
-          {/* ✅ Provider PANIER (client) */}
+        {/* ✅ NEXTAUTH SESSION PROVIDER */}
+        <SessionProvider>
+          {/* ✅ PANIER */}
           <CartProvider>
             <Header />
 
@@ -47,8 +47,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 
             <Footer />
           </CartProvider>
-        </AuthProvider>
+        </SessionProvider>
       </body>
     </html>
   );
-}
+      }
