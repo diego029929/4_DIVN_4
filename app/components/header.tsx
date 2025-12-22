@@ -26,7 +26,7 @@ export default function Header() {
           
           {/* Menu burger */}
           <button
-            className="text-white mr-2 sm:hidden"
+            className="text-white sm:hidden mr-2"
             onClick={() => setSideOpen(true)}
           >
             <Menu size={24} />
@@ -44,10 +44,10 @@ export default function Header() {
               placeholder="Rechercher..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="w-full rounded-md py-2 pl-3 pr-10 text-black focus:outline-none"
+              className="w-full rounded-md py-2 pl-3 pr-10 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
             <Search
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300"
               size={20}
             />
           </div>
@@ -69,4 +69,5 @@ export default function Header() {
       <div className="h-16" />
     </>
   );
-}
+            }
+              
