@@ -12,25 +12,22 @@ const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
 export default function Header() {
   const { user, loading } = useAuth();
   const [sideOpen, setSideOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  if (loading) return null;
+  if (loading) return null; // ⚡ éviter flash déconnecté
 
   return (
     <>
-      {/* Side menu */}
       <SideMenu open={sideOpen} onClose={() => setSideOpen(false)} />
 
-      <header className="fixed top-0 left-0 z-20 w-full bg-[#1f1f1f] text-white shadow-md">
+      <header className="fixed top-0 left-0 z-20 w-full bg-gray-800 text-white shadow-md">
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 h-16">
-          
           {/* Menu burger */}
-          <button
-            className="text-white sm:hidden mr-2"
+          <Menu
+            className="cursor-pointer text-white sm:hidden"
             onClick={() => setSideOpen(true)}
-          >
-            <Menu size={24} />
-          </button>
+          />
 
           {/* Logo */}
           <Link href="/" className="text-xl sm:text-2xl font-bold text-white">
@@ -44,20 +41,23 @@ export default function Header() {
               placeholder="Rechercher..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="w-full rounded-md py-2 pl-3 pr-10 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              className="w-full rounded-md py-2 pl-3 pr-10 text-black focus:outline-none"
             />
-            <Search
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300"
-              size={20}
-            />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600" size={20} />
           </div>
 
           {/* Actions utilisateur */}
           <div className="flex items-center gap-4">
-            {/* Icon profil */}
-            <Link href={user ? "/profile" : "/login"} className="relative">
-              <User size={24} className="text-white hover:text-yellow-400" />
-            </Link>
+            {/* Icon profil si connecté ou bouton login */}
+            {user ? (
+              <Link href="/profile" className="relative">
+                <User size={24} className="text-white hover:text-yellow-400" />
+              </Link>
+            ) : (
+              <Link href="/login" className="relative">
+                <User size={24} className="text-white hover:text-yellow-400" />
+              </Link>
+            )}
 
             {/* Panier */}
             <HeaderCart />
@@ -69,5 +69,4 @@ export default function Header() {
       <div className="h-16" />
     </>
   );
-            }
-              
+}
