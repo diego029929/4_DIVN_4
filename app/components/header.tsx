@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Search, User } from "lucide-react";
+import { Menu, Search, User, X } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import SideMenu from "./side-menu";
 import { useAuth } from "@/context/auth-context";
 
 const HeaderCart = dynamic(() => import("./header-cart"), { ssr: false });
@@ -19,9 +18,34 @@ export default function Header() {
   return (
     <>
       {/* SideMenu mobile */}
-      <SideMenu open={sideOpen} onClose={() => setSideOpen(false)} />
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white z-30 transform transition-transform ${
+          sideOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex justify-between items-center p-4 border-b border-gray-700">
+          <span className="font-bold text-lg">Menu</span>
+          <button onClick={() => setSideOpen(false)}>
+            <X size={24} />
+          </button>
+        </div>
+        <nav className="flex flex-col p-4 gap-4">
+          <Link href="/" onClick={() => setSideOpen(false)}>Accueil</Link>
+          <Link href="/shop" onClick={() => setSideOpen(false)}>Boutique</Link>
+          <Link href="/about" onClick={() => setSideOpen(false)}>À propos</Link>
+          <Link href="/contact" onClick={() => setSideOpen(false)}>Contact</Link>
+        </nav>
+      </div>
 
-      <header className="fixed top-0 left-0 z-20 w-full bg-[#1f1f1f] text-white shadow-md">
+      {/* Overlay pour fermer le menu */}
+      {sideOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20"
+          onClick={() => setSideOpen(false)}
+        />
+      )}
+
+      <header className="fixed top-0 left-0 z-40 w-full bg-[#1f1f1f] text-white shadow-md">
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 h-16">
           {/* Menu burger mobile */}
           <button
@@ -52,7 +76,7 @@ export default function Header() {
             />
           </div>
 
-          {/* Profil et panier */}
+          {/* Profil + Panier */}
           <div className="flex items-center gap-4">
             <Link href={user ? "/profile" : "/login"}>
               <User size={24} className="text-white hover:text-yellow-400" />
@@ -83,6 +107,5 @@ export default function Header() {
       <div className="h-16 sm:h-16" />
     </>
   );
-            }
-            
-
+      }
+          
