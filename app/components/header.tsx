@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Search } from "lucide-react";
+import { Menu, Search, User } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import SideMenu from "./side-menu";
@@ -13,6 +13,7 @@ export default function Header() {
   const { user, loading } = useAuth();
   const [sideOpen, setSideOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   if (loading) return null; // ⚡ éviter flash déconnecté
 
@@ -20,46 +21,53 @@ export default function Header() {
     <>
       <SideMenu open={sideOpen} onClose={() => setSideOpen(false)} />
 
-      <header className="fixed top-0 left-0 z-20 w-full bg-black text-white shadow-md">
-        <div className="flex items-center gap-4 px-4 h-16">
+      <header className="fixed top-0 left-0 z-20 w-full bg-gray-800 text-white shadow-md">
+        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 h-16">
+          {/* Menu burger */}
           <Menu
-            className="cursor-pointer text-white"
-            onClick={() => setSideOpen((v) => !v)}
+            className="cursor-pointer text-white sm:hidden"
+            onClick={() => setSideOpen(true)}
           />
 
-          <div className={`search-bar relative ${searchOpen ? "active" : ""}`}>
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              onFocus={() => setSearchOpen(true)}
-              onBlur={() => setSearchOpen(false)}
-              className="rounded-md px-2 py-1 text-black focus:outline-none"
-            />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2">
-              <Search size={20} className="text-black" />
-            </button>
-          </div>
-
-          <Link href="/" className="ml-3 text-xl font-semibold text-white">
+          {/* Logo */}
+          <Link href="/" className="text-xl sm:text-2xl font-bold text-white">
             DIVN
           </Link>
 
-          <div className="ml-auto flex items-center gap-4">
+          {/* Barre de recherche */}
+          <div className="flex-1 mx-4 relative max-w-xl">
+            <input
+              type="text"
+              placeholder="Rechercher..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="w-full rounded-md py-2 pl-3 pr-10 text-black focus:outline-none"
+            />
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600" size={20} />
+          </div>
+
+          {/* Actions utilisateur */}
+          <div className="flex items-center gap-4">
+            {/* Icon profil si connecté ou bouton login */}
             {user ? (
-              <span className="text-sm text-neutral-300">
-                Bonjour {user.email}
-              </span>
+              <Link href="/profile" className="relative">
+                <User size={24} className="text-white hover:text-yellow-400" />
+              </Link>
             ) : (
-              <Link href="/login" className="text-sm text-neutral-300">
-                Se connecter
+              <Link href="/login" className="relative">
+                <User size={24} className="text-white hover:text-yellow-400" />
               </Link>
             )}
+
+            {/* Panier */}
             <HeaderCart />
           </div>
         </div>
       </header>
 
-      <div className="h-16" /> {/* spacer pour header fixe */}
+      {/* Spacer pour header fixe */}
+      <div className="h-16" />
     </>
   );
-}
+      }
+      
