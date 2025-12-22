@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "postinstall": " prisma generate && npx prisma migrate dev --name init",
+    "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:init": "node prisma/init-db.ts",
     "db:setup": "pnpm run db:push && pnpm run db:init"
