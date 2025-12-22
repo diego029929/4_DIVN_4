@@ -17,9 +17,17 @@ export default function Header() {
 
   return (
     <>
+      {/* Overlay */}
+      {sideOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30"
+          onClick={() => setSideOpen(false)}
+        />
+      )}
+
       {/* SideMenu mobile */}
-      <div
-        className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white z-30 transform transition-transform ${
+      <aside
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white z-40 transform transition-transform duration-300 ${
           sideOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -29,27 +37,20 @@ export default function Header() {
             <X size={24} />
           </button>
         </div>
-        <nav className="flex flex-col p-4 gap-4">
+        <nav className="flex flex-col p-4 gap-4 text-lg">
           <Link href="/" onClick={() => setSideOpen(false)}>Accueil</Link>
           <Link href="/shop" onClick={() => setSideOpen(false)}>Boutique</Link>
           <Link href="/about" onClick={() => setSideOpen(false)}>À propos</Link>
           <Link href="/contact" onClick={() => setSideOpen(false)}>Contact</Link>
         </nav>
-      </div>
+      </aside>
 
-      {/* Overlay pour fermer le menu */}
-      {sideOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-20"
-          onClick={() => setSideOpen(false)}
-        />
-      )}
-
-      <header className="fixed top-0 left-0 z-40 w-full bg-[#1f1f1f] text-white shadow-md">
+      {/* Header */}
+      <header className="fixed top-0 left-0 z-50 w-full bg-[#1f1f1f] text-white shadow-md">
         <div className="flex items-center justify-between px-4 sm:px-6 lg:px-12 h-16">
           {/* Menu burger mobile */}
           <button
-            className="text-white sm:hidden mr-3"
+            className="sm:hidden mr-3"
             onClick={() => setSideOpen(true)}
             aria-label="Ouvrir le menu"
           >
@@ -76,7 +77,7 @@ export default function Header() {
             />
           </div>
 
-          {/* Profil + Panier */}
+          {/* Profil + panier */}
           <div className="flex items-center gap-4">
             <Link href={user ? "/profile" : "/login"}>
               <User size={24} className="text-white hover:text-yellow-400" />
@@ -107,5 +108,5 @@ export default function Header() {
       <div className="h-16 sm:h-16" />
     </>
   );
-      }
+          }
           
