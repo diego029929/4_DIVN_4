@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession, signOut } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
@@ -8,13 +8,17 @@ export default function ProfilePage() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
-  // 🔒 Protection : redirige si non connecté
   useEffect(() => {
+    // ❌ NE RIEN FAIRE pendant le loading
+    if (status === "loading") return
+
+    // 🔒 Redirection UNIQUEMENT si vraiment non connecté
     if (status === "unauthenticated") {
-      router.push("/login")
+      router.replace("/login")
     }
   }, [status, router])
 
+  // ⏳ Attente de la session
   if (status === "loading") {
     return <p>Chargement...</p>
   }
@@ -22,28 +26,12 @@ export default function ProfilePage() {
   if (!session) return null
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Mon profil</h1>
+    <div className="max-w-xl mx-auto mt-20">
+      <h1 className="text-2xl font-bold">Mon profil</h1>
 
-      <p>
-        <strong>Email :</strong> {session.user?.email}
+      <p className="mt-4">
+        Connecté en tant que : <strong>{session.user?.email}</strong>
       </p>
-
-      <button
-        onClick={() =>
-          signOut({
-            callbackUrl: "/login",
-          })
-        }
-        style={{
-          marginTop: "1rem",
-          padding: "0.5rem 1rem",
-          cursor: "pointer",
-        }}
-      >
-        Se déconnecter
-      </button>
     </div>
   )
 }
-  
