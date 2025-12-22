@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "postinstall": "prisma generate && mkdir -p prisma/migrations/202512220001_init && npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/202512220001_init/migration.sql && npm install lucide-react",
+    "postinstall": "prisma generate && mkdir -p prisma/migrations/202512220001_init && npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/202512220001_init/migration.sql",
     "db:push": "prisma db push",
     "db:init": "node prisma/init-db.ts",
     "db:setup": "pnpm run db:push && pnpm run db:init"
