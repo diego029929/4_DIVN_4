@@ -9,22 +9,12 @@ type SideMenuProps = {
   onClose: () => void;
 };
 
-const menuSections = [
-  {
-    title: "MENU",
-    links: [
-      { label: "Boutique", href: "/shop" },
-      { label: "À propos", href: "/about" },
-      { label: "Contact", href: "/contact" },
-    ],
-  },
-  {
-    title: "COMPTE",
-    links: [
-      { label: "Créer un compte", href: "/register" },
-      { label: "Panier", href: "/cart" },
-    ],
-  },
+const menuItems = [
+  { label: "Boutique", href: "/shop" },
+  { label: "À propos", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Créer un compte", href: "/register" },
+  { label: "Panier", href: "/cart" },
 ];
 
 export default function SideMenu({ open, onClose }: SideMenuProps) {
@@ -59,35 +49,17 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
           </button>
         </div>
 
-        {/* Navigation sections */}
-        <nav className="flex flex-col mt-4">
-          {menuSections.map((section, idx) => (
-            <div
-              key={section.title}
-              className={`flex flex-col px-5 py-4 ${
-                idx < menuSections.length - 1 ? "border-b border-white/20" : ""
-              }`}
+        {/* Navigation */}
+        <nav className="flex flex-col mt-4 divide-y divide-white/20">
+          {menuItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onClose}
+              className="px-5 py-4 text-[15px] font-light tracking-wide opacity-90 hover:opacity-100 hover:translate-x-1 transition-all duration-200"
             >
-              <span className="text-sm tracking-widest font-semibold opacity-60 mb-3">
-                {section.title}
-              </span>
-              <div className="flex flex-col gap-3">
-                {section.links.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    className="
-                      text-[15px] font-light tracking-wide opacity-90
-                      hover:opacity-100 hover:translate-x-1
-                      transition-all duration-200
-                    "
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
+              {item.label}
+            </Link>
           ))}
         </nav>
 
