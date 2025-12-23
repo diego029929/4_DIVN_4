@@ -50,21 +50,30 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex flex-col mt-4 divide-y divide-white/20">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className="px-5 py-4 text-[15px] font-light tracking-wide opacity-90 hover:opacity-100 hover:translate-x-1 transition-all duration-200"
-            >
-              {item.label}
-            </Link>
+        <nav className="flex flex-col mt-4">
+          {menuItems.map((item, idx) => (
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                onClick={onClose}
+                className="
+                  block px-5 py-5 text-[17px] font-light tracking-wider uppercase
+                  opacity-80 hover:opacity-100 hover:translate-x-2
+                  transition-all duration-200
+                "
+              >
+                {item.label}
+              </Link>
+              {/* Barre séparatrice sauf après le dernier lien */}
+              {idx !== menuItems.length - 1 && (
+                <div className="h-px bg-white/20 mx-5"></div>
+              )}
+            </div>
           ))}
         </nav>
 
         {/* Footer social */}
-        <div className="absolute bottom-6 left-5 flex gap-4 text-lg opacity-70">
+        <div className="absolute bottom-6 left-5 flex gap-4 text-xl opacity-70">
           <a href="#" aria-label="Instagram" className="hover:opacity-100 transition">
             <FaInstagram />
           </a>
