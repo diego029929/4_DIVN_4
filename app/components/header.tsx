@@ -26,8 +26,8 @@ export default function Header() {
         <div
           className="
             h-16 px-3
-            grid grid-cols-[auto_1fr_auto_auto]
-            items-center gap-2
+            grid grid-cols-[auto_1fr_auto_auto_auto]
+            items-center gap-3
             sm:px-6
           "
         >
@@ -61,6 +61,13 @@ export default function Header() {
             />
           </div>
 
+          {/* DIVN (à droite, cliquable) */}
+          <Link href="/shop">
+            <div className="font-bold text-lg cursor-pointer whitespace-nowrap">
+              DIVN
+            </div>
+          </Link>
+
           {/* Cart */}
           <HeaderCart />
 
@@ -75,4 +82,4 @@ export default function Header() {
       <div className="h-16" />
     </>
   );
-}
+        }
