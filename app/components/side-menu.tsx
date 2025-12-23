@@ -10,67 +10,69 @@ type SideMenuProps = {
 };
 
 const menuItems = [
-  { label: "Tous nos produits", href: "/shop" },
+  { label: "Boutique", href: "/shop" },
   { label: "À propos", href: "/about" },
   { label: "Contact", href: "/contact" },
-  { label: "S’inscrire", href: "/register" },
-  { label: "Mon panier", href: "/cart" },
+  { label: "Créer un compte", href: "/register" },
+  { label: "Panier", href: "/cart" },
 ];
 
 export default function SideMenu({ open, onClose }: SideMenuProps) {
   return (
     <>
-      {/* Overlay avec blur */}
-      {open && (
-        <div
-          onClick={onClose}
-          className="
-            fixed inset-0 z-40
-            bg-black/40
-            backdrop-blur-md
-            transition-opacity
-          "
-        />
-      )}
+      {/* Overlay doux + blur */}
+      <div
+        onClick={onClose}
+        className={`
+          fixed inset-0 z-40
+          bg-black/30
+          backdrop-blur-sm
+          transition-opacity duration-300
+          ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
+        `}
+      />
 
       {/* Menu */}
       <aside
         className={`
           fixed top-0 left-0 z-50
-          h-full w-72 sm:w-80
-          bg-[#0e0e0e]
+          h-full w-[260px]
+          bg-[#1f1f1f]
           text-white
-          shadow-2xl
-          transform transition-transform duration-300 ease-out
-          ${open ? "translate-x-0" : "-translate-x-full"}
+          rounded-r-2xl
+          shadow-xl
+          transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
+          ${open ? "translate-x-0 opacity-100" : "-translate-x-6 opacity-0"}
         `}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 h-16 border-b border-white/10">
-          <span className="text-lg font-semibold tracking-wide">
-            Menu
+        <div className="flex items-center justify-between h-16 px-5">
+          <span className="text-sm tracking-widest font-medium opacity-80">
+            MENU
           </span>
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-white/10 transition"
           >
-            <X size={22} />
+            <X size={20} />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex flex-col px-6 py-6 gap-5 text-base">
+        <nav className="flex flex-col px-5 mt-4 gap-4">
           {menuItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={onClose}
               className="
-                flex items-center
-                py-2
-                border-b border-white/5
-                hover:text-yellow-400
-                transition
+                text-[15px]
+                font-light
+                tracking-wide
+                opacity-90
+                hover:opacity-100
+                hover:translate-x-1
+                transition-all duration-200
               "
             >
               {item.label}
@@ -78,45 +80,15 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
           ))}
         </nav>
 
-        {/* CTA (optionnel mais recommandé ecommerce) */}
-        <div className="px-6 mt-4">
-          <Link
-            href="/shop"
-            onClick={onClose}
-            className="
-              block text-center
-              rounded-full
-              py-3
-              bg-yellow-400 text-black font-semibold
-              hover:bg-yellow-300
-              transition
-            "
-          >
-            Voir la boutique
-          </Link>
-        </div>
-
         {/* Réseaux sociaux */}
-        <div className="absolute bottom-8 left-6 flex gap-5 text-xl text-white/70">
-          <a
-            href="#"
-            aria-label="Instagram"
-            className="hover:text-white transition"
-          >
+        <div className="absolute bottom-6 left-5 flex gap-4 text-lg opacity-70">
+          <a href="#" aria-label="Instagram" className="hover:opacity-100 transition">
             <FaInstagram />
           </a>
-          <a
-            href="#"
-            aria-label="TikTok"
-            className="hover:text-white transition"
-          >
+          <a href="#" aria-label="TikTok" className="hover:opacity-100 transition">
             <FaTiktok />
           </a>
-          <a
-            href="#"
-            aria-label="Twitter"
-            className="hover:text-white transition"
-          >
+          <a href="#" aria-label="Twitter" className="hover:opacity-100 transition">
             <FaTwitter />
           </a>
         </div>
