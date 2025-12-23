@@ -61,19 +61,19 @@ export default function Header() {
             />
           </div>
 
-          {/* DIVN (à droite, cliquable) */}
-          <Link href="/shop">
-            <div className="font-bold text-lg cursor-pointer whitespace-nowrap">
-              DIVN
-            </div>
-          </Link>
-
           {/* Cart */}
           <HeaderCart />
 
           {/* Profile */}
           <Link href={user ? "/profile" : "/login"}>
             <User size={22} />
+          </div>
+          </Link>
+        
+            {/* DIVN (à droite, cliquable) */}
+          <Link href="/shop">
+            <div className="font-bold text-lg cursor-pointer whitespace-nowrap">
+              DIVN
           </Link>
         </div>
       </header>
