@@ -60,10 +60,15 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
         </div>
 
         {/* Navigation sections */}
-        <nav className="flex flex-col px-5 mt-6 gap-8">
-          {menuSections.map((section) => (
-            <div key={section.title}>
-              <span className="text-xs tracking-widest font-medium opacity-50 mb-3 block">
+        <nav className="flex flex-col mt-4">
+          {menuSections.map((section, idx) => (
+            <div
+              key={section.title}
+              className={`flex flex-col px-5 py-4 ${
+                idx < menuSections.length - 1 ? "border-b border-white/20" : ""
+              }`}
+            >
+              <span className="text-sm tracking-widest font-semibold opacity-60 mb-3">
                 {section.title}
               </span>
               <div className="flex flex-col gap-3">
