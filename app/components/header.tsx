@@ -17,7 +17,7 @@ export default function Header() {
   if (loading) return null;
 
   return (
-    <>
+    <div>
       {/* Side menu */}
       <SideMenu open={sideOpen} onClose={() => setSideOpen(false)} />
 
@@ -61,25 +61,25 @@ export default function Header() {
             />
           </div>
 
+          {/* DIVN à droite */}
+          <Link href="page.tsx">
+            <div className="font-bold text-lg cursor-pointer whitespace-nowrap">
+              DIVN
+            </div>
+          </Link>
+
           {/* Cart */}
           <HeaderCart />
 
           {/* Profile */}
           <Link href={user ? "/profile" : "/login"}>
             <User size={22} />
-          </div>
-          </Link>
-        
-            {/* DIVN (à droite, cliquable) */}
-          <Link href="page.tsx">
-            <div className="font-bold text-lg cursor-pointer whitespace-nowrap">
-              DIVN
           </Link>
         </div>
       </header>
 
       {/* Spacer */}
       <div className="h-16" />
-    </>
+    </div>
   );
-        }
+}
