@@ -21,16 +21,17 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
   return (
     <>
       {/* Overlay doux + blur */}
-      <div
-        onClick={onClose}
-        className={`
-          fixed inset-0 z-40
-          bg-black/30
-          backdrop-blur-sm
-          transition-opacity duration-300
-          ${open ? "opacity-100" : "opacity-0 pointer-events-none"}
-        `}
-      />
+      {open && (
+        <div
+          onClick={onClose}
+          className="
+            fixed inset-0 z-40
+            bg-black/30
+            backdrop-blur-sm
+            transition-opacity duration-300
+          "
+        />
+      )}
 
       {/* Menu */}
       <aside
@@ -41,13 +42,14 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
           text-white
           rounded-r-2xl
           shadow-xl
-          transform transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]
-          ${open ? "translate-x-0 opacity-100" : "-translate-x-6 opacity-0"}
+          transform transition-transform duration-300
+          ease-[cubic-bezier(0.4,0,0.2,1)]
+          ${open ? "translate-x-0" : "-translate-x-full"}
         `}
       >
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-5">
-          <span className="text-sm tracking-widest font-medium opacity-80">
+          <span className="text-xs tracking-widest font-medium opacity-70">
             MENU
           </span>
           <button
@@ -59,7 +61,7 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex flex-col px-5 mt-4 gap-4">
+        <nav className="flex flex-col px-5 mt-6 gap-4">
           {menuItems.map((item) => (
             <Link
               key={item.href}
