@@ -71,7 +71,7 @@ export default function Header() {
           </Link>
         
             {/* DIVN (à droite, cliquable) */}
-          <Link href="/shop">
+          <Link href="page.tsx">
             <div className="font-bold text-lg cursor-pointer whitespace-nowrap">
               DIVN
           </Link>
