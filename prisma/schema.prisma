@@ -8,13 +8,14 @@ generator client {
 }
 
 model User {
-  id         String   @id @default(cuid())
-  email      String   @unique
-  name       String?
-  password   String
-  isVerified Boolean  @default(false) // Nouveau champ pour la vérification par e-mail
-  carts      Cart[]
-  orders     Order[]
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  name               String?
+  password           String
+  isVerified         Boolean             @default(false)
+  carts              Cart[]
+  orders             Order[]
+  verificationTokens VerificationToken[] // relation inverse pour les tokens
 }
 
 model VerificationToken {
