@@ -8,12 +8,22 @@ generator client {
 }
 
 model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  password   String
+  isVerified Boolean  @default(false) // Nouveau champ pour la vérification par e-mail
+  carts      Cart[]
+  orders     Order[]
+}
+
+model VerificationToken {
   id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  carts     Cart[]
-  orders    Order[]
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expires   DateTime
+  createdAt DateTime @default(now())
 }
 
 model Product {
