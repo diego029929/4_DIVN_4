@@ -20,47 +20,107 @@ const menuItems = [
 export default function SideMenu({ open, onClose }: SideMenuProps) {
   return (
     <>
-      {/* Overlay */}
+      {/* Overlay avec blur */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-black/50"
           onClick={onClose}
+          className="
+            fixed inset-0 z-40
+            bg-black/40
+            backdrop-blur-md
+            transition-opacity
+          "
         />
       )}
 
       {/* Menu */}
       <aside
-        className={`fixed top-0 left-0 h-full w-64 sm:w-80 bg-[#0b0b0b] text-white z-50 transform transition-transform duration-300 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`
+          fixed top-0 left-0 z-50
+          h-full w-72 sm:w-80
+          bg-[#0e0e0e]
+          text-white
+          shadow-2xl
+          transform transition-transform duration-300 ease-out
+          ${open ? "translate-x-0" : "-translate-x-full"}
+        `}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-700">
-          <span className="font-bold text-lg">Menu</span>
-          <button onClick={onClose}>
-            <X size={24} />
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 h-16 border-b border-white/10">
+          <span className="text-lg font-semibold tracking-wide">
+            Menu
+          </span>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-white/10 transition"
+          >
+            <X size={22} />
           </button>
         </div>
 
-        <nav className="flex flex-col p-4 gap-4 text-lg">
+        {/* Navigation */}
+        <nav className="flex flex-col px-6 py-6 gap-5 text-base">
           {menuItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={onClose}
-              className="hover:text-yellow-400"
+              className="
+                flex items-center
+                py-2
+                border-b border-white/5
+                hover:text-yellow-400
+                transition
+              "
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
+        {/* CTA (optionnel mais recommandé ecommerce) */}
+        <div className="px-6 mt-4">
+          <Link
+            href="/shop"
+            onClick={onClose}
+            className="
+              block text-center
+              rounded-full
+              py-3
+              bg-yellow-400 text-black font-semibold
+              hover:bg-yellow-300
+              transition
+            "
+          >
+            Voir la boutique
+          </Link>
+        </div>
+
         {/* Réseaux sociaux */}
-        <div className="absolute bottom-10 left-6 flex gap-5 text-xl opacity-80">
-          <a href="#" aria-label="Instagram"><FaInstagram /></a>
-          <a href="#" aria-label="TikTok"><FaTiktok /></a>
-          <a href="#" aria-label="Twitter"><FaTwitter /></a>
+        <div className="absolute bottom-8 left-6 flex gap-5 text-xl text-white/70">
+          <a
+            href="#"
+            aria-label="Instagram"
+            className="hover:text-white transition"
+          >
+            <FaInstagram />
+          </a>
+          <a
+            href="#"
+            aria-label="TikTok"
+            className="hover:text-white transition"
+          >
+            <FaTiktok />
+          </a>
+          <a
+            href="#"
+            aria-label="Twitter"
+            className="hover:text-white transition"
+          >
+            <FaTwitter />
+          </a>
         </div>
       </aside>
     </>
   );
-          }
+}
