@@ -4,6 +4,7 @@ import { signIn, useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { FiEye, FiEyeOff } from "react-icons/fi" // ✅ Import manquant
 
 export default function LoginPage() {
   const { status } = useSession()
@@ -11,7 +12,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false) // 👁️
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
 
   useEffect(() => {
@@ -50,7 +51,7 @@ export default function LoginPage() {
 
           <div className="relative">
             <input
-              type={showPassword ? "text" : "password"} // 👁️
+              type={showPassword ? "text" : "password"}
               placeholder="Mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -61,8 +62,7 @@ export default function LoginPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
-              
-              >
+            >
               {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
             </button>
           </div>
@@ -72,9 +72,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {error && (
-          <p className="text-red-500 text-center">❌ {error}</p>
-        )}
+        {error && <p className="text-red-500 text-center">❌ {error}</p>}
 
         <p className="text-center text-sm mt-4 text-black">
           Pas encore de compte ?{" "}
@@ -85,5 +83,4 @@ export default function LoginPage() {
       </div>
     </main>
   )
-    }
-        
+          }
