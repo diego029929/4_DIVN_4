@@ -34,7 +34,7 @@ export default function LoginPage() {
   if (status === "loading") return null
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100">
+    <main className="flex min-h-screen items-center justify-center bg-[#1f1f1f]">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
         <h1 className="text-3xl font-bold text-center text-black">Connexion</h1>
 
@@ -61,8 +61,9 @@ export default function LoginPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
-            >
-              {showPassword ? "🙈" : "👁️"}
+              
+              >
+              {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
             </button>
           </div>
 
