@@ -15,7 +15,6 @@ export async function POST(req: Request) {
     const passwordTrimmed = password?.trim();
     const usernameTrimmed = username?.trim();
 
-    // Vérification des champs obligatoires
     if (!emailNormalized || !passwordTrimmed || !usernameTrimmed) {
       return NextResponse.json(
         { error: "Champs manquants" },
@@ -23,13 +22,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifie si l'utilisateur existe déjà
-    let existingUser = await prisma.user.findUnique({
+    // Cherche tous les utilisateurs avec cet email (au cas où doublons)
+    const usersWithEmail = await prisma.user.findMany({
       where: { email: emailNormalized },
     });
 
-    // Option 2 : ignore les utilisateurs fantômes (sans password)
-    if (existingUser && existingUser.password) {
+    // Filtrer ceux avec password
+    const realUser = usersWithEmail.find(u => u.password);
+
+    if (realUser) {
       return NextResponse.json(
         { error: "Utilisateur déjà existant" },
         { status: 400 }
@@ -39,10 +40,10 @@ export async function POST(req: Request) {
     // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(passwordTrimmed, 10);
 
-    // Crée ou met à jour l'utilisateur
-    const user = existingUser
+    // S'il existe un utilisateur fantôme, update ; sinon create
+    const user = usersWithEmail.length
       ? await prisma.user.update({
-          where: { email: emailNormalized },
+          where: { id: usersWithEmail[0].id },
           data: { password: hashedPassword, username: usernameTrimmed },
         })
       : await prisma.user.create({
@@ -53,18 +54,16 @@ export async function POST(req: Request) {
           },
         });
 
-    // Création du token de vérification
+    // Token de vérification
     const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     await prisma.verificationToken.create({
       data: { token, userId: user.id, expires },
     });
 
-    // URL de vérification
+    // Email
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
-
-    // Envoi de l'email
     await sendEmail({
       to: emailNormalized,
       subject: "Confirme ton compte",
@@ -77,9 +76,6 @@ export async function POST(req: Request) {
     });
   } catch (err: any) {
     console.error("Erreur /api/register:", err);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
