@@ -8,7 +8,6 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    // Récupération des champs
     const { email, password, username } = await req.json();
 
     // Trim et normalisation
@@ -24,11 +23,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifie si l'utilisateur existe déjà avec un mot de passe
-    const existingUser = await prisma.user.findUnique({
+    // Vérifie si l'utilisateur existe déjà
+    let existingUser = await prisma.user.findUnique({
       where: { email: emailNormalized },
     });
 
+    // Option 2 : ignore les utilisateurs fantômes (sans password)
     if (existingUser && existingUser.password) {
       return NextResponse.json(
         { error: "Utilisateur déjà existant" },
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(passwordTrimmed, 10);
 
-    // Création ou mise à jour de l'utilisateur
+    // Crée ou met à jour l'utilisateur
     const user = existingUser
       ? await prisma.user.update({
           where: { email: emailNormalized },
