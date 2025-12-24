@@ -1,31 +1,36 @@
 // /lib/email.ts
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
 interface EmailOptions {
-  to: string
-  subject: string
-  text: string
+  to: string;
+  subject: string;
+  text: string;
 }
 
 export async function sendEmail({ to, subject, text }: EmailOptions) {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    throw new Error("Variables d'environnement SMTP manquantes")
+    console.warn("SMTP non configuré, email non envoyé");
+    return;
   }
 
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: Number(process.env.SMTP_PORT || 587),
-    secure: false, // true si port 465
+    secure: process.env.SMTP_PORT === "465",
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-  })
+  });
 
-  await transporter.sendMail({
-    from: `"DIVN" <${process.env.SMTP_USER}>`,
-    to,
-    subject,
-    text,
-  })
+  try {
+    await transporter.sendMail({
+      from: `"DIVN" <${process.env.SMTP_USER}>`,
+      to,
+      subject,
+      text,
+    });
+  } catch (err) {
+    console.error("Erreur envoi email:", err);
+  }
 }
