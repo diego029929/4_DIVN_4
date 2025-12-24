@@ -21,14 +21,19 @@ export default function RegisterPage() {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }), // <-- ici
+        body: JSON.stringify({
+          username: username.trim(),
+          email: email.trim(),
+          password: password.trim(),
+        }),
       })
 
+      const data = await res.json()
+
       if (res.ok) {
-        alert("Compte créé")
+        alert("Compte créé ! Vérifie ton e-mail.")
         router.push("/login")
       } else {
-        const data = await res.json()
         setError(data.error || "Erreur inscription")
       }
     } catch (err) {
@@ -95,4 +100,4 @@ export default function RegisterPage() {
       </div>
     </main>
   )
-          }
+}
