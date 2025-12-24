@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
-import { sendEmail } from "@/lib/email";
+import { sendEmail } from "@/lib/email"; // Ta fonction pour envoyer des mails
 
 const prisma = new PrismaClient();
 
@@ -11,25 +11,19 @@ export async function POST(req: Request) {
     const { email, password, name } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json(
-        { error: "Champs manquants" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
+    // Vérifie si l'utilisateur existe déjà
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json(
-        { error: "Utilisateur déjà existant" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Utilisateur déjà existant" }, { status: 400 });
     }
 
+    // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Création de l'utilisateur
     const user = await prisma.user.create({
       data: {
         email,
@@ -38,8 +32,9 @@ export async function POST(req: Request) {
       },
     });
 
+    // Génération du token de vérification
     const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
     await prisma.verificationToken.create({
       data: {
@@ -49,25 +44,15 @@ export async function POST(req: Request) {
       },
     });
 
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
+    // Création du lien de vérification
+    const verificationUrl = `https://ton-site.com/api/verify?token=${token}`;
 
-    // ⚠️ EMAIL NON BLOQUANT
-    try {
-      await sendEmail({
-        to: email,
-        subject: "Confirme ton compte",
-        text: `Bonjour ${name || ""},
-
-Merci de t'être inscrit.
-Clique sur ce lien pour vérifier ton compte :
-${verificationUrl}
-
-Ce lien expire dans 24h.`,
-      });
-    } catch (emailError) {
-      console.error("Erreur envoi email :", emailError);
-      // on continue quand même
-    }
+    // Envoi de l'e-mail
+    await sendEmail({
+      to: email,
+      subject: "Confirme ton compte",
+      text: `Bonjour ${name || ""},\n\nMerci de t'être inscrit. Clique sur ce lien pour vérifier ton compte : ${verificationUrl}\n\nCe lien expirera dans 24h.`,
+    });
 
     return NextResponse.json({
       success: true,
@@ -76,10 +61,6 @@ Ce lien expire dans 24h.`,
     });
   } catch (err: any) {
     console.error("Erreur /api/register:", err);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: err.message || "Erreur serveur" }, { status: 500 });
   }
-      }
-      
+  }
