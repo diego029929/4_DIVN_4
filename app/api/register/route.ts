@@ -24,13 +24,15 @@ export async function POST(req: Request) {
 
     // Vérifie si l'utilisateur existe déjà
     const existingUser = await prisma.user.findUnique({
-      where: { email: emailNormalized },
+  where: { email: emailNormalized },
+});
+
+if (existingUser && existingUser.password) {
+  return NextResponse.json(
+    { error: "Utilisateur déjà existant" },
+    { status: 400 },
     });
-
-    if (existingUser) {
-      return NextResponse.json({ error: "Utilisateur déjà existant" }, { status: 400 });
-    }
-
+  
     // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(passwordTrimmed, 10);
 
