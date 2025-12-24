@@ -11,9 +11,9 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false) // 👁️
   const [error, setError] = useState("")
 
-  // 🔁 Si déjà connecté
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/profile")
@@ -27,51 +27,62 @@ export default function LoginPage() {
     await signIn("credentials", {
       email,
       password,
-      callbackUrl: "/profile", // ✅ LA CLÉ
+      callbackUrl: "/profile",
     })
   }
 
   if (status === "loading") return null
 
   return (
-    <main className="max-w-md mx-auto mt-20 space-y-4">
-      <h1 className="text-2xl font-bold">Connexion</h1>
+    <main className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
+        <h1 className="text-3xl font-bold text-center text-black">Connexion</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-2 text-black"
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black placeholder-black"
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Mot de passe"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-2 text-black"
-          required
-        />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"} // 👁️
+              placeholder="Mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-black placeholder-black"
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black"
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
+          </div>
 
-        <button className="w-full bg-black text-white py-2">
-          Se connecter
-        </button>
-      </form>
+          <button className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition">
+            Se connecter
+          </button>
+        </form>
 
-      {error && (
-        <p className="text-red-500 text-center">❌ {error}</p>
-      )}
+        {error && (
+          <p className="text-red-500 text-center">❌ {error}</p>
+        )}
 
-      <p className="text-center text-sm mt-4">
-        Pas encore de compte ?{" "}
-        <Link href="/register" className="underline">
-          Créer un compte
-        </Link>
-      </p>
+        <p className="text-center text-sm mt-4 text-black">
+          Pas encore de compte ?{" "}
+          <Link href="/register" className="underline text-black">
+            Créer un compte
+          </Link>
+        </p>
+      </div>
     </main>
   )
     }
-      
+        
