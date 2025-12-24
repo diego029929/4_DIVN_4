@@ -1,31 +1,34 @@
 // /lib/email.ts
-import nodemailer from "nodemailer"
+import SibApiV3Sdk from "sib-api-v3-sdk"
 
 interface EmailOptions {
   to: string
   subject: string
   text: string
+  html?: string
 }
 
-export async function sendEmail({ to, subject, text }: EmailOptions) {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    throw new Error("Variables d'environnement SMTP manquantes")
+const client = SibApiV3Sdk.ApiClient.instance
+client.authentications["api-key"].apiKey =
+  process.env.BREVO_API_KEY!
+
+const api = new SibApiV3Sdk.TransactionalEmailsApi()
+
+export async function sendEmail({
+  to,
+  subject,
+  text,
+  html,
+}: EmailOptions) {
+  if (!process.env.BREVO_API_KEY || !process.env.BREVO_FROM) {
+    throw new Error("Variables d'environnement Brevo manquantes")
   }
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: false, // true si port 465
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  })
-
-  await transporter.sendMail({
-    from: `"DIVN" <${process.env.SMTP_USER}>`,
-    to,
+  await api.sendTransacEmail({
+    sender: { email: process.env.BREVO_FROM },
+    to: [{ email: to }],
     subject,
-    text,
+    textContent: text,
+    htmlContent: html,
   })
 }
