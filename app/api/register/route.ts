@@ -29,9 +29,9 @@ export async function POST(req: Request) {
 
 if (existingUser && existingUser.password) {
   return NextResponse.json(
-    { error: "Utilisateur déjà existant" },
-    { status: 400 },
-    });
+    { error: "Utilisateur déjà existant" }
+    { status: 400 });
+    }
   
     // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(passwordTrimmed, 10);
