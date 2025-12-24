@@ -37,20 +37,19 @@ export default function ProfilePage() {
           {initials}
         </div>
 
-        <h1 className="text-2xl font-bold">Mon profil</h1>
+        <h1 className="text-2xl font-bold text-black">Mon profil</h1>
 
-        <p className="mt-2 text-gray-700">
+        <p className="mt-2 text-gray-800">
           Connecté en tant que : <strong>{session.user?.email}</strong>
         </p>
 
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="mt-6 px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+          className="mt-6 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition"
         >
           Se déconnecter
         </button>
       </div>
     </main>
   )
-          }
-          
+      }
