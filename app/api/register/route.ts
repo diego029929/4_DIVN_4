@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name } = await req.json();
+    const { email, password, username } = await req.json();
 
     if (!email || !password) {
       return NextResponse.json(
@@ -31,12 +31,12 @@ export async function POST(req: Request) {
       data: {
         email,
         password: hashedPassword,
-        name,
+        username,
       },
     });
 
     const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
     await prisma.verificationToken.create({
       data: { token, userId: user.id, expires },
@@ -44,12 +44,11 @@ export async function POST(req: Request) {
 
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
 
-    // ⚠️ Email non bloquant : si l'envoi échoue, on continue quand même
     try {
       await sendEmail({
         to: email,
         subject: "Confirme ton compte",
-        text: `Bonjour ${name || ""},\n\nMerci de t'être inscrit. Clique sur ce lien pour vérifier ton compte : ${verificationUrl}\n\nCe lien expirera dans 24h.`,
+        text: `Bonjour ${username || ""},\n\nMerci de t'être inscrit. Clique sur ce lien pour vérifier ton compte : ${verificationUrl}\n\nCe lien expirera dans 24h.`,
       });
     } catch (emailError) {
       console.error("Erreur envoi email :", emailError);
@@ -67,4 +66,5 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-      }
+         }
+                             
