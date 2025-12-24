@@ -17,16 +17,22 @@ export default function RegisterPage() {
     e.preventDefault()
     setError("")
 
-    const res = await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    })
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: username, email, password }), // <-- ici
+      })
 
-    if (res.ok) {
-      alert("Compte créé")
-      router.push("/login")
-    } else {
+      if (res.ok) {
+        alert("Compte créé")
+        router.push("/login")
+      } else {
+        const data = await res.json()
+        setError(data.error || "Erreur inscription")
+      }
+    } catch (err) {
+      console.error(err)
       setError("Erreur inscription")
     }
   }
@@ -89,4 +95,4 @@ export default function RegisterPage() {
       </div>
     </main>
   )
-}
+          }
