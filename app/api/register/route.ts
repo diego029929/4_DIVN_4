@@ -18,9 +18,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
     }
 
-    // Vérifie s’il existe un utilisateur réel avec mot de passe
-    const existingUser = await prisma.user.findFirst({
-      where: { email: emailNormalized, NOT: { password: null } },
+    // Vérifie si un utilisateur existe déjà
+    const existingUser = await prisma.user.findUnique({
+      where: { email: emailNormalized },
     });
 
     if (existingUser) {
