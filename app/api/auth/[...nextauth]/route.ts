@@ -11,23 +11,57 @@ const handler = NextAuth({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
+        password: { label: "Mot de passe", type: "password" },
       },
+
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        // Sécurité de base
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
 
-        const user = await prisma.user.findUnique({ where: { email: credentials.email } });
-        if (!user) return null;
+        // Normalisation email (TRÈS IMPORTANT)
+        const email = credentials.email.trim().toLowerCase();
 
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isValid) return null;
+        // Recherche user
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
 
-        return { id: user.id, email: user.email, name: user.name };
+        // ❌ user inexistant ou sans mot de passe
+        if (!user || !user.password) {
+          return null;
+        }
+
+        // Vérification du mot de passe
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!isValid) {
+          return null;
+        }
+
+        // ✅ User OK
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.username ?? user.email, // NextAuth attend "name"
+        };
       },
     }),
   ],
-  session: { strategy: "jwt" },
+
+  session: {
+    strategy: "jwt",
+  },
+
   secret: process.env.NEXTAUTH_SECRET,
+
+  pages: {
+    signIn: "/login",
+  },
 });
 
 export { handler as GET, handler as POST };
