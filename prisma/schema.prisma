@@ -17,9 +17,8 @@ model User {
   orders             Order[]
   verificationTokens VerificationToken[]
 
-  @@map("user")
+  @@map("User") // Force le nom exact de la table
 }
-
 
 model VerificationToken {
   id        String   @id @default(cuid())
@@ -28,6 +27,8 @@ model VerificationToken {
   user      User     @relation(fields: [userId], references: [id])
   expires   DateTime
   createdAt DateTime @default(now())
+
+  @@map("VerificationToken")
 }
 
 model Product {
@@ -38,6 +39,8 @@ model Product {
   imageUrl    String?
   cartItems   CartItem[]
   orderItems  OrderItem[]
+
+  @@map("Product")
 }
 
 model Cart {
@@ -46,6 +49,8 @@ model Cart {
   user      User       @relation(fields: [userId], references: [id])
   items     CartItem[]
   createdAt DateTime   @default(now())
+
+  @@map("Cart")
 }
 
 model CartItem {
@@ -55,6 +60,8 @@ model CartItem {
   productId String
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int      @default(1)
+
+  @@map("CartItem")
 }
 
 model Order {
@@ -64,6 +71,8 @@ model Order {
   total     Float
   items     OrderItem[]
   createdAt DateTime    @default(now())
+
+  @@map("Order")
 }
 
 model OrderItem {
@@ -74,4 +83,6 @@ model OrderItem {
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int      @default(1)
   price     Float
+
+  @@map("OrderItem")
 }
