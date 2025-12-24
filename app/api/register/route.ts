@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       await sendEmail({
         to: email,
         subject: "Confirme ton compte",
-        text: `Bonjour ${username || ""},\n\nMerci de t'être inscrit. Clique sur ce lien pour vérifier ton compte : ${verificationUrl}\n\nCe lien expirera dans 24h.`,
+        text: `Bonjour ${name || ""},\n\nMerci de t'être inscrit. Clique sur ce lien pour vérifier ton compte : ${verificationUrl}\n\nCe lien expirera dans 24h.`,
       });
     } catch (emailError) {
       console.error("Erreur envoi email :", emailError);
