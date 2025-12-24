@@ -22,12 +22,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Cherche tous les utilisateurs avec cet email (au cas où doublons)
+    // Cherche tous les utilisateurs avec cet email
     const usersWithEmail = await prisma.user.findMany({
       where: { email: emailNormalized },
     });
 
-    // Filtrer ceux avec password
+    // Ignore les utilisateurs fantômes
     const realUser = usersWithEmail.find(u => u.password);
 
     if (realUser) {
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(passwordTrimmed, 10);
 
-    // S'il existe un utilisateur fantôme, update ; sinon create
+    // Création ou mise à jour de l'utilisateur
     const user = usersWithEmail.length
       ? await prisma.user.update({
           where: { id: usersWithEmail[0].id },
@@ -54,28 +54,46 @@ export async function POST(req: Request) {
           },
         });
 
-    // Token de vérification
+    // Création du token de vérification
     const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
     await prisma.verificationToken.create({
       data: { token, userId: user.id, expires },
     });
 
-    // Email
+    // URL de vérification
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
-    await sendEmail({
-      to: emailNormalized,
-      subject: "Confirme ton compte",
-      text: `Bonjour ${usernameTrimmed},\n\nClique ici pour vérifier ton compte : ${verificationUrl}`,
-    });
+
+    // Envoi email seulement si les variables SMTP sont définies
+    if (
+      process.env.SMTP_HOST &&
+      process.env.SMTP_USER &&
+      process.env.SMTP_PASS
+    ) {
+      try {
+        await sendEmail({
+          to: emailNormalized,
+          subject: "Confirme ton compte",
+          text: `Bonjour ${usernameTrimmed},\n\nClique ici pour vérifier ton compte : ${verificationUrl}`,
+        });
+      } catch (emailError) {
+        console.error("Erreur envoi email :", emailError);
+      }
+    } else {
+      console.warn("SMTP non configuré, email non envoyé");
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Compte créé ! Vérifie ton e-mail.",
+      message: "Compte créé ! Vérifie ton e-mail (si SMTP configuré).",
     });
   } catch (err: any) {
     console.error("Erreur /api/register:", err);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || "Erreur serveur" },
+      { status: 500 }
+    );
   }
 }
+
