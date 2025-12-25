@@ -1,14 +1,13 @@
+// /api/register/route.ts
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma"; // Prisma global safe
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/email";
 
-const prisma = new PrismaClient();
-
 export async function POST(req: Request) {
   try {
-    let { username, email, password } = await req.json();
+    const { username, email, password } = await req.json();
 
     if (!username || !email || !password) {
       return NextResponse.json(
@@ -17,13 +16,11 @@ export async function POST(req: Request) {
       );
     }
 
-    username = username.trim();
-    email = email.trim().toLowerCase();
+    const cleanedUsername = username.trim();
+    const cleanedEmail = email.trim().toLowerCase();
 
     const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { username }],
-      },
+      where: { OR: [{ email: cleanedEmail }, { username: cleanedUsername }] },
     });
 
     if (existingUser) {
@@ -37,8 +34,8 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.create({
       data: {
-        username,
-        email,
+        username: cleanedUsername,
+        email: cleanedEmail,
         password: hashedPassword,
       },
     });
@@ -47,32 +44,21 @@ export async function POST(req: Request) {
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     await prisma.verificationToken.create({
-      data: {
-        token,
-        userId: user.id,
-        expires,
-      },
+      data: { token, userId: user.id, expires },
     });
 
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
+    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
 
+    // ⚡ EMAIL NON BLOQUANT
     sendEmail({
-  to: email,
-  subject: "Confirme ton compte",
-  text: `Bonjour ${username},
-
-Merci de t'être inscrit.
-Clique sur ce lien pour vérifier ton compte :
-${verificationUrl}
-
-Ce lien expirera dans 24h.`,
-}).catch(err => {
-  console.error("EMAIL_ASYNC_ERROR", err);
-});
+      to: cleanedEmail,
+      subject: "Confirme ton compte",
+      text: `Bonjour ${cleanedUsername},\n\nMerci de t'être inscrit.\nClique sur ce lien pour vérifier ton compte :\n${verificationUrl}\n\nCe lien expirera dans 24h.`,
+    });
 
     return NextResponse.json({
       success: true,
-      message: "Compte créé ! Vérifie ton e-mail.",
+      message: "Compte créé ! Vérifie ton e-mail (si non reçu, tu pourras le renvoyer).",
       user: {
         id: user.id,
         email: user.email,
@@ -88,8 +74,9 @@ Ce lien expirera dans 24h.`,
     }
 
     console.error("Erreur /api/register:", err);
+    console.error(err.stack);
     return NextResponse.json(
-      { error: "Erreur serveur" },
+      { error: err.message || "Erreur serveur" },
       { status: 500 }
     );
   }
