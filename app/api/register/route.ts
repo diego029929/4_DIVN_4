@@ -56,17 +56,19 @@ export async function POST(req: Request) {
 
     const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
 
-    await sendEmail({
-      to: email,
-      subject: "Confirme ton compte",
-      text: `Bonjour ${username},
+    sendEmail({
+  to: email,
+  subject: "Confirme ton compte",
+  text: `Bonjour ${username},
 
 Merci de t'être inscrit.
 Clique sur ce lien pour vérifier ton compte :
 ${verificationUrl}
 
 Ce lien expirera dans 24h.`,
-    });
+}).catch(err => {
+  console.error("EMAIL_ASYNC_ERROR", err);
+});
 
     return NextResponse.json({
       success: true,
