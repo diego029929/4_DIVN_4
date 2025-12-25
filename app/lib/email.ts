@@ -1,11 +1,16 @@
+// /lib/email.ts
+import nodemailer from "nodemailer";
+
+interface EmailOptions {
+  to: string;
+  subject: string;
+  text: string;
+}
+
 export async function sendEmail({ to, subject, text }: EmailOptions) {
   try {
-    if (
-      !process.env.SMTP_HOST ||
-      !process.env.SMTP_USER ||
-      !process.env.SMTP_PASS
-    ) {
-      console.warn("SMTP non configuré, email ignoré");
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      console.warn("SMTP non configuré, email non envoyé");
       return;
     }
 
@@ -17,7 +22,6 @@ export async function sendEmail({ to, subject, text }: EmailOptions) {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      connectionTimeout: 5_000, // 🔥 évite blocage
     });
 
     await transporter.sendMail({
@@ -26,7 +30,10 @@ export async function sendEmail({ to, subject, text }: EmailOptions) {
       subject,
       text,
     });
+
+    console.log(`Email envoyé à ${to} avec succès`);
   } catch (err) {
-    console.error("EMAIL_ERROR", err);
+    console.error("EMAIL_ERROR:", err);
+    // NE JAMAIS THROW → la route continue
   }
 }
