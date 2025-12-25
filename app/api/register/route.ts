@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { username, email, password } = await req.json();
+    let { username, email, password } = await req.json();
 
     if (!username || !email || !password) {
       return NextResponse.json(
@@ -17,29 +17,32 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifie si l'utilisateur existe déjà
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    username = username.trim();
+    email = email.trim().toLowerCase();
+
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { username }],
+      },
+    });
+
     if (existingUser) {
       return NextResponse.json(
-        { error: "Cet email est déjà utilisé" },
+        { error: "Email ou nom d'utilisateur déjà utilisé" },
         { status: 400 }
       );
     }
 
-    // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Création de l'utilisateur
     const user = await prisma.user.create({
       data: {
         username,
         email,
         password: hashedPassword,
-        isVerified: false,
       },
     });
 
-    // Création du token de vérification
     const token = randomUUID();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
@@ -51,21 +54,41 @@ export async function POST(req: Request) {
       },
     });
 
-    const verificationUrl = `https://ton-site.com/api/verify?token=${token}`;
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
 
     await sendEmail({
       to: email,
       subject: "Confirme ton compte",
-      text: `Bonjour ${username},\n\nMerci de t'être inscrit. Clique sur ce lien pour vérifier ton compte : ${verificationUrl}\nCe lien expirera dans 24h.`,
+      text: `Bonjour ${username},
+
+Merci de t'être inscrit.
+Clique sur ce lien pour vérifier ton compte :
+${verificationUrl}
+
+Ce lien expirera dans 24h.`,
     });
 
     return NextResponse.json({
       success: true,
-      message: "Compte créé ! Vérifie ton e-mail pour l'activer.",
-      user: { id: user.id, email: user.email, username: user.username },
+      message: "Compte créé ! Vérifie ton e-mail.",
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      },
     });
   } catch (err: any) {
+    if (err.code === "P2002") {
+      return NextResponse.json(
+        { error: "Email ou nom d'utilisateur déjà utilisé" },
+        { status: 400 }
+      );
+    }
+
     console.error("Erreur /api/register:", err);
-    return NextResponse.json({ error: err.message || "Erreur serveur" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erreur serveur" },
+      { status: 500 }
+    );
   }
 }
