@@ -1,4 +1,4 @@
-  // /lib/email.ts
+// /lib/email.ts
 import SparkPost from "sparkpost";
 
 interface EmailOptions {
@@ -20,7 +20,7 @@ export async function sendEmail({ to, subject, text }: EmailOptions) {
 
     await client.transmissions.send({
       content: {
-        from: "testing@sparkpostbox.com", // ⚠️ IMPORTANT
+        from: "testing@sparkpostbox.com", // 🔑 Obligatoire pour gratuit
         subject,
         text,
       },
@@ -30,6 +30,5 @@ export async function sendEmail({ to, subject, text }: EmailOptions) {
     console.log(`Email envoyé à ${to} avec succès`);
   } catch (err) {
     console.error("EMAIL_ERROR:", err);
-    // NE JAMAIS throw → ton app continue
   }
-}
+      }
