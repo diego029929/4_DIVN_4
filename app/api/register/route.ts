@@ -29,27 +29,23 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Création utilisateur non vérifié
-    const user = await prisma.user.create({
-      data: {
-        username: cleanedUsername,
-        email: cleanedEmail,
-        password: hashedPassword,
-        isVerified: false,
-      },
-    });
-
     const token = randomUUID();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+    // ⚡ Stocker temporairement dans verificationToken
     await prisma.verificationToken.create({
-      data: { token, userId: user.id, expires },
+      data: {
+        token,
+        expires,
+        username: cleanedUsername,
+        email: cleanedEmail,
+        password: hashedPassword,
+      },
     });
 
     const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
 
-    // ⚡ EMAIL DIRECT (comme ton test GET)
+    // Envoi direct de l’email
     try {
       console.log("Envoi de l'email à :", cleanedEmail);
 
@@ -80,22 +76,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Compte créé ! Vérifie ton e-mail pour l'activer.",
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        isVerified: user.isVerified,
-      },
+      message: "Vérifie ton e-mail pour activer ton compte !",
     });
   } catch (err: any) {
-    if (err.code === "P2002") {
-      return NextResponse.json(
-        { error: "Email ou nom d'utilisateur déjà utilisé" },
-        { status: 400 }
-      );
-    }
-
     console.error("Erreur /api/register:", err);
     return NextResponse.json(
       { error: err.message || "Erreur serveur" },
@@ -103,4 +86,4 @@ export async function POST(req: Request) {
     );
   }
       }
-      
+  
