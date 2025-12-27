@@ -31,13 +31,13 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ⚡ Création utilisateur mais non vérifié
+    // Création utilisateur mais non vérifié
     const user = await prisma.user.create({
       data: {
         username: cleanedUsername,
         email: cleanedEmail,
         password: hashedPassword,
-        isVerified: false, // <--- important
+        isVerified: false,
       },
     });
 
@@ -50,12 +50,18 @@ export async function POST(req: Request) {
 
     const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
 
-    // ⚡ EMAIL NON BLOQUANT
-    sendEmail({
-      to: cleanedEmail,
-      subject: "Confirme ton compte",
-      text: `Bonjour ${cleanedUsername},\n\nMerci de t'être inscrit.\nClique sur ce lien pour vérifier ton compte :\n${verificationUrl}\n\nCe lien expirera dans 24h.`,
-    });
+    // ⚡ EMAIL AVEC AWAIT + TRY/CATCH pour attraper les erreurs
+    try {
+      await sendEmail({
+        to: cleanedEmail,
+        subject: "Confirme ton compte",
+        text: `Bonjour ${cleanedUsername},\n\nMerci de t'être inscrit.\nClique sur ce lien pour vérifier ton compte :\n${verificationUrl}\n\nCe lien expirera dans 24h.`,
+      });
+      console.log(`Email de vérification envoyé à ${cleanedEmail} ✅`);
+    } catch (emailErr) {
+      console.error("Erreur lors de l'envoi de l'email :", emailErr);
+      // Tu peux décider de renvoyer une erreur ou juste loguer
+    }
 
     return NextResponse.json({
       success: true,
@@ -64,7 +70,7 @@ export async function POST(req: Request) {
         id: user.id,
         email: user.email,
         username: user.username,
-        isVerified: user.isVerified, // false
+        isVerified: user.isVerified,
       },
     });
   } catch (err: any) {
@@ -82,4 +88,4 @@ export async function POST(req: Request) {
     );
   }
       }
-    
+      
