@@ -1,6 +1,5 @@
-// /api/register/route.ts
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // Prisma global safe
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/email";
@@ -32,11 +31,13 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // ⚡ Création utilisateur mais non vérifié
     const user = await prisma.user.create({
       data: {
         username: cleanedUsername,
         email: cleanedEmail,
         password: hashedPassword,
+        isVerified: false, // <--- important
       },
     });
 
@@ -58,11 +59,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Compte créé ! Vérifie ton e-mail (si non reçu, tu pourras le renvoyer).",
+      message: "Compte créé ! Vérifie ton e-mail pour l'activer.",
       user: {
         id: user.id,
         email: user.email,
         username: user.username,
+        isVerified: user.isVerified, // false
       },
     });
   } catch (err: any) {
@@ -74,10 +76,10 @@ export async function POST(req: Request) {
     }
 
     console.error("Erreur /api/register:", err);
-    console.error(err.stack);
     return NextResponse.json(
       { error: err.message || "Erreur serveur" },
       { status: 500 }
     );
   }
-}
+      }
+    
