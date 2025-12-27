@@ -1,34 +1,32 @@
 // /lib/email.ts
-import SparkPost from "sparkpost";
+import nodemailer from "nodemailer";
 
-interface EmailOptions {
-  to: string;
-  subject: string;
-  text: string;
-}
-
-const client = process.env.SPARKPOST_API_KEY
-  ? new SparkPost(process.env.SPARKPOST_API_KEY)
-  : null;
-
-export async function sendEmail({ to, subject, text }: EmailOptions) {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  text: string
+) {
   try {
-    if (!client) {
-      console.warn("SparkPost non configuré, email non envoyé");
-      return;
-    }
-
-    await client.transmissions.send({
-      content: {
-        from: "testing@sparkpostbox.com", // 🔑 Obligatoire pour gratuit
-        subject,
-        text,
+    const transporter = nodemailer.createTransport({
+      host: "smtp-relay.brevo.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.BREVO_SMTP_USER,
+        pass: process.env.BREVO_SMTP_PASS,
       },
-      recipients: [{ address: to }],
     });
 
-    console.log(`Email envoyé à ${to} avec succès`);
+    await transporter.sendMail({
+      from: `"DIVN" <no-reply@brevo.com>`, // ✅ SMTP partagé
+      to,
+      subject,
+      text,
+    });
+
+    console.log("EMAIL ENVOYÉ ✅");
   } catch (err) {
     console.error("EMAIL_ERROR:", err);
   }
-      }
+}
+
