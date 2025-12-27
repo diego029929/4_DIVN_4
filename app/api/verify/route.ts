@@ -13,14 +13,18 @@ export async function GET(req: Request) {
     return new Response("Token expiré", { status: 400 });
   }
 
-  // ⚡ Marquer l'utilisateur comme vérifié
-  await prisma.user.update({
-    where: { id: record.userId },
-    data: { isVerified: true },
+  // ⚡ Créer le compte seulement maintenant
+  await prisma.user.create({
+    data: {
+      username: record.username,
+      email: record.email,
+      password: record.password,
+      isVerified: true,
+    },
   });
 
   await prisma.verificationToken.delete({ where: { id: record.id } });
 
   return Response.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/profile`);
-                                         }
-    
+}
+  
