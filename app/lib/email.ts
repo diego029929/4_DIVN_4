@@ -14,7 +14,7 @@ export async function sendEmail(
       body: JSON.stringify({
         sender: {
           name: "DIVN",
-          email: "no-reply@brevo.com"
+          email: "wist.infodev@gmail.com"
         },
         to: [{ email: to }],
         subject,
