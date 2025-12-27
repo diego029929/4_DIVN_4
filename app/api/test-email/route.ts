@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 
+export const runtime = "nodejs";
+
 export async function GET() {
   try {
     const transporter = nodemailer.createTransport({
@@ -10,11 +12,12 @@ export async function GET() {
         user: process.env.BREVO_SMTP_USER!,
         pass: process.env.BREVO_SMTP_PASS!,
       },
+      connectionTimeout: 10_000,
     });
 
     await transporter.sendMail({
       from: "no-reply@brevo.com",
-      to: "TON_EMAIL_PERSO@gmail.com", // METS TON EMAIL
+      to: "wist.infodev@gmail.com",
       subject: "TEST BREVO RENDER",
       text: "Si tu reçois ça, BREVO + RENDER OK",
     });
@@ -27,5 +30,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-      }
-       
+}
