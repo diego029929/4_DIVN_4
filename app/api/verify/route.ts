@@ -13,6 +13,7 @@ export async function GET(req: Request) {
     return new Response("Token expiré", { status: 400 });
   }
 
+  // ⚡ Marquer l'utilisateur comme vérifié
   await prisma.user.update({
     where: { id: record.userId },
     data: { isVerified: true },
@@ -20,5 +21,6 @@ export async function GET(req: Request) {
 
   await prisma.verificationToken.delete({ where: { id: record.id } });
 
-  return Response.redirect("https://ton-site.com/profile");
-}
+  return Response.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/profile`);
+                                         }
+    
