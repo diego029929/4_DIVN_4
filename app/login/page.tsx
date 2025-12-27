@@ -4,7 +4,7 @@ import { signIn, useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { FiEye, FiEyeOff } from "react-icons/fi" // ✅ Import manquant
+import { FiEye, FiEyeOff } from "react-icons/fi"
 
 export default function LoginPage() {
   const { status } = useSession()
@@ -67,6 +67,13 @@ export default function LoginPage() {
             </button>
           </div>
 
+          {/* Lien Mot de passe oublié */}
+          <div className="text-right">
+            <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </div>
+
           <button className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition">
             Se connecter
           </button>
@@ -83,4 +90,4 @@ export default function LoginPage() {
       </div>
     </main>
   )
-          }
+}
