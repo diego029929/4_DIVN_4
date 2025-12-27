@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
-import { sendEmail } from "@/lib/email";
 
 export async function POST(req: Request) {
   try {
@@ -31,7 +30,7 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Création utilisateur mais non vérifié
+    // Création utilisateur non vérifié
     const user = await prisma.user.create({
       data: {
         username: cleanedUsername,
@@ -50,17 +49,33 @@ export async function POST(req: Request) {
 
     const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
 
-    // ⚡ EMAIL AVEC AWAIT + TRY/CATCH pour attraper les erreurs
+    // ⚡ EMAIL DIRECT (comme ton test GET)
     try {
-      await sendEmail({
-        to: cleanedEmail,
-        subject: "Confirme ton compte",
-        text: `Bonjour ${cleanedUsername},\n\nMerci de t'être inscrit.\nClique sur ce lien pour vérifier ton compte :\n${verificationUrl}\n\nCe lien expirera dans 24h.`,
+      console.log("Envoi de l'email à :", cleanedEmail);
+
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "api-key": process.env.BREVO_API_KEY!,
+        },
+        body: JSON.stringify({
+          sender: { name: "DIVN", email: "wist.infodev@gmail.com" },
+          to: [{ email: cleanedEmail }],
+          subject: "Confirme ton compte ✅",
+          textContent: `Bonjour ${cleanedUsername},\n\nMerci de t'être inscrit.\nClique sur ce lien pour vérifier ton compte :\n${verificationUrl}\n\nCe lien expirera dans 24h.`,
+        }),
       });
-      console.log(`Email de vérification envoyé à ${cleanedEmail} ✅`);
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Erreur Brevo :", errText);
+      } else {
+        console.log("Email envoyé avec succès ✅");
+      }
     } catch (emailErr) {
       console.error("Erreur lors de l'envoi de l'email :", emailErr);
-      // Tu peux décider de renvoyer une erreur ou juste loguer
     }
 
     return NextResponse.json({
