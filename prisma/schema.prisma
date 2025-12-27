@@ -7,13 +7,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Enum pour les rôles utilisateur (ex. USER/ADMIN)
+// Enums
 enum Role {
   USER
   ADMIN
 }
 
-// Enum pour le statut des commandes
 enum OrderStatus {
   PENDING
   CONFIRMED
@@ -22,6 +21,7 @@ enum OrderStatus {
   CANCELLED
 }
 
+// Models
 model User {
   id         String   @id @default(cuid())
   email      String   @unique
@@ -34,10 +34,11 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  carts              Cart[]
-  orders             Order[]
-  verificationTokens VerificationToken[]
-  profile            Profile?
+  carts               Cart[]
+  orders              Order[]
+  verificationTokens  VerificationToken[]
+  passwordResetTokens PasswordResetToken[]
+  profile             Profile?
 
   @@map("users")
 }
@@ -63,6 +64,17 @@ model VerificationToken {
   createdAt DateTime @default(now())
 
   @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@map("password_reset_tokens")
 }
 
 model Product {
