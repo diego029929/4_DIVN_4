@@ -6,7 +6,7 @@ import { sendEmail } from "@/lib/email";
 
 export async function GET() {
   await sendEmail(
-    "TON_EMAIL@gmail.com",
+    "wist.infodev@gmail.com",
     "TEST BREVO API ✅",
     "Si tu lis ça, C’EST FINI."
   );
