@@ -1,4 +1,3 @@
-// app/api/forgot-password/route.ts
 import { prisma } from "@/lib/prisma"
 import { randomUUID } from "crypto"
 import { sendEmail } from "@/lib/email"
@@ -6,25 +5,25 @@ import { NextResponse } from "next/server"
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json()
+    const body = await req.json()
+    const email = body?.email
 
     if (!email) {
       return NextResponse.json({ success: true })
     }
 
-    const cleanedEmail = email.toLowerCase().trim()
+    const cleanedEmail = email.trim().toLowerCase()
 
     const user = await prisma.user.findUnique({
       where: { email: cleanedEmail },
     })
 
-    // 🔒 IMPORTANT : si l'utilisateur n'existe pas
-    // on répond OK sans rien faire
-    if (!user || !user.isVerified) {
+    // 🔒 Sécurité : on répond OK même si le compte n'existe pas
+    if (!user) {
       return NextResponse.json({ success: true })
     }
 
-    // 🧹 Supprime les anciens tokens pour éviter les conflits
+    // 🧹 Nettoyage anciens tokens
     await prisma.passwordResetToken.deleteMany({
       where: { userId: user.id },
     })
@@ -42,25 +41,26 @@ export async function POST(req: Request) {
 
     const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`
 
-    // ⚡ envoi email (non bloquant côté UX)
     await sendEmail(
       user.email,
       "Réinitialisation de ton mot de passe",
       `Bonjour ${user.username},
 
-Clique sur ce lien pour réinitialiser ton mot de passe :
+Tu as demandé à réinitialiser ton mot de passe.
+
+Clique sur ce lien pour continuer :
 ${resetUrl}
 
-Ce lien expire dans 30 minutes.
-
-Si tu n’es pas à l’origine de cette demande, ignore cet email.`
+Ce lien est valable 30 minutes.
+Si tu n'es pas à l'origine de cette demande, ignore cet email.
+`
     )
 
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error("FORGOT_PASSWORD_ERROR:", err)
 
-    // 🔒 ON NE RÉVÈLE JAMAIS L'ERREUR AU CLIENT
+    // 🔒 Toujours répondre OK (pas de leak)
     return NextResponse.json({ success: true })
   }
 }
