@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
 import type Stripe from "stripe"
-import { notifyCustomer } from "@/lib/email"
 
 export const runtime = "nodejs" // ⚠️ IMPORTANT POUR STRIPE
 
@@ -67,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ Commande créée :", order.id)
 
-    // 🔹 Récupération du panier depuis metadata
+    // 🔹 Récupération du panier depuis metadata (optionnel)
     let items: any[] = []
 
     if (session.metadata?.cart) {
@@ -77,22 +76,9 @@ export async function POST(req: NextRequest) {
         console.error("❌ Erreur parsing cart metadata", err)
       }
     }
-
-    // 🔹 Email client (non bloquant)
-    try {
-      await notifyCustomer({
-        orderId: order.id,
-        customerEmail:
-          session.customer_email || "client@example.com",
-        items,
-        totalAmount: order.total,
-        estimatedDelivery: "5–7 jours ouvrés",
-      })
-    } catch (err) {
-      console.error("❌ Email client failed", err)
-    }
   }
 
   // ⚠️ Stripe exige toujours un 200
   return NextResponse.json({ received: true })
-}
+        }
+        
