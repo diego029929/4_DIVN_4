@@ -1,85 +1,76 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { stripe } from "@/lib/stripe"
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth"
 
 export const runtime = "nodejs"
 
 export async function POST(req: Request) {
   try {
+    // 1️⃣ Session NextAuth
     const session = await getServerSession(authOptions)
-    console.log("SESSION:", session)
 
-    if (!session?.user?.id) {
+    if (!session?.user?.email) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401 }
       )
     }
 
-    const { items } = await req.json()
+    // 2️⃣ Body
+    const body = await req.json()
+    const items = body.items
 
-    if (!Array.isArray(items) || items.length === 0) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
-        { error: "Panier vide" },
+        { error: "Panier vide ou invalide" },
         { status: 400 }
       )
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { id: true, email: true },
-    })
-
-    if (!user?.email) {
-      return NextResponse.json(
-        { error: "Utilisateur invalide" },
-        { status: 401 }
-      )
-    }
-
-    const line_items = items.map((item: any, index: number) => {
+    // 3️⃣ Stripe line_items (SÉCURISÉ)
+    const lineItems = items.map((item: any) => {
       if (
         !item.name ||
-        !Number.isInteger(item.priceInCents) ||
-        !Number.isInteger(item.quantity) ||
-        item.quantity <= 0
+        typeof item.priceInCents !== "number" ||
+        typeof item.quantity !== "number"
       ) {
-        throw new Error(`Item invalide index ${index}`)
+        throw new Error("Item invalide dans le panier")
       }
 
       return {
         price_data: {
           currency: "eur",
-          product_data: { name: item.name },
+          product_data: {
+            name: item.name,
+          },
           unit_amount: item.priceInCents,
         },
         quantity: item.quantity,
       }
     })
 
-    console.log("LINE ITEMS:", line_items)
-
+    // 4️⃣ Création session Stripe (🔥 ICI STRIPE EST APPELÉ)
     const stripeSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
-      customer_email: user.email,
-      line_items,
+      customer_email: session.user.email,
+      line_items: lineItems,
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       metadata: {
-        userId: user.id,
+        email: session.user.email,
+        cart: JSON.stringify(items),
       },
     })
 
-    console.log("STRIPE SESSION:", stripeSession.id)
-
+    // 5️⃣ Retour URL Stripe
     return NextResponse.json({ url: stripeSession.url })
   } catch (err: any) {
-    console.error("CHECKOUT ERROR:", err)
+    console.error("❌ STRIPE CHECKOUT ERROR:", err)
+
     return NextResponse.json(
-      { error: err.message || "Checkout failed" },
+      { error: "Stripe checkout failed" },
       { status: 500 }
     )
   }
