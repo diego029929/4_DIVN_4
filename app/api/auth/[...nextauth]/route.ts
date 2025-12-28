@@ -13,41 +13,24 @@ const handler = NextAuth({
         email: { label: "Email", type: "text" },
         password: { label: "Mot de passe", type: "password" },
       },
-
       async authorize(credentials) {
-        // Sécurité de base
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials?.password) return null;
 
-        // Normalisation email (TRÈS IMPORTANT)
         const email = credentials.email.trim().toLowerCase();
 
-        // Recherche user
         const user = await prisma.user.findUnique({
           where: { email },
         });
 
-        // ❌ user inexistant ou sans mot de passe
-        if (!user || !user.password) {
-          return null;
-        }
+        if (!user || !user.password) return null;
 
-        // Vérification du mot de passe
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) return null;
 
-        if (!isValid) {
-          return null;
-        }
-
-        // ✅ User OK
         return {
           id: user.id,
           email: user.email,
-          name: user.username ?? user.email, // NextAuth attend "name"
+          name: user.username ?? user.email,
         };
       },
     }),
@@ -62,6 +45,20 @@ const handler = NextAuth({
   pages: {
     signIn: "/login",
   },
+
+  callbacks: {
+    // ✅ Ajouter l'id de l'utilisateur dans le token JWT
+    async jwt({ token, user }) {
+      if (user) token.id = user.id;
+      return token;
+    },
+    // ✅ Ajouter l'id dans la session pour l'utiliser côté serveur (Stripe)
+    async session({ session, token }) {
+      if (token?.id) session.user.id = token.id;
+      return session;
+    },
+  },
 });
 
 export { handler as GET, handler as POST };
+        
