@@ -1,90 +1,67 @@
 "use client";
 
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/components/cart-provider";
 import { useEffect, useState } from "react";
 import { CartContent } from "@/components/cart-content";
-import { useCart } from "@/components/cart-provider";
-import { useRouter } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 
 export default function CartPage() {
-  const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { data: session, status } = useSession();
+  const { items } = useCart();
   const router = useRouter();
-  const { items } = useCart(); // ✅ MANQUAIT ICI
+  const [loading, setLoading] = useState(false);
 
+  // ⛔️ Attendre que la session soit chargée
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
-  if (!mounted) return null;
+  if (status === "loading") return null;
 
   const handleCheckout = async () => {
     if (loading || items.length === 0) return;
     setLoading(true);
 
     try {
-      // 1️⃣ Vérifier session utilisateur
-      const sessionRes = await fetch("/api/check-session", {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      if (!sessionRes.ok) {
-        router.push("/login");
-        return;
-      }
-
-      const sessionData = await sessionRes.json();
-
-      if (!sessionData.loggedIn) {
-        router.push("/login");
-        return;
-      }
-
-      // 2️⃣ Créer la session Stripe (AVEC PANIER)
       const checkoutRes = await fetch("/api/checkout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // ✅ important
-        body: JSON.stringify({ items }), // 🔥 LA CAUSE DU BUG
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ items }),
       });
 
-      const checkoutData = await checkoutRes.json();
+      const data = await checkoutRes.json();
 
-      if (!checkoutRes.ok || !checkoutData.url) {
-        console.error("Checkout error:", checkoutData);
+      if (!checkoutRes.ok || !data.url) {
         throw new Error("Stripe session invalid");
       }
 
-      // 3️⃣ Redirection Stripe
-      window.location.href = checkoutData.url;
-    } catch (error) {
-      console.error("[CART_CHECKOUT_ERROR]", error);
-      alert("Une erreur est survenue lors du paiement. Réessaie.");
+      window.location.href = data.url;
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors du paiement");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="flex-1 container mx-auto px-4 py-12">
+    <main className="container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
-
       <CartContent />
-
       <div className="mt-10 flex justify-end">
         <button
           onClick={handleCheckout}
           disabled={loading || items.length === 0}
-          className="px-8 py-4 bg-black text-white font-bold rounded-lg
-                     hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-8 py-4 bg-black text-white font-bold rounded-lg"
         >
           {loading ? "Redirection..." : "Payer maintenant"}
         </button>
       </div>
     </main>
   );
-        }
+                                      }
+          
