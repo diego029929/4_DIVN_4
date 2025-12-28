@@ -1,8 +1,8 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { CartContent } from "@/components/cart-content";
+import { useCart } from "@/components/cart-provider";
 import { useRouter } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -11,26 +11,28 @@ export default function CartPage() {
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { items } = useCart(); // ✅ MANQUAIT ICI
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null; // ⛔ évite tout SSR / prerender
+  if (!mounted) return null;
 
   const handleCheckout = async () => {
-    if (loading) return; // ⛔ évite double clic
+    if (loading || items.length === 0) return;
     setLoading(true);
 
     try {
-      // 1️⃣ Vérifier la session utilisateur
+      // 1️⃣ Vérifier session utilisateur
       const sessionRes = await fetch("/api/check-session", {
         method: "GET",
         cache: "no-store",
       });
 
       if (!sessionRes.ok) {
-        throw new Error("Session check failed");
+        router.push("/login");
+        return;
       }
 
       const sessionData = await sessionRes.json();
@@ -40,22 +42,21 @@ export default function CartPage() {
         return;
       }
 
-      // 2️⃣ Créer la session Stripe
+      // 2️⃣ Créer la session Stripe (AVEC PANIER)
       const checkoutRes = await fetch("/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ important
+        body: JSON.stringify({ items }), // 🔥 LA CAUSE DU BUG
       });
-
-      if (!checkoutRes.ok) {
-        throw new Error("Checkout creation failed");
-      }
 
       const checkoutData = await checkoutRes.json();
 
-      if (!checkoutData.url) {
-        throw new Error("No checkout URL returned");
+      if (!checkoutRes.ok || !checkoutData.url) {
+        console.error("Checkout error:", checkoutData);
+        throw new Error("Stripe session invalid");
       }
 
       // 3️⃣ Redirection Stripe
@@ -77,7 +78,7 @@ export default function CartPage() {
       <div className="mt-10 flex justify-end">
         <button
           onClick={handleCheckout}
-          disabled={loading}
+          disabled={loading || items.length === 0}
           className="px-8 py-4 bg-black text-white font-bold rounded-lg
                      hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
         >
@@ -86,4 +87,4 @@ export default function CartPage() {
       </div>
     </main>
   );
-}
+        }
