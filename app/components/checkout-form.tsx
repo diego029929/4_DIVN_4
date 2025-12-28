@@ -21,19 +21,18 @@ export function CheckoutForm() {
     try {
       setLoading(true)
 
-      const res = await fetch("app/api/checkout", {
+      // ✅ On envoie le panier au backend
+      const res = await fetch("/api/checkout", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // ✅ IMPORTANT POUR NEXTAUTH
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // 🔥 Très important pour NextAuth
         body: JSON.stringify({ items }),
       })
 
       const data = await res.json()
+      console.log("Checkout response:", data)
 
       if (!res.ok) {
-        console.error("Checkout error:", data)
         alert(data?.error || "Erreur lors du paiement")
         return
       }
@@ -66,10 +65,7 @@ export function CheckoutForm() {
         >
           <span>
             {item.name}
-            {item.size && (
-              <span className="text-neutral-400"> ({item.size})</span>
-            )}{" "}
-            × {item.quantity}
+            {item.size && <span className="text-neutral-400"> ({item.size})</span>} × {item.quantity}
           </span>
           <span>{formatCents(item.priceInCents * item.quantity)}</span>
         </div>
