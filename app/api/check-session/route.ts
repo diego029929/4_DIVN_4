@@ -2,19 +2,20 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { getServerSession } from "next-auth/next";
-import { handler as authHandler } from "app/api/auth/[...nextauth]"; // ton NextAuth existant
+import { authOptions } from "@/lib/auth"; // import de la config NextAuth
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
     // 🔹 Récupération de la session NextAuth
-    const sessionAuth = await getServerSession(authHandler);
+    const sessionAuth = await getServerSession(authOptions);
 
     if (!sessionAuth?.user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    // 🔹 Récupération du body et validation du panier
     const body = await req.json();
     const items = body.items || [];
 
@@ -34,8 +35,12 @@ export async function POST(req: Request) {
 
     // 🔹 Transformation du panier en line_items Stripe
     const lineItems = items.map((item: any) => {
-      // Validation basique pour éviter des erreurs Stripe
-      if (!item.name || !item.priceInCents || !item.quantity || item.quantity <= 0) {
+      if (
+        !item.name ||
+        typeof item.priceInCents !== "number" ||
+        !item.quantity ||
+        item.quantity <= 0
+      ) {
         throw new Error("Invalid item in cart");
       }
 
@@ -71,5 +76,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-        }
-      
+}
