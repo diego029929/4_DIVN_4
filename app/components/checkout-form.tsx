@@ -1,47 +1,48 @@
-"use client";
-
-import { useState } from "react";
-import { useCart } from "@/components/cart-provider";
-import { Button } from "@/components/ui/button";
+"use client"
+import { useState } from "react"
+import { useCart } from "@/components/cart-provider"
+import { Button } from "@/components/ui/button"
 
 function formatCents(priceInCents: number) {
   return (priceInCents / 100).toLocaleString("fr-FR", {
     style: "currency",
     currency: "EUR",
-  });
+  })
 }
 
 export function CheckoutForm() {
-  const { items, totalPrice } = useCart();
-  const [loading, setLoading] = useState(false);
+  const { items, totalPrice } = useCart()
+  const [loading, setLoading] = useState(false)
 
   async function handleCheckout() {
-    try {
-      setLoading(true);
+    if (items.length === 0) return
 
-      const res = await fetch("/api/checkout", {
+    try {
+      setLoading(true)
+
+      const res = await fetch("/api/checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
-      });
+        body: JSON.stringify({ items }), // ⚡ On envoie le panier pour metadata
+      })
 
-      const data = await res.json();
+      const data = await res.json()
 
       if (data?.url) {
-        window.location.href = data.url;
+        window.location.href = data.url
       } else {
-        alert("Erreur lors du paiement");
+        alert(data?.error || "Erreur lors du paiement")
       }
-    } catch (error) {
-      console.error(error);
-      alert("Une erreur est survenue");
+    } catch (err) {
+      console.error("Checkout error:", err)
+      alert("Une erreur est survenue")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   if (items.length === 0) {
-    return <p className="text-neutral-400">Votre panier est vide.</p>;
+    return <p className="text-neutral-400">Votre panier est vide.</p>
   }
 
   return (
@@ -53,14 +54,9 @@ export function CheckoutForm() {
         >
           <span>
             {item.name}
-            {item.size && (
-              <span className="text-neutral-400"> ({item.size})</span>
-            )}{" "}
-            × {item.quantity}
+            {item.size && <span className="text-neutral-400"> ({item.size})</span>} × {item.quantity}
           </span>
-          <span>
-            {formatCents(item.priceInCents * item.quantity)}
-          </span>
+          <span>{formatCents(item.priceInCents * item.quantity)}</span>
         </div>
       ))}
 
@@ -69,14 +65,9 @@ export function CheckoutForm() {
         <span>{formatCents(totalPrice)}</span>
       </div>
 
-      <Button
-        className="w-full"
-        onClick={handleCheckout}
-        disabled={loading}
-      >
+      <Button className="w-full" onClick={handleCheckout} disabled={loading}>
         {loading ? "Redirection..." : "Payer"}
       </Button>
     </div>
-  );
-          }
-          
+  )
+            }
