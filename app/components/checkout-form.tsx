@@ -1,4 +1,5 @@
 "use client"
+
 import { useState } from "react"
 import { useCart } from "@/components/cart-provider"
 import { Button } from "@/components/ui/button"
@@ -20,49 +21,38 @@ export function CheckoutForm() {
     try {
       setLoading(true)
 
-      const res = await fetch("/api/checkout-session", {
+      const res = await fetch("/api/checkout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }), // ⚡ On envoie le panier pour metadata
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // ✅ IMPORTANT POUR NEXTAUTH
+        body: JSON.stringify({ items }),
       })
 
-      const handleCheckout = async () => {
-  try {
-    setLoading(true)
+      const data = await res.json()
 
-    const res = await fetch("/api/checkout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // 🔥 TRÈS IMPORTANT POUR NEXTAUTH
-      body: JSON.stringify({ items }),
-    })
+      if (!res.ok) {
+        console.error("Checkout error:", data)
+        alert(data?.error || "Erreur lors du paiement")
+        return
+      }
 
-    console.log("Checkout status:", res.status)
+      if (!data?.url) {
+        alert("Session Stripe invalide")
+        return
+      }
 
-    const data = await res.json()
-    console.log("Checkout response:", data)
-
-    if (!res.ok) {
-      alert(data?.error || "Erreur lors du paiement")
-      return
+      // ✅ Redirection Stripe
+      window.location.href = data.url
+    } catch (err) {
+      console.error("Checkout error:", err)
+      alert("Une erreur est survenue")
+    } finally {
+      setLoading(false)
     }
-
-    if (!data?.url) {
-      alert("Session Stripe invalide")
-      return
-    }
-
-    // ✅ Redirection Stripe
-    window.location.href = data.url
-  } catch (err) {
-    console.error("Checkout error:", err)
-    alert("Une erreur est survenue")
-  } finally {
-    setLoading(false)
   }
-        
+
   if (items.length === 0) {
     return <p className="text-neutral-400">Votre panier est vide.</p>
   }
@@ -76,7 +66,10 @@ export function CheckoutForm() {
         >
           <span>
             {item.name}
-            {item.size && <span className="text-neutral-400"> ({item.size})</span>} × {item.quantity}
+            {item.size && (
+              <span className="text-neutral-400"> ({item.size})</span>
+            )}{" "}
+            × {item.quantity}
           </span>
           <span>{formatCents(item.priceInCents * item.quantity)}</span>
         </div>
@@ -92,4 +85,4 @@ export function CheckoutForm() {
       </Button>
     </div>
   )
-            }
+}
