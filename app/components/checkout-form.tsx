@@ -22,7 +22,7 @@ export function CheckoutForm() {
       setLoading(true)
 
       // ✅ On envoie le panier au backend
-      const res = await fetch("/api/checkout", {
+      const res = await fetch("@/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // 🔥 Très important pour NextAuth
