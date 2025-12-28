@@ -21,7 +21,7 @@ export function CheckoutForm() {
     try {
       setLoading(true)
 
-      const res = await fetch("/api/checkout", {
+      const res = await fetch("app/api/checkout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
