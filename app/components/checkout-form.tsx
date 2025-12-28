@@ -26,20 +26,43 @@ export function CheckoutForm() {
         body: JSON.stringify({ items }), // ⚡ On envoie le panier pour metadata
       })
 
-      const data = await res.json()
+      const handleCheckout = async () => {
+  try {
+    setLoading(true)
 
-      if (data?.url) {
-        window.location.href = data.url
-      } else {
-        alert(data?.error || "Erreur lors du paiement")
-      }
-    } catch (err) {
-      console.error("Checkout error:", err)
-      alert("Une erreur est survenue")
-    } finally {
-      setLoading(false)
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // 🔥 TRÈS IMPORTANT POUR NEXTAUTH
+      body: JSON.stringify({ items }),
+    })
+
+    console.log("Checkout status:", res.status)
+
+    const data = await res.json()
+    console.log("Checkout response:", data)
+
+    if (!res.ok) {
+      alert(data?.error || "Erreur lors du paiement")
+      return
     }
+
+    if (!data?.url) {
+      alert("Session Stripe invalide")
+      return
+    }
+
+    // ✅ Redirection Stripe
+    window.location.href = data.url
+  } catch (err) {
+    console.error("Checkout error:", err)
+    alert("Une erreur est survenue")
+  } finally {
+    setLoading(false)
   }
+}
 
   if (items.length === 0) {
     return <p className="text-neutral-400">Votre panier est vide.</p>
