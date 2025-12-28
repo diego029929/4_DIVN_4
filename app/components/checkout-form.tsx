@@ -62,8 +62,7 @@ export function CheckoutForm() {
   } finally {
     setLoading(false)
   }
-}
-
+        
   if (items.length === 0) {
     return <p className="text-neutral-400">Votre panier est vide.</p>
   }
