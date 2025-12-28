@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { stripe } from "@/lib/stripe"
 import { prisma } from "@/lib/prisma"
 import type Stripe from "stripe"
-import { notifyManufacturer, notifyCustomer } from "@/lib/email"
+import { notifyCustomer } from "@/lib/email"
 
 export const runtime = "nodejs" // ⚠️ IMPORTANT POUR STRIPE
 
@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get("stripe-signature")
 
   if (!signature) {
-    return NextResponse.json({ error: "Missing Stripe signature" }, { status: 400 })
+    return NextResponse.json(
+      { error: "Missing Stripe signature" },
+      { status: 400 }
+    )
   }
 
   let event: Stripe.Event
@@ -30,18 +33,20 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // ✅ PAIEMENT CONFIRMÉ
+  // ✅ Paiement confirmé
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session
 
     const userId = session.metadata?.userId
-
     if (!userId) {
       console.error("❌ userId manquant dans metadata")
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Missing userId" },
+        { status: 400 }
+      )
     }
 
-    // 🔹 Sécurité : éviter doublons Stripe
+    // 🔹 Sécurité anti-doublon
     const existingOrder = await prisma.order.findFirst({
       where: { stripeSessionId: session.id },
     })
@@ -50,7 +55,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
-    // 🔹 Création commande
+    // 🔹 Création de la commande
     const order = await prisma.order.create({
       data: {
         userId,
@@ -62,7 +67,7 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ Commande créée :", order.id)
 
-    // 🔹 Panier (si envoyé dans metadata)
+    // 🔹 Récupération du panier depuis metadata
     let items: any[] = []
 
     if (session.metadata?.cart) {
@@ -73,23 +78,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 🔹 Emails (non bloquants)
-    try {
-      await notifyManufacturer({
-        orderId: order.id,
-        customerEmail: session.customer_email || "client@example.com",
-        items,
-        totalAmount: order.total,
-        orderDate: new Date(),
-      })
-    } catch (err) {
-      console.error("❌ Email fournisseur failed", err)
-    }
-
+    // 🔹 Email client (non bloquant)
     try {
       await notifyCustomer({
         orderId: order.id,
-        customerEmail: session.customer_email || "client@example.com",
+        customerEmail:
+          session.customer_email || "client@example.com",
         items,
         totalAmount: order.total,
         estimatedDelivery: "5–7 jours ouvrés",
@@ -99,7 +93,6 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ⚠️ STRIPE EXIGE TOUJOURS 200
+  // ⚠️ Stripe exige toujours un 200
   return NextResponse.json({ received: true })
-    }
-      
+}
