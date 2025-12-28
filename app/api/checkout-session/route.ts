@@ -1,91 +1,86 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { NextResponse } from "next/server"
+import { prisma } from "@/lib/prisma"
+import { stripe } from "@/lib/stripe"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 
-export const runtime = "nodejs";
+export const runtime = "nodejs"
 
 export async function POST(req: Request) {
   try {
-    // 🔹 Récupération de la session NextAuth
-    const sessionAuth = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions)
+    console.log("SESSION:", session)
 
-    if (!sessionAuth?.user) {
-      console.log("❌ User not authenticated");
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Not authenticated" },
+        { status: 401 }
+      )
     }
 
-    // 🔹 Récupération des items envoyés depuis le front
-    const body = await req.json();
-    const items = body.items || [];
+    const { items } = await req.json()
 
-    if (!items.length) {
-      console.log("❌ Panier vide");
-      return NextResponse.json({ error: "Panier vide" }, { status: 400 });
+    if (!Array.isArray(items) || items.length === 0) {
+      return NextResponse.json(
+        { error: "Panier vide" },
+        { status: 400 }
+      )
     }
 
-    // 🔹 Récupération de l'utilisateur dans la DB
     const user = await prisma.user.findUnique({
-      where: { id: sessionAuth.user.id },
+      where: { id: session.user.id },
       select: { id: true, email: true },
-    });
+    })
 
-    if (!user) {
-      console.log("❌ User not found in DB", sessionAuth.user.id);
-      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    if (!user?.email) {
+      return NextResponse.json(
+        { error: "Utilisateur invalide" },
+        { status: 401 }
+      )
     }
 
-    // 🔹 Validation et transformation des items pour Stripe
-    const lineItems = items.map((item: any, index: number) => {
+    const line_items = items.map((item: any, index: number) => {
       if (
         !item.name ||
-        typeof item.priceInCents !== "number" ||
         !Number.isInteger(item.priceInCents) ||
-        !item.quantity ||
         !Number.isInteger(item.quantity) ||
         item.quantity <= 0
       ) {
-        throw new Error(`Invalid item at index ${index}: ${JSON.stringify(item)}`);
+        throw new Error(`Item invalide index ${index}`)
       }
 
       return {
         price_data: {
           currency: "eur",
           product_data: { name: item.name },
-          unit_amount: item.priceInCents, // déjà en centimes
+          unit_amount: item.priceInCents,
         },
         quantity: item.quantity,
-      };
-    });
+      }
+    })
 
-    console.log("🔹 Stripe line items:", lineItems);
-    console.log("🔹 Customer email:", user.email);
+    console.log("LINE ITEMS:", line_items)
 
-    // 🔹 Création de la session Stripe
     const stripeSession = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       mode: "payment",
+      payment_method_types: ["card"],
       customer_email: user.email,
-      line_items: lineItems,
+      line_items,
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       metadata: {
         userId: user.id,
-        cart: JSON.stringify(items),
       },
-    });
+    })
 
-    console.log("✅ Stripe session created:", stripeSession.id);
+    console.log("STRIPE SESSION:", stripeSession.id)
 
-    return NextResponse.json({ url: stripeSession.url });
+    return NextResponse.json({ url: stripeSession.url })
   } catch (err: any) {
-    console.error("❌ Checkout session error:", err);
+    console.error("CHECKOUT ERROR:", err)
     return NextResponse.json(
       { error: err.message || "Checkout failed" },
       { status: 500 }
-    );
+    )
   }
 }
-
-    
