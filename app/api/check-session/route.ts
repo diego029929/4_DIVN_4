@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
 import { getServerSession } from "next-auth/next";
-import { handler as authHandler } from "./auth/[...nextauth]"; // ton NextAuth existant
+import { handler as authHandler } from "./api/auth/[...nextauth]"; // ton NextAuth existant
 
 export const runtime = "nodejs";
 
