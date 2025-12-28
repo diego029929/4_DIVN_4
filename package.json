@@ -53,7 +53,7 @@
     "input-otp": "1.4.2",
     "lucide-react": "0.454.0",
     "next": "15.1.3",
-    "next-auth": "^4.24.13",
+    "next-auth": "beta",
     "next-themes": "0.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
