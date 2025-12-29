@@ -1,15 +1,12 @@
 {
-  "name": "my-v0-project",
+  "name": "DIVN",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "db:push": "prisma db push",
-    "db:init": "node prisma/init-db.ts",
-    "db:setup": "pnpm run db:push && pnpm run db:init"
+    "start": "next start"
+    
   },
   "dependencies": {
     "nodemailer": "^6.9.8",
