@@ -1,5 +1,5 @@
 {
-  "name": "divn",
+  "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -64,17 +64,18 @@
     "stripe": "14.24.0",
     "tailwind-merge": "2.3.0",
     "tailwindcss-animate": "1.0.7",
-    "zod": "3.23.8"
+    "zod": "3.23.8",
+    "tailwindcss": "^3.4.4",
+    "postcss": "^8.4.31",
+    "autoprefixer": "^10.4.20"
   },
   "devDependencies": {
     "prisma": "^5.22.0",
     "typescript": "5.4.5",
     "ts-node": "^10.9.1",
-    "postcss": "8.4.31",
-    "autoprefixer": "10.4.20",
-    "tailwindcss": "3.4.4",
-    "@tailwindcss/postcss": "4.1.17",
     "@types/node": "20.11.30",
-    "@types/bcryptjs": "^2.4.2"
+    "@types/bcryptjs": "^2.4.2",
+    "@tailwindcss/postcss": "4.1.17"
   }
-}
+  }
+    
