@@ -1,22 +1,21 @@
-import path from 'path';
+import path from "path";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
 
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true
   },
 
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true
   },
 
   webpack: (config) => {
-    config.resolve.alias['@'] = path.resolve('./');
+    config.resolve.alias['@'] = path.resolve('.');
     return config;
-  },
+  }
 };
 
 export default nextConfig;
-
