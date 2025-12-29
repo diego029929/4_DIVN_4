@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "pnpm exec next build",
-    "start": "next start",
+  "build": "pnpm exec next build",
+  "dev": "pnpm exec next dev",
+  "start": "pnpm exec next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "db:push": "prisma db push",
     "db:init": "node prisma/init-db.ts",
