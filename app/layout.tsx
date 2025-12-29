@@ -8,6 +8,7 @@ import Providers from "./providers";
 
 const inter = Inter({
   subsets: ["latin"],
+  display: "swap",
   variable: "--font-inter",
 });
 
