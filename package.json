@@ -4,13 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-  "build": "pnpm exec next build",
-  "dev": "pnpm exec next dev",
-  "start": "pnpm exec next start",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "db:push": "prisma db push",
-    "db:init": "node prisma/init-db.ts",
-    "db:setup": "pnpm run db:push && pnpm run db:init"
+  "build": "next build",
+  "dev": "next dev",
+  "start": "next start",
+    
   },
   "dependencies": {
     "next": "14.0.0",
