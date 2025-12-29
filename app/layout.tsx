@@ -1,22 +1,12 @@
 import "@/globals.css";
 import type { ReactNode } from "react";
-import { Inter, Bebas_Neue } from "next/font/google";
 
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import Providers from "./providers";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter",
-});
-
-const bebas = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-bebas",
-});
+// On supprime l'import de Google Fonts
+// et on utilisera les polices self-hosted via CSS
 
 export const metadata = {
   title: "DIVN",
@@ -25,7 +15,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="fr" className={`${inter.variable} ${bebas.variable}`}>
+    <html lang="fr">
       <body
         className="
           min-h-screen flex flex-col
@@ -33,6 +23,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           antialiased
           transition-colors duration-300
           selection:bg-[#E6B400]/40 selection:text-white
+          font-inter font-bebas
         "
       >
         <Providers>
@@ -47,5 +38,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </body>
     </html>
   );
-      }
-        
+}
