@@ -1,3 +1,6 @@
+console.log("VERIFY TOKEN URL:", token);
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
+
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
