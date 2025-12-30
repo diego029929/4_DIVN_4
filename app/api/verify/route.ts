@@ -1,6 +1,3 @@
-console.log("VERIFY TOKEN URL:", token);
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
-
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
@@ -11,6 +8,7 @@ export async function GET(req: Request) {
     return new Response("Token manquant", { status: 400 });
   }
 
+  // ⚠️ IMPORTANT : token défini AVANT toute utilisation
   const token = decodeURIComponent(rawToken);
 
   const record = await prisma.verificationToken.findUnique({
@@ -37,7 +35,5 @@ export async function GET(req: Request) {
     where: { token },
   });
 
-  return Response.redirect(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/profile`
-  );
-}
+  return Response.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/profile`);
+      }
