@@ -4,36 +4,29 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const rawToken = url.searchParams.get("token");
 
-  if (!rawToken) {
-    return new Response("Token manquant", { status: 400 });
-  }
+  if (!rawToken) return new Response("Token manquant", { status: 400 });
 
-  // ⚠️ IMPORTANT : token défini AVANT toute utilisation
   const token = decodeURIComponent(rawToken);
 
-  const record = await prisma.verificationToken.findUnique({
-    where: { token },
-  });
+  // 🔹 Chercher le token dans la DB
+  const record = await prisma.verificationToken.findUnique({ where: { token } });
+  if (!record) return new Response("Token invalide", { status: 400 });
 
-  if (!record) {
-    return new Response("Token invalide", { status: 400 });
-  }
-
+  // 🔹 Vérifier la date d’expiration
   if (record.expires < new Date()) {
-    await prisma.verificationToken.delete({
-      where: { token },
-    });
+    await prisma.verificationToken.delete({ where: { token } });
     return new Response("Token expiré", { status: 400 });
   }
 
+  // 🔹 Valider l’utilisateur IMMÉDIATEMENT
   await prisma.user.update({
     where: { id: record.userId },
     data: { isVerified: true },
   });
 
-  await prisma.verificationToken.delete({
-    where: { token },
-  });
+  // 🔹 Supprimer le token pour qu’il ne soit plus réutilisable
+  await prisma.verificationToken.delete({ where: { token } });
 
+  // 🔹 Rediriger l’utilisateur
   return Response.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/profile`);
-      }
+}
