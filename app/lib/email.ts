@@ -1,24 +1,35 @@
-export async function sendEmail(
-  to: string,
-  subject: string,
-  text: string
-) {
+import "server-only";
+
+type SendEmailOptions = {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+};
+
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+}: SendEmailOptions) {
   try {
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
-        "accept": "application/json",
+        accept: "application/json",
         "content-type": "application/json",
         "api-key": process.env.BREVO_API_KEY!,
       },
       body: JSON.stringify({
         sender: {
           name: "DIVN",
-          email: "wist.infodev@gmail.com"
+          email: "wist.infodev@gmail.com",
         },
         to: [{ email: to }],
         subject,
-        textContent: text,
+        htmlContent: html, // 🔥 HTML premium
+        textContent: text, // fallback optionnel
       }),
     });
 
@@ -31,5 +42,4 @@ export async function sendEmail(
   } catch (err) {
     console.error("EMAIL_ERROR:", err);
   }
-  }
-        
+}
