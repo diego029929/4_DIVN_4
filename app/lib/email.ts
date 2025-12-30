@@ -1,18 +1,14 @@
-import "server-only";
-
-type SendEmailOptions = {
-  to: string;
-  subject: string;
-  html: string;
-  text?: string;
-};
-
 export async function sendEmail({
   to,
   subject,
   html,
   text,
 }: SendEmailOptions) {
+  if (!to || !to.includes("@")) {
+    console.error("EMAIL_ERROR: invalid recipient", to);
+    return;
+  }
+
   try {
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -28,8 +24,8 @@ export async function sendEmail({
         },
         to: [{ email: to }],
         subject,
-        htmlContent: html, // 🔥 HTML premium
-        textContent: text, // fallback optionnel
+        htmlContent: html,
+        textContent: text,
       }),
     });
 
@@ -38,7 +34,7 @@ export async function sendEmail({
       throw new Error(err);
     }
 
-    console.log("EMAIL ENVOYÉ ✅");
+    console.log("EMAIL ENVOYÉ ✅ à", to);
   } catch (err) {
     console.error("EMAIL_ERROR:", err);
   }
