@@ -1,4 +1,3 @@
-// /api/register/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -35,10 +34,10 @@ export async function POST(req: Request) {
       },
     });
 
+    // ⚡ Créer un token de vérification
     const token = randomUUID();
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
-    // ⚡ Créer le token de vérification
     await prisma.verificationToken.create({
       data: {
         token,
@@ -47,13 +46,10 @@ export async function POST(req: Request) {
       },
     });
 
-const verificationUrl =
-  `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${encodeURIComponent(token)}`;
-    console.log("REGISTER TOKEN:", token);
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
-    
+    // ⚡ Construire l'URL du lien de vérification
+    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${encodeURIComponent(token)}`;
 
-    // ⚡ Envoi email via Brevo
+    // ⚡ Envoi email via Brevo (ou autre)
     try {
       const res = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
@@ -66,10 +62,9 @@ console.log("DATABASE_URL:", process.env.DATABASE_URL);
           sender: { name: "DIVN", email: "wist.infodev@gmail.com" },
           to: [{ email: cleanedEmail }],
           subject: "Confirme ton compte ✅",
-          textContent: `Bonjour ${cleanedUsername},\n\nMerci de t'être inscrit.\nClique sur ce lien pour vérifier ton compte :\n${verificationUrl}\n\nCe lien expirera dans 24h.`,
+          textContent: `Bonjour ${cleanedUsername},\nClique sur ce lien pour vérifier ton compte :\n${verificationUrl}\n\nCe lien expirera dans 24h.`,
         }),
       });
-
       if (!res.ok) console.error(await res.text());
     } catch (err) {
       console.error("Erreur lors de l'envoi de l'email :", err);
@@ -78,16 +73,11 @@ console.log("DATABASE_URL:", process.env.DATABASE_URL);
     return NextResponse.json({
       success: true,
       message: "Compte créé ! Vérifie ton e-mail pour activer ton compte.",
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        isVerified: user.isVerified,
-      },
+      token, // ⚡ facultatif : utile pour debug immédiat
     });
   } catch (err: any) {
     console.error("Erreur /api/register:", err);
     return NextResponse.json({ error: err.message || "Erreur serveur" }, { status: 500 });
   }
-        }
-    
+  }
+                              
