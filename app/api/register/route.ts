@@ -49,6 +49,9 @@ export async function POST(req: Request) {
 
 const verificationUrl =
   `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${encodeURIComponent(token)}`;
+    console.log("REGISTER TOKEN:", token);
+console.log("DATABASE_URL:", process.env.DATABASE_URL);
+    
 
     // ⚡ Envoi email via Brevo
     try {
