@@ -1,3 +1,12 @@
+import "server-only";
+
+type SendEmailOptions = {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+};
+
 export async function sendEmail({
   to,
   subject,
@@ -38,4 +47,4 @@ export async function sendEmail({
   } catch (err) {
     console.error("EMAIL_ERROR:", err);
   }
-}
+  }
