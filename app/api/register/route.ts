@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
-import { renderVerifyEmail } from "@/lib/email";
+import { renderVerifyEmail } from "@/lib/email-renderer.ts";
 
 export async function POST(req: Request) {
   try {
