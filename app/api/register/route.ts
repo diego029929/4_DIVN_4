@@ -47,7 +47,8 @@ export async function POST(req: Request) {
       },
     });
 
-    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
+const verificationUrl =
+  `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${encodeURIComponent(token)}`;
 
     // ⚡ Envoi email via Brevo
     try {
