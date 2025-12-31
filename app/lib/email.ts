@@ -10,11 +10,6 @@ export async function sendEmail({
   html: string;
   text?: string;
 }) {
-  if (!to || !to.includes("@")) {
-    console.error("EMAIL_ERROR: invalid recipient", to);
-    return;
-  }
-
   try {
     const res = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
@@ -28,7 +23,7 @@ export async function sendEmail({
         to: [{ email: to }],
         subject,
         htmlContent: html,
-        textContent: text || "Contenu HTML non affiché",
+        textContent: text || "Veuillez utiliser un client email compatible HTML.",
       }),
     });
 
@@ -41,4 +36,4 @@ export async function sendEmail({
   } catch (err) {
     console.error("EMAIL_ERROR:", err);
   }
-}
+  }
