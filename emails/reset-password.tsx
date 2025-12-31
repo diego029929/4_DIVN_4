@@ -1,51 +1,32 @@
-import { Heading, Text } from "@react-email/components";
-import { EmailLayout } from "./components/email-layout";
-import { BrandHeader } from "./components/brand-header";
-import { CtaButton } from "./components/cta-button";
+// emails/reset-password.tsx
+import { Html } from "@react-email/html";
+import { Heading, Text, Button } from "@react-email/components";
 
-export default function ResetPasswordEmail({
-  resetUrl,
-}: {
+interface Props {
   resetUrl: string;
-}) {
-  return (
-    <EmailLayout preview="Réinitialisation de votre mot de passe">
-      <BrandHeader />
-
-      <Heading style={h1}>
-        Mot de passe oublié ?
-      </Heading>
-
-      <Text style={text}>
-        Une demande de réinitialisation a été effectuée.
-        Cliquez sur le bouton ci-dessous pour définir
-        un nouveau mot de passe.
-      </Text>
-
-      <CtaButton href={resetUrl}>
-        Réinitialiser
-      </CtaButton>
-
-      <Text style={small}>
-        Si vous n’êtes pas à l’origine de cette demande,
-        aucune action n’est requise.
-      </Text>
-    </EmailLayout>
-  );
 }
 
-const h1 = {
-  color: "#ffffff",
-  fontSize: "26px",
-};
-
-const text = {
-  color: "#dddddd",
-  fontSize: "16px",
-};
-
-const small = {
-  marginTop: "32px",
-  fontSize: "13px",
-  color: "#999",
-};
+export default function ResetPasswordEmail({ resetUrl }: Props) {
+  return (
+    <Html>
+      <Heading style={{ fontSize: "24px" }}>Réinitialisation de mot de passe</Heading>
+      <Text>Vous avez demandé à réinitialiser votre mot de passe. Cliquez sur le bouton ci-dessous :</Text>
+      <Button
+        pY={12}
+        pX={24}
+        style={{
+          backgroundColor: "#000",
+          color: "#fff",
+          textDecoration: "none",
+          borderRadius: "6px",
+        }}
+        href={resetUrl}
+      >
+        Réinitialiser →
+      </Button>
+      <Text style={{ marginTop: "16px", fontSize: "12px", color: "#555" }}>
+        Si vous n’avez pas demandé ce changement, ignorez cet email.
+      </Text>
+    </Html>
+  );
+}
