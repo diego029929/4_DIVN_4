@@ -8,7 +8,7 @@ export async function sendEmail({ to, subject, html }: { to: string; subject: st
     },
     body: JSON.stringify({
       sender: { name: "DIVN", email: "wist.infodev@gmail.com" },
-      to: [{ email: to }],
+      "to": [{ "email": "user@email.com" }]
       subject,
       htmlContent: html,
     }),
