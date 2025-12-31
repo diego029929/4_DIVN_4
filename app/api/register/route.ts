@@ -3,14 +3,13 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/email";
-import { renderVerifyEmail } from "@/lib/email-renderer-node";
+import { verifyAccountEmailHtml } from "@/emails/verify-account";
 
 export async function POST(req: Request) {
   const { username, email, password } = await req.json();
 
-  if (!username || !email || !password) {
+  if (!username || !email || !password)
     return NextResponse.json({ error: "Tous les champs sont requis" }, { status: 400 });
-  }
 
   const cleanedEmail = email.trim().toLowerCase();
   const cleanedUsername = username.trim();
@@ -31,9 +30,9 @@ export async function POST(req: Request) {
   await prisma.verificationToken.create({ data: { token, userId: user.id, expires } });
 
   const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${encodeURIComponent(token)}`;
-  const html = renderVerifyEmail(cleanedUsername, verificationUrl);
+  const html = verifyAccountEmailHtml(cleanedUsername, verificationUrl);
 
   await sendEmail({ to: cleanedEmail, subject: "Confirme ton compte DIVN", html });
 
   return NextResponse.json({ success: true, message: "Compte créé ! Vérifie ton email." });
-      }
+            }
