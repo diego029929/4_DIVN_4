@@ -22,5 +22,4 @@ export function renderResetPasswordEmail(
   return render(
     <ResetPasswordEmail resetUrl={resetUrl} />
   );
-    }
-    
+      }
