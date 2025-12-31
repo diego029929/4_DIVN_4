@@ -1,57 +1,33 @@
-import { Heading, Text } from "@react-email/components";
-import { EmailLayout } from "./components/email-layout";
-import { BrandHeader } from "./components/brand-header";
-import { CtaButton } from "./components/cta-button";
+// emails/verify-account.tsx
+import { Html } from "@react-email/html";
+import { Heading, Text, Button } from "@react-email/components";
 
-export default function VerifyAccountEmail({
-  username,
-  verifyUrl,
-}: {
+interface Props {
   username: string;
   verifyUrl: string;
-}) {
-  return (
-    <EmailLayout preview="Vérifiez votre compte DIVN">
-      <BrandHeader />
-
-      <Heading style={h1}>
-        Bienvenue {username}
-      </Heading>
-
-      <Text style={text}>
-        Merci d’avoir créé un compte chez <strong>DIVN</strong>.
-        Pour sécuriser votre accès et activer votre compte,
-        veuillez confirmer votre adresse email.
-      </Text>
-
-      <CtaButton href={verifyUrl}>
-        Cliquer ici
-      </CtaButton>
-
-      <Text style={small}>
-        Ce lien est personnel et expirera automatiquement.
-        Si vous n’êtes pas à l’origine de cette demande,
-        vous pouvez ignorer cet email en toute sécurité.
-      </Text>
-    </EmailLayout>
-  );
 }
 
-const h1 = {
-  color: "#ffffff",
-  fontSize: "26px",
-  marginBottom: "16px",
-};
-
-const text = {
-  color: "#dddddd",
-  fontSize: "16px",
-  lineHeight: "24px",
-};
-
-const small = {
-  marginTop: "32px",
-  fontSize: "13px",
-  color: "#999",
-};
-      
+export default function VerifyAccountEmail({ username, verifyUrl }: Props) {
+  return (
+    <Html>
+      <Heading style={{ fontSize: "24px" }}>Bonjour {username} !</Heading>
+      <Text>Merci de créer un compte sur DIVN. Clique sur le bouton ci-dessous pour vérifier ton compte :</Text>
+      <Button
+        pY={12}
+        pX={24}
+        style={{
+          backgroundColor: "#000",
+          color: "#fff",
+          textDecoration: "none",
+          borderRadius: "6px",
+        }}
+        href={verifyUrl}
+      >
+        Cliquer ici →
+      </Button>
+      <Text style={{ marginTop: "16px", fontSize: "12px", color: "#555" }}>
+        Ce lien expire dans 24h.
+      </Text>
+    </Html>
+  );
+}
