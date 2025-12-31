@@ -38,7 +38,6 @@ export async function POST(req: Request) {
     });
 
     const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${encodeURIComponent(token)}`;
-
     const htmlContent = renderVerifyEmail(cleanedUsername, verificationUrl);
 
     await sendEmail({
@@ -55,5 +54,5 @@ export async function POST(req: Request) {
     console.error("Erreur /api/register:", err);
     return NextResponse.json({ error: err.message || "Erreur serveur" }, { status: 500 });
   }
-        }
-                               
+             }
+    
