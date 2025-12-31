@@ -61,6 +61,8 @@
     "stripe": "14.24.0",
     "tailwind-merge": "2.3.0",
     "tailwindcss-animate": "1.0.7",
+    "@react-email/components": "^1.0.0",
+    "@react-email/render": "^1.0.0",
     "zod": "3.23.8",
     "tailwindcss": "^3.4.4",
     "postcss": "^8.4.31",
