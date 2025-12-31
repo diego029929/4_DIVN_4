@@ -1,18 +1,15 @@
-import "server-only";
-
-type SendEmailOptions = {
-  to: string;
-  subject: string;
-  html: string;
-  text?: string;
-};
-
+// lib/email.ts
 export async function sendEmail({
   to,
   subject,
   html,
   text,
-}: SendEmailOptions) {
+}: {
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
+}) {
   if (!to || !to.includes("@")) {
     console.error("EMAIL_ERROR: invalid recipient", to);
     return;
@@ -27,14 +24,11 @@ export async function sendEmail({
         "api-key": process.env.BREVO_API_KEY!,
       },
       body: JSON.stringify({
-        sender: {
-          name: "DIVN",
-          email: "wist.infodev@gmail.com",
-        },
+        sender: { name: "DIVN", email: "wist.infodev@gmail.com" },
         to: [{ email: to }],
         subject,
         htmlContent: html,
-        textContent: text,
+        textContent: text || "Contenu HTML non affiché",
       }),
     });
 
@@ -47,4 +41,4 @@ export async function sendEmail({
   } catch (err) {
     console.error("EMAIL_ERROR:", err);
   }
-  }
+}
