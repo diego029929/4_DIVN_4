@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
 
     const token = randomUUID();
-    const expires = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1h
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1h
 
     await prisma.passwordResetToken.create({
       data: { token, userId: user.id, expires },
@@ -34,4 +34,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message || "Erreur serveur" }, { status: 500 });
   }
 }
-  
