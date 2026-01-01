@@ -1,24 +1,46 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
-import { sendEmail } from "@/lib/email";
-import { forgotPasswordEmailHtml } from "@/emails/forgot-password";
+import { sendEmail } from "@/lib/send-email";
+import { renderForgotPasswordEmail } from "@/lib/email-templates";
 
 export async function POST(req: Request) {
-  const { email } = await req.json();
-  if (!email) return NextResponse.json({ error: "Email requis" }, { status: 400 });
+  try {
+    const { email } = await req.json();
+    if (!email) {
+      return NextResponse.json({ error: "Email requis" }, { status: 400 });
+    }
 
-  const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-  if (!user) return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    });
 
-  const token = randomUUID();
-  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1h
-  await prisma.resetToken.create({ data: { token, userId: user.id, expires } });
+    if (!user) {
+      return NextResponse.json({ success: true }); // anti-enum
+    }
 
-  const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${encodeURIComponent(token)}`;
-  const html = forgotPasswordEmailHtml(user.username, resetUrl);
+    const token = randomUUID();
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
 
-  await sendEmail({ to: user.email, subject: "Réinitialisation du mot de passe DIVN", html });
+    await prisma.passwordResetToken.create({
+      data: {
+        token,
+        userId: user.id,
+        expires,
+      },
+    });
 
-  return NextResponse.json({ success: true, message: "Email de réinitialisation envoyé." });
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
+
+    await sendEmail({
+      to: user.email,
+      subject: "Reset your DIVN password",
+      html: renderForgotPasswordEmail(user.username, resetUrl),
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("FORGOT ERROR:", err);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  }
 }
