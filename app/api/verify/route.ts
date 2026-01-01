@@ -2,58 +2,58 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const token = url.searchParams.get("token");
+  try {
+    const { searchParams, origin } = new URL(req.url);
+    const token = searchParams.get("token");
 
-  if (!token) {
-    return NextResponse.redirect(
-      new URL("/verify?success=false", url.origin)
-    );
-  }
+    if (!token) {
+      return NextResponse.redirect(
+        new URL("/verify?success=false", origin)
+      );
+    }
 
-  const record = await prisma.verificationToken.findUnique({
-    where: { token },
-  });
+    // 🔍 Récupérer le token
+    const verificationToken = await prisma.verificationToken.findUnique({
+      where: { token },
+    });
 
-  if (!record) {
-    return NextResponse.redirect(
-      new URL("/verify?success=false", url.origin)
-    );
-  }
+    if (!verificationToken) {
+      return NextResponse.redirect(
+        new URL("/verify?success=false", origin)
+      );
+    }
 
-  if (record.expires < new Date()) {
+    // ⏰ Vérifier expiration
+    if (verificationToken.expires < new Date()) {
+      await prisma.verificationToken.delete({
+        where: { id: verificationToken.id },
+      });
+
+      return NextResponse.redirect(
+        new URL("/verify?success=false", origin)
+      );
+    }
+
+    // ✅ Activer l’utilisateur
+    await prisma.user.update({
+      where: { id: verificationToken.userId },
+      data: { isVerified: true },
+    });
+
+    // 🧹 Supprimer le token
     await prisma.verificationToken.delete({
-      where: { id: record.id },
+      where: { id: verificationToken.id },
     });
+
+    // 🎉 Succès
+    return NextResponse.redirect(
+      new URL("/verify?success=true", origin)
+    );
+  } catch (error) {
+    console.error("VERIFY_ERROR:", error);
 
     return NextResponse.redirect(
-      new URL("/verify?success=false", url.origin)
+      new URL("/verify?success=false", new URL(req.url).origin)
     );
   }
-
-  // 🔒 sécurité : vérifier si l’utilisateur existe déjà
-  const existingUser = await prisma.user.findUnique({
-    where: { email: record.email },
-  });
-
-  if (!existingUser) {
-    await prisma.user.create({
-      data: {
-        username: record.username,
-        email: record.email,
-        password: record.password,
-        isVerified: true,
-      },
-    });
-  }
-
-  // 🧹 supprimer le token
-  await prisma.verificationToken.delete({
-    where: { id: record.id },
-  });
-
-  // ✅ redirection vers la page de confirmation
-  return NextResponse.redirect(
-    new URL("/verify?success=true", url.origin)
-  );
 }
