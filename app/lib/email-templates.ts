@@ -1,49 +1,113 @@
-export function renderVerifyEmail(username: string, verifyUrl: string) {
+const baseStyle = `
+  margin:0;
+  padding:0;
+  background:#0b0b0b;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+`;
+
+function container(content: string) {
   return `
-  <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Confirme ton compte DIVN</title>
-    <style>
-      body { margin:0; font-family: 'Arial', sans-serif; background:#f3f4f6; }
-      .container {
-        max-width:600px; margin:40px auto; background:#ffffff;
-        border-radius:16px; overflow:hidden; box-shadow:0 10px 25px rgba(0,0,0,0.1);
-      }
-      .header { background: linear-gradient(135deg, #4f46e5, #6366f1); padding:30px; text-align:center; color:#fff; }
-      .header h1 { margin:0; font-size:28px; }
-      .body { padding:40px; text-align:center; color:#111; }
-      .body p { font-size:16px; line-height:1.5; margin:20px 0; }
-      .btn {
-        display:inline-block; padding:16px 36px; margin-top:30px; background:#4f46e5;
-        color:#fff; font-weight:bold; font-size:16px; border-radius:12px; text-decoration:none;
-        box-shadow:0 5px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;
-      }
-      .btn:hover { background:#3730a3; transform:scale(1.05); }
-      .footer { font-size:12px; color:#666; margin:30px 0 20px; }
-      .gif { margin-top:20px; }
-      @media (max-width: 600px) {
-        .body { padding:20px; }
-        .btn { padding:14px 28px; font-size:14px; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>Bienvenue chez DIVN, ${username}!</h1>
-      </div>
-      <div class="body">
-        <p>Merci d'avoir créé ton compte. Clique sur le bouton ci-dessous pour vérifier ton compte :</p>
-        <a href="${verifyUrl}" class="btn">Clique ici →</a>
-        <p class="footer">Ce lien expirera dans 24h.</p>
-        <div class="gif">
-          <img src="https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif" alt="🎉" width="120" />
-        </div>
-      </div>
-    </div>
-  </body>
-  </html>
+  <div style="${baseStyle}">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding:40px 16px">
+          <table width="100%" style="max-width:520px;background:#111;border-radius:16px;padding:32px;color:#ffffff">
+            ${content}
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
   `;
+}
+
+function button(label: string, url: string) {
+  return `
+  <a href="${url}"
+    style="
+      display:inline-block;
+      margin-top:24px;
+      padding:14px 26px;
+      background:linear-gradient(135deg,#ffffff,#d4d4d4);
+      color:#000;
+      text-decoration:none;
+      font-weight:600;
+      border-radius:999px;
+      font-size:15px;
+    ">
+    ${label} →
+  </a>
+  `;
+}
+
+/* ============================
+   EMAIL VERIFICATION
+============================ */
+export function renderVerifyEmail(username: string, verifyUrl: string) {
+  return container(`
+    <tr>
+      <td style="text-align:center">
+        <h1 style="letter-spacing:4px;font-weight:700;margin-bottom:8px">
+          DIVN
+        </h1>
+        <p style="opacity:.6;margin-bottom:32px">
+          Verify your account
+        </p>
+
+        <p style="font-size:16px;line-height:1.6">
+          Hello <strong>${username}</strong>,<br><br>
+          Welcome to <strong>DIVN</strong>.  
+          Please confirm your email address to activate your account and access the full experience.
+        </p>
+
+        ${button("Confirm my account", verifyUrl)}
+
+        <p style="margin-top:32px;font-size:13px;opacity:.6">
+          This link expires in 24 hours.<br>
+          If you didn’t create an account, you can ignore this email.
+        </p>
+
+        <hr style="margin:32px 0;border:none;border-top:1px solid #222"/>
+
+        <p style="font-size:12px;opacity:.5">
+          © ${new Date().getFullYear()} DIVN — All rights reserved
+        </p>
+      </td>
+    </tr>
+  `);
+}
+
+/* ============================
+   EMAIL FORGOT PASSWORD
+============================ */
+export function renderForgotPasswordEmail(username: string, resetUrl: string) {
+  return container(`
+    <tr>
+      <td style="text-align:center">
+        <h1 style="letter-spacing:4px;font-weight:700;margin-bottom:8px">
+          DIVN
+        </h1>
+        <p style="opacity:.6;margin-bottom:32px">
+          Password reset
+        </p>
+
+        <p style="font-size:16px;line-height:1.6">
+          Hello <strong>${username}</strong>,<br><br>
+          A request was made to reset your password.
+        </p>
+
+        ${button("Reset my password", resetUrl)}
+
+        <p style="margin-top:32px;font-size:13px;opacity:.6">
+          If this wasn’t you, you can safely ignore this email.
+        </p>
+
+        <hr style="margin:32px 0;border:none;border-top:1px solid #222"/>
+
+        <p style="font-size:12px;opacity:.5">
+          © ${new Date().getFullYear()} DIVN — Secure & Private
+        </p>
+      </td>
+    </tr>
+  `);
 }
