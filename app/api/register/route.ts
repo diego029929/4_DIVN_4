@@ -7,7 +7,6 @@ import { renderVerifyEmail } from "@/lib/email-templates";
 
 export async function POST(req: Request) {
   try {
-    // 1️⃣ Récupération des données
     const body = await req.json();
     const { username, email, password } = body;
 
@@ -21,13 +20,10 @@ export async function POST(req: Request) {
     const cleanedUsername = username.trim();
     const cleanedEmail = email.trim().toLowerCase();
 
-    // 2️⃣ Vérifier si utilisateur existe
+    // Vérifie si utilisateur existe
     const existingUser = await prisma.user.findFirst({
-      where: {
-        OR: [{ email: cleanedEmail }, { username: cleanedUsername }],
-      },
+      where: { OR: [{ email: cleanedEmail }, { username: cleanedUsername }] },
     });
-
     if (existingUser) {
       return NextResponse.json(
         { error: "Email ou nom d'utilisateur déjà utilisé" },
@@ -35,10 +31,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3️⃣ Hash mot de passe
+    // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4️⃣ Créer utilisateur NON vérifié
+    // Crée utilisateur NON vérifié
     const user = await prisma.user.create({
       data: {
         username: cleanedUsername,
@@ -48,9 +44,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // 5️⃣ Token de vérification
+    // Création du token
     const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
 
     await prisma.verificationToken.create({
       data: {
@@ -60,20 +56,17 @@ export async function POST(req: Request) {
       },
     });
 
-    // 6️⃣ Lien de vérification
-    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
+    // ✅ Lien exact pour ton environnement
+    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
+    console.log("Lien de vérification:", verificationUrl);
 
-    // 🔍 DEBUG (IMPORTANT)
-    console.log("EMAIL DEST:", cleanedEmail);
-
-    // 7️⃣ Envoi email
+    // Envoi de l'email
     await sendEmail({
       to: cleanedEmail,
       subject: "Confirme ton compte DIVN",
       html: renderVerifyEmail(cleanedUsername, verificationUrl),
     });
 
-    // 8️⃣ Réponse OK
     return NextResponse.json({
       success: true,
       message: "Compte créé. Vérifie ton email pour l'activer.",
@@ -86,3 +79,4 @@ export async function POST(req: Request) {
     );
   }
 }
+  
