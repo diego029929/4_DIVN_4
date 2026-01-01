@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
-import { sendEmail } from "@/lib/email";
+import { sendEmail } from "@/lib/send-email";
 import { renderVerifyEmail } from "@/lib/email-templates";
 
 export async function POST(req: Request) {
   try {
-    const { username, email, password } = await req.json();
+    // 1️⃣ Récupération des données
+    const body = await req.json();
+    const { username, email, password } = body;
 
     if (!username || !email || !password) {
       return NextResponse.json(
@@ -19,7 +21,7 @@ export async function POST(req: Request) {
     const cleanedUsername = username.trim();
     const cleanedEmail = email.trim().toLowerCase();
 
-    // Vérifier si l'utilisateur existe déjà
+    // 2️⃣ Vérifier si utilisateur existe
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [{ email: cleanedEmail }, { username: cleanedUsername }],
@@ -33,10 +35,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash du mot de passe
+    // 3️⃣ Hash mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Créer l'utilisateur non vérifié
+    // 4️⃣ Créer utilisateur NON vérifié
     const user = await prisma.user.create({
       data: {
         username: cleanedUsername,
@@ -46,9 +48,9 @@ export async function POST(req: Request) {
       },
     });
 
-    // Créer un token de vérification
+    // 5️⃣ Token de vérification
     const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     await prisma.verificationToken.create({
       data: {
@@ -58,20 +60,23 @@ export async function POST(req: Request) {
       },
     });
 
-    // URL du lien de vérification
-    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${encodeURIComponent(
-      token
-    )}`;
+    // 6️⃣ Lien de vérification
+    const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/verify?token=${token}`;
 
-    // Contenu HTML de l'email
-    const htmlContent = renderVerifyEmail(cleanedUsername, verificationUrl);
+    // 🔍 DEBUG (IMPORTANT)
+    console.log("EMAIL DEST:", cleanedEmail);
 
-    // Envoi email via Brevo
-    await sendEmail(cleanedEmail, "Confirme ton compte ✅", htmlContent);
+    // 7️⃣ Envoi email
+    await sendEmail({
+      to: cleanedEmail,
+      subject: "Confirme ton compte DIVN",
+      html: renderVerifyEmail(cleanedUsername, verificationUrl),
+    });
 
+    // 8️⃣ Réponse OK
     return NextResponse.json({
       success: true,
-      message: "Compte créé ! Vérifie ton e-mail pour activer ton compte.",
+      message: "Compte créé. Vérifie ton email pour l'activer.",
     });
   } catch (err: any) {
     console.error("Erreur /api/register:", err);
@@ -80,4 +85,4 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-        }
+}
