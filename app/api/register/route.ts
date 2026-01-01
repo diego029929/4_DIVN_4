@@ -1,82 +1,41 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
-import { randomUUID } from "crypto";
-import { sendEmail } from "@/lib/send-email";
-import { renderVerifyEmail } from "@/lib/email-templates";
+import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
-    const body = await req.json();
-    const { username, email, password } = body;
+    // ✅ Utilise nextUrl pour récupérer les query params
+    const token = (req as any).nextUrl?.searchParams.get("token");
 
-    if (!username || !email || !password) {
-      return NextResponse.json(
-        { error: "Tous les champs sont requis" },
-        { status: 400 }
-      );
+    if (!token) {
+      return NextResponse.redirect(`/verify?success=false`);
     }
 
-    const cleanedUsername = username.trim();
-    const cleanedEmail = email.trim().toLowerCase();
-
-    // Vérifie si utilisateur existe
-    const existingUser = await prisma.user.findFirst({
-      where: { OR: [{ email: cleanedEmail }, { username: cleanedUsername }] },
+    const verificationToken = await prisma.verificationToken.findUnique({
+      where: { token },
+      include: { user: true },
     });
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Email ou nom d'utilisateur déjà utilisé" },
-        { status: 400 }
-      );
+
+    if (!verificationToken) {
+      return NextResponse.redirect(`/verify?success=invalid`);
     }
 
-    // Hash du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (verificationToken.expires < new Date()) {
+      await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
+      return NextResponse.redirect(`/verify?success=expired`);
+    }
 
-    // Crée utilisateur NON vérifié
-    const user = await prisma.user.create({
-      data: {
-        username: cleanedUsername,
-        email: cleanedEmail,
-        password: hashedPassword,
-        isVerified: false,
-      },
+    // ✅ Active le compte
+    await prisma.user.update({
+      where: { id: verificationToken.userId },
+      data: { isVerified: true },
     });
 
-    // Création du token
-    const token = randomUUID();
-    const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
+    // Supprime le token
+    await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
 
-    await prisma.verificationToken.create({
-      data: {
-        token,
-        userId: user.id,
-        expires,
-      },
-    });
-
-    // ✅ Lien exact pour ton environnement
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/verify?token=${token}`;
-    console.log("Lien de vérification:", verificationUrl);
-
-    // Envoi de l'email
-    await sendEmail({
-      to: cleanedEmail,
-      subject: "Confirme ton compte DIVN",
-      html: renderVerifyEmail(cleanedUsername, verificationUrl),
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "Compte créé. Vérifie ton email pour l'activer.",
-    });
-  } catch (err: any) {
-    console.error("Erreur /api/register:", err);
-    return NextResponse.json(
-      { error: err.message || "Erreur serveur" },
-      { status: 500 }
-    );
+    return NextResponse.redirect(`/verify?success=true`);
+  } catch (err) {
+    console.error("VERIFY_ERROR", err);
+    return NextResponse.redirect(`/verify?success=false`);
   }
 }
-  
