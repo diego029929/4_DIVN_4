@@ -1,12 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic"; // ⚡ important !
+
 export async function GET(req: Request) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; // ex: https://four-divn-4-1.onrender.com
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL non défini");
 
-    const token = (req as any).nextUrl?.searchParams.get("token");
+    // Récupère le token depuis l'URL
+    const url = new URL(req.url);
+    const token = url.searchParams.get("token");
 
     if (!token) {
       return NextResponse.redirect(`${baseUrl}/verify?success=false`);
@@ -42,4 +46,4 @@ export async function GET(req: Request) {
     return NextResponse.redirect(`${baseUrl}/verify?success=false`);
   }
       }
-                             
+      
