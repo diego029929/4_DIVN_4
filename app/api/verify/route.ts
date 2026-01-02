@@ -1,56 +1,45 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL!;
-
 export async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const token = searchParams.get("token");
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL; // ex: https://four-divn-4-1.onrender.com
+    if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL non défini");
+
+    const token = (req as any).nextUrl?.searchParams.get("token");
 
     if (!token) {
-      return NextResponse.redirect(
-        `${APP_URL}/verify?success=false`
-      );
+      return NextResponse.redirect(`${baseUrl}/verify?success=false`);
     }
 
     const verificationToken = await prisma.verificationToken.findUnique({
       where: { token },
+      include: { user: true },
     });
 
     if (!verificationToken) {
-      return NextResponse.redirect(
-        `${APP_URL}/verify?success=false`
-      );
+      return NextResponse.redirect(`${baseUrl}/verify?success=invalid`);
     }
 
     if (verificationToken.expires < new Date()) {
-      await prisma.verificationToken.delete({
-        where: { id: verificationToken.id },
-      });
-
-      return NextResponse.redirect(
-        `${APP_URL}/verify?success=false`
-      );
+      await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
+      return NextResponse.redirect(`${baseUrl}/verify?success=expired`);
     }
 
+    // ✅ Active le compte
     await prisma.user.update({
       where: { id: verificationToken.userId },
       data: { isVerified: true },
     });
 
-    await prisma.verificationToken.delete({
-      where: { id: verificationToken.id },
-    });
+    // Supprime le token
+    await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
 
-    return NextResponse.redirect(
-      `${APP_URL}/verify?success=true`
-    );
-  } catch (error) {
-    console.error("VERIFY_ERROR:", error);
-
-    return NextResponse.redirect(
-      `${APP_URL}/verify?success=false`
-    );
+    return NextResponse.redirect(`${baseUrl}/verify?success=true`);
+  } catch (err) {
+    console.error("VERIFY_ERROR", err);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    return NextResponse.redirect(`${baseUrl}/verify?success=false`);
   }
       }
+                             
