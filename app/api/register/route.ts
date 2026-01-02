@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic"; // ⚡ Force le mode dynamique pour cette route
+
 export async function GET(req: Request) {
   try {
-    // ✅ Utilise nextUrl pour récupérer les query params
-    const token = (req as any).nextUrl?.searchParams.get("token");
+    const url = new URL(req.url); // ✅ URL complète pour éviter les problèmes
+    const token = url.searchParams.get("token");
 
     if (!token) {
-      return NextResponse.redirect(`/verify?success=false`);
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`);
     }
 
     const verificationToken = await prisma.verificationToken.findUnique({
@@ -16,15 +18,15 @@ export async function GET(req: Request) {
     });
 
     if (!verificationToken) {
-      return NextResponse.redirect(`/verify?success=invalid`);
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=invalid`);
     }
 
     if (verificationToken.expires < new Date()) {
       await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
-      return NextResponse.redirect(`/verify?success=expired`);
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=expired`);
     }
 
-    // ✅ Active le compte
+    // Active le compte
     await prisma.user.update({
       where: { id: verificationToken.userId },
       data: { isVerified: true },
@@ -33,9 +35,9 @@ export async function GET(req: Request) {
     // Supprime le token
     await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
 
-    return NextResponse.redirect(`/verify?success=true`);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=true`);
   } catch (err) {
     console.error("VERIFY_ERROR", err);
-    return NextResponse.redirect(`/verify?success=false`);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`);
   }
 }
