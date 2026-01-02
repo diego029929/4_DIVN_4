@@ -24,9 +24,9 @@ export async function POST(req: Request) {
       body = Object.fromEntries(formData.entries() as any);
     }
 
-    const { email, password, name } = body;
+    const { email, password, username } = body;
 
-    if (!email || !password || !name) {
+    if (!email || !password || !username) {
       console.log("Missing fields detected:", body);
       return NextResponse.json(
         { success: false, error: "Missing fields" },
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     const user = await prisma.user.create({
       data: {
         email,
-        name,
+        username,
         password: hashedPassword,
         isVerified: false,
       },
