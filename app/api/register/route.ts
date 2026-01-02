@@ -15,24 +15,29 @@ export async function POST(req: Request) {
     if (contentType.includes("application/json")) {
       body = await req.json();
     } else if (contentType.includes("application/x-www-form-urlencoded")) {
-      const formData = new URLSearchParams(await req.text());
-      body = Object.fromEntries(formData.entries());
+      body = Object.fromEntries(
+        new URLSearchParams(await req.text()).entries()
+      );
     } else {
-      const formData = await req.formData();
-      body = Object.fromEntries(formData.entries() as any);
+      body = Object.fromEntries(
+        (await req.formData()).entries() as any
+      );
     }
 
     const { email, password, username } = body;
 
     if (!email || !password || !username) {
-      console.log("Missing fields detected:", body);
+      console.log("Missing fields:", body);
       return NextResponse.json(
         { success: false, error: "Missing fields" },
         { status: 400 }
       );
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
     if (existingUser) {
       return NextResponse.json(
         { success: false, error: "User already exists" },
@@ -52,11 +57,12 @@ export async function POST(req: Request) {
     });
 
     const token = randomUUID();
+
     await prisma.verificationToken.create({
       data: {
         token,
         userId: user.id,
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24h
       },
     });
 
@@ -67,8 +73,8 @@ export async function POST(req: Request) {
       to: email,
       subject: "Vérifie ton compte",
       html: renderVerifyEmail(
-        `${baseUrl}/api/verify?token=${token}`,
-        username
+        username, // ✅ ordre correct
+        `${baseUrl}/api/verify?token=${token}`
       ),
     });
 
@@ -79,7 +85,7 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error("REGISTER_ERROR", err);
     return NextResponse.json(
-      { success: false, error: err.message || "Internal server error" },
+      { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }
