@@ -11,49 +11,38 @@ export async function GET(req: Request) {
     console.log("VERIFY TOKEN RECEIVED:", token);
 
     if (!token) {
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`
-      );
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`);
     }
 
     const verificationToken = await prisma.verificationToken.findUnique({
       where: { token },
+      include: { user: true },
     });
 
     console.log("TOKEN IN DB:", verificationToken);
 
     if (!verificationToken) {
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=invalid`
-      );
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=invalid`);
     }
 
     if (verificationToken.expires < new Date()) {
-      await prisma.verificationToken.delete({
-        where: { id: verificationToken.id },
-      });
-
-      return NextResponse.redirect(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=expired`
-      );
+      // Supprime le token expiré
+      await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=expired`);
     }
 
+    // Active le compte
     await prisma.user.update({
       where: { id: verificationToken.userId },
       data: { isVerified: true },
     });
 
-    await prisma.verificationToken.delete({
-      where: { id: verificationToken.id },
-    });
+    // Supprime le token
+    await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
 
-    return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=true`
-    );
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=true`);
   } catch (err) {
     console.error("VERIFY_ERROR", err);
-    return NextResponse.redirect(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`
-    );
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`);
   }
 }
