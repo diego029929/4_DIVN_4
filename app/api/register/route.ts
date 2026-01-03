@@ -5,7 +5,7 @@ import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/send-email";
 import { renderVerifyEmail } from "@/lib/email-templates";
 
-export const dynamic = "force-dynamic"; // empêche la pré-génération
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
@@ -30,8 +30,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifie si l'utilisateur existe déjà
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
     if (existingUser) {
       return NextResponse.json(
         { success: false, error: "User already exists" },
@@ -39,10 +41,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash du mot de passe
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Création de l'utilisateur
     const user = await prisma.user.create({
       data: {
         email,
@@ -52,24 +52,28 @@ export async function POST(req: Request) {
       },
     });
 
-    // Génération du token de vérification
     const token = randomUUID();
 
     await prisma.verificationToken.create({
       data: {
         token,
         userId: user.id,
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24h
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
       },
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    // 🔥 URL CORRECTE POUR RENDER / PROD / LOCAL
+    const protocol =
+      req.headers.get("x-forwarded-proto") ?? "http";
+    const host = req.headers.get("host");
+    const origin = `${protocol}://${host}`;
 
-    // Envoi de l'email de vérification (ordre des arguments correct)
+    const verifyUrl = `${origin}/api/verify?token=${token}`;
+
     await sendEmail({
       to: email,
       subject: "Vérifie ton compte",
-      html: renderVerifyEmail(username, `${baseUrl}/api/verify?token=${token}`),
+      html: renderVerifyEmail(username, verifyUrl),
     });
 
     return NextResponse.json({
@@ -83,4 +87,5 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+      }
+        
