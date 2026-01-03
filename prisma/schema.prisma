@@ -64,6 +64,8 @@ model VerificationToken {
   createdAt DateTime @default(now())
 
   @@map("verification_tokens")
+  @@unique([token, userId]) // 👈 IMPORTANT
+
 }
 
 model PasswordResetToken {
