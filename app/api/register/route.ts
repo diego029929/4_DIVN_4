@@ -1,56 +1,102 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
+import { sendEmail } from "@/lib/send-email";
+import { renderVerifyEmail } from "@/lib/email-templates";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   try {
-    const url = new URL(req.url);
-    const token = url.searchParams.get("token");
+    // ---------- BODY ----------
+    const contentType = req.headers.get("content-type") || "";
+    let body: any = {};
 
-    if (!token) {
-      return NextResponse.redirect(
-        new URL("/verify?success=false", url.origin)
+    if (contentType.includes("application/json")) {
+      body = await req.json();
+    } else if (contentType.includes("application/x-www-form-urlencoded")) {
+      body = Object.fromEntries(
+        new URLSearchParams(await req.text()).entries()
+      );
+    } else if (contentType.includes("multipart/form-data")) {
+      body = Object.fromEntries(
+        (await req.formData()).entries()
       );
     }
 
-    const verificationToken = await prisma.verificationToken.findFirst({
-      where: { token },
-    });
+    const email = body.email?.toString().trim();
+    const password = body.password?.toString();
+    const username = body.username?.toString().trim();
 
-    if (!verificationToken) {
-      return NextResponse.redirect(
-        new URL("/verify?success=invalid", url.origin)
+    if (!email || !password || !username) {
+      console.error("REGISTER – Missing fields:", body);
+      return NextResponse.json(
+        { success: false, error: "Missing fields" },
+        { status: 400 }
       );
     }
 
-    if (verificationToken.expires < new Date()) {
-      await prisma.verificationToken.delete({
-        where: { id: verificationToken.id },
-      });
+    // ---------- USER EXISTS ----------
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-      return NextResponse.redirect(
-        new URL("/verify?success=expired", url.origin)
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, error: "User already exists" },
+        { status: 400 }
       );
     }
 
-    await prisma.user.update({
-      where: { id: verificationToken.userId },
-      data: { isVerified: true },
+    // ---------- CREATE USER ----------
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        username,
+        password: hashedPassword,
+        isVerified: false,
+      },
     });
 
-    await prisma.verificationToken.delete({
-      where: { id: verificationToken.id },
+    // ---------- TOKEN ----------
+    const token = randomUUID();
+
+    await prisma.verificationToken.create({
+      data: {
+        token,
+        userId: user.id,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+      },
     });
 
-    return NextResponse.redirect(
-      new URL("/verify?success=true", url.origin)
-    );
-  } catch (err) {
-    console.error("VERIFY_ERROR", err);
-    return NextResponse.redirect(
-      new URL("/verify?success=false", new URL(req.url).origin)
+    // ---------- URL CORRECTE (Render safe) ----------
+    const origin =
+      req.headers.get("x-forwarded-proto")
+        ? `${req.headers.get("x-forwarded-proto")}://${req.headers.get("host")}`
+        : new URL(req.url).origin;
+
+    const verifyUrl = `${origin}/api/verify?token=${token}`;
+
+    // ---------- EMAIL ----------
+    await sendEmail({
+      to: email,
+      subject: "Vérifie ton compte",
+      html: renderVerifyEmail(username, verifyUrl),
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "User created, verification email sent",
+    });
+  } catch (err: any) {
+    console.error("REGISTER_ERROR:", err);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
     );
   }
-              }
+  }
       
