@@ -9,30 +9,28 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const token = url.searchParams.get("token");
 
-    if (!token) {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      return NextResponse.redirect(new URL("/verify?success=false", baseUrl));
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    if (!baseUrl) {
+      throw new Error("NEXT_PUBLIC_BASE_URL missing");
     }
 
-    const verificationToken = await prisma.verificationToken.findFirst({
+    if (!token) {
+      return NextResponse.redirect(`${baseUrl}/verify?success=false`);
+    }
+
+    const verificationToken = await prisma.verificationToken.findUnique({
       where: { token },
     });
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    if (!baseUrl) {
-      console.error("NEXT_PUBLIC_BASE_URL is missing");
-      return NextResponse.redirect(new URL("/verify?success=false", url.origin));
-    }
-
     if (!verificationToken) {
-      return NextResponse.redirect(new URL("/verify?success=invalid", baseUrl));
+      return NextResponse.redirect(`${baseUrl}/verify?success=invalid`);
     }
 
     if (verificationToken.expires < new Date()) {
       await prisma.verificationToken.delete({
-        where: { id: verificationToken.id },
+        where: { token },
       });
-      return NextResponse.redirect(new URL("/verify?success=expired", baseUrl));
+      return NextResponse.redirect(`${baseUrl}/verify?success=expired`);
     }
 
     await prisma.user.update({
@@ -41,14 +39,13 @@ export async function GET(req: Request) {
     });
 
     await prisma.verificationToken.delete({
-      where: { id: verificationToken.id },
+      where: { token },
     });
 
-    return NextResponse.redirect(new URL("/verify?success=true", baseUrl));
+    return NextResponse.redirect(`${baseUrl}/verify?success=true`);
   } catch (err) {
     console.error("VERIFY_ERROR", err);
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || new URL(req.url).origin;
-    return NextResponse.redirect(new URL("/verify?success=false", baseUrl));
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "/";
+    return NextResponse.redirect(`${baseUrl}/verify?success=false`);
   }
-        }
+}
