@@ -59,29 +59,31 @@ export async function POST(req: Request) {
       },
     });
 
-    // ⚠️ IMPORTANT : on ne supprime RIEN ici
     const token = randomUUID();
 
     await prisma.verificationToken.create({
       data: {
         token,
         userId: user.id,
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24h
       },
     });
 
-    // DEBUG SAFE (à enlever après)
-    console.log(
-      "REGISTER TOKENS:",
-      await prisma.verificationToken.findMany()
-    );
+    // ⚠️ Utilisation obligatoire de NEXT_PUBLIC_BASE_URL
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-    const origin =
-      req.headers.get("x-forwarded-proto")
-        ? `${req.headers.get("x-forwarded-proto")}://${req.headers.get("host")}`
-        : new URL(req.url).origin;
+    if (!baseUrl) {
+      console.error("NEXT_PUBLIC_BASE_URL is missing");
+      return NextResponse.json(
+        { success: false, error: "Server misconfiguration" },
+        { status: 500 }
+      );
+    }
 
-    const verifyUrl = `${origin}/api/verify?token=${token}`;
+    const verifyUrl = `${baseUrl}/api/verify?token=${token}`;
+
+    // DEBUG TEMPORAIRE
+    console.log("VERIFY URL:", verifyUrl);
 
     await sendEmail({
       to: email,
@@ -100,4 +102,5 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-             }
+}
+  
