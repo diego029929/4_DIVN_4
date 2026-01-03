@@ -1,59 +1,75 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export const dynamic = "force-dynamic";
+type Status =
+  | "loading"
+  | "success"
+  | "expired"
+  | "invalid"
+  | "error";
 
-export default function VerifyPage({
-  searchParams,
-}: {
-  searchParams: { success?: string };
-}) {
-  const isSuccess = searchParams.success === "true";
+export default function VerifyPage() {
+  const searchParams = useSearchParams();
+  const [status, setStatus] = useState<Status>("loading");
+
+  useEffect(() => {
+    const success = searchParams.get("success");
+
+    if (!success) {
+      setStatus("error");
+      return;
+    }
+
+    if (success === "true") setStatus("success");
+    else if (success === "expired") setStatus("expired");
+    else if (success === "invalid") setStatus("invalid");
+    else setStatus("error");
+  }, [searchParams]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center space-y-6">
-        {isSuccess ? (
-          <>
-            <h1 className="text-3xl font-bold">
-              ✅ Compte créé avec succès
-            </h1>
+    <main
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#0b0b0b",
+        color: "white",
+        padding: "24px",
+        textAlign: "center",
+      }}
+    >
+      {status === "loading" && <p>Vérification en cours…</p>}
 
-            <p className="text-muted-foreground">
-              Votre adresse email a été vérifiée.
-              Vous pouvez maintenant vous connecter.
-            </p>
+      {status === "success" && (
+        <>
+          <h1>Compte vérifié ✅</h1>
+          <p>Ton compte a bien été activé. Tu peux te connecter.</p>
+        </>
+      )}
 
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 text-blue-500 font-medium hover:underline"
-            >
-              Vous connecter
-              <ArrowRight size={18} />
-            </Link>
-          </>
-        ) : (
-          <>
-            <h1 className="text-3xl font-bold">
-              ❌ Lien invalide ou expiré
-            </h1>
+      {status === "expired" && (
+        <>
+          <h1>Lien expiré ⏰</h1>
+          <p>Ce lien de vérification n’est plus valide.</p>
+        </>
+      )}
 
-            <p className="text-muted-foreground">
-              Le lien de vérification n’est plus valide.
-            </p>
+      {status === "invalid" && (
+        <>
+          <h1>Lien invalide ❌</h1>
+          <p>Ce lien est incorrect ou a déjà été utilisé.</p>
+        </>
+      )}
 
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 text-blue-500 font-medium hover:underline"
-            >
-              Aller à la connexion
-              <ArrowRight size={18} />
-            </Link>
-          </>
-        )}
-      </div>
-    </div>
+      {status === "error" && (
+        <>
+          <h1>Erreur ⚠️</h1>
+          <p>Une erreur est survenue lors de la vérification.</p>
+        </>
+      )}
+    </main>
   );
 }
