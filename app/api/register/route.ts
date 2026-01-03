@@ -1,91 +1,56 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
-import { randomUUID } from "crypto";
-import { sendEmail } from "@/lib/send-email";
-import { renderVerifyEmail } from "@/lib/email-templates";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request) {
+export async function GET(req: Request) {
   try {
-    const contentType = req.headers.get("content-type") || "";
-    let body: any;
+    const url = new URL(req.url);
+    const token = url.searchParams.get("token");
 
-    if (contentType.includes("application/json")) {
-      body = await req.json();
-    } else if (contentType.includes("application/x-www-form-urlencoded")) {
-      body = Object.fromEntries(new URLSearchParams(await req.text()).entries());
-    } else {
-      body = Object.fromEntries((await req.formData()).entries() as any);
-    }
-
-    const { email, password, username } = body;
-
-    if (!email || !password || !username) {
-      console.log("Missing fields detected:", body);
-      return NextResponse.json(
-        { success: false, error: "Missing fields" },
-        { status: 400 }
+    if (!token) {
+      return NextResponse.redirect(
+        new URL("/verify?success=false", url.origin)
       );
     }
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
+    const verificationToken = await prisma.verificationToken.findFirst({
+      where: { token },
     });
 
-    if (existingUser) {
-      return NextResponse.json(
-        { success: false, error: "User already exists" },
-        { status: 400 }
+    if (!verificationToken) {
+      return NextResponse.redirect(
+        new URL("/verify?success=invalid", url.origin)
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (verificationToken.expires < new Date()) {
+      await prisma.verificationToken.delete({
+        where: { id: verificationToken.id },
+      });
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        username,
-        password: hashedPassword,
-        isVerified: false,
-      },
+      return NextResponse.redirect(
+        new URL("/verify?success=expired", url.origin)
+      );
+    }
+
+    await prisma.user.update({
+      where: { id: verificationToken.userId },
+      data: { isVerified: true },
     });
 
-    const token = randomUUID();
-
-    await prisma.verificationToken.create({
-      data: {
-        token,
-        userId: user.id,
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
-      },
+    await prisma.verificationToken.delete({
+      where: { id: verificationToken.id },
     });
 
-    // 🔥 URL CORRECTE POUR RENDER / PROD / LOCAL
-    const protocol =
-      req.headers.get("x-forwarded-proto") ?? "http";
-    const host = req.headers.get("host");
-    const origin = `${protocol}://${host}`;
-
-    const verifyUrl = `${origin}/api/verify?token=${token}`;
-
-    await sendEmail({
-      to: email,
-      subject: "Vérifie ton compte",
-      html: renderVerifyEmail(username, verifyUrl),
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "User created, verification email sent",
-    });
-  } catch (err: any) {
-    console.error("REGISTER_ERROR", err);
-    return NextResponse.json(
-      { success: false, error: err.message || "Internal server error" },
-      { status: 500 }
+    return NextResponse.redirect(
+      new URL("/verify?success=true", url.origin)
+    );
+  } catch (err) {
+    console.error("VERIFY_ERROR", err);
+    return NextResponse.redirect(
+      new URL("/verify?success=false", new URL(req.url).origin)
     );
   }
-      }
-        
+              }
+      
