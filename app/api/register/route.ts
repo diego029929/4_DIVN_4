@@ -6,10 +6,10 @@ import { sendEmail } from "@/lib/send-email";
 import { renderVerifyEmail } from "@/lib/email-templates";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
-    // ---------- BODY ----------
     const contentType = req.headers.get("content-type") || "";
     let body: any = {};
 
@@ -30,14 +30,13 @@ export async function POST(req: Request) {
     const username = body.username?.toString().trim();
 
     if (!email || !password || !username) {
-      console.error("REGISTER – Missing fields:", body);
+      console.log("REGISTER missing fields:", body);
       return NextResponse.json(
         { success: false, error: "Missing fields" },
         { status: 400 }
       );
     }
 
-    // ---------- USER EXISTS ----------
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -49,7 +48,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // ---------- CREATE USER ----------
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -61,7 +59,7 @@ export async function POST(req: Request) {
       },
     });
 
-    // ---------- TOKEN ----------
+    // ⚠️ IMPORTANT : on ne supprime RIEN ici
     const token = randomUUID();
 
     await prisma.verificationToken.create({
@@ -72,7 +70,12 @@ export async function POST(req: Request) {
       },
     });
 
-    // ---------- URL CORRECTE (Render safe) ----------
+    // DEBUG SAFE (à enlever après)
+    console.log(
+      "REGISTER TOKENS:",
+      await prisma.verificationToken.findMany()
+    );
+
     const origin =
       req.headers.get("x-forwarded-proto")
         ? `${req.headers.get("x-forwarded-proto")}://${req.headers.get("host")}`
@@ -80,7 +83,6 @@ export async function POST(req: Request) {
 
     const verifyUrl = `${origin}/api/verify?token=${token}`;
 
-    // ---------- EMAIL ----------
     await sendEmail({
       to: email,
       subject: "Vérifie ton compte",
@@ -91,12 +93,11 @@ export async function POST(req: Request) {
       success: true,
       message: "User created, verification email sent",
     });
-  } catch (err: any) {
-    console.error("REGISTER_ERROR:", err);
+  } catch (err) {
+    console.error("REGISTER_ERROR", err);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }
     );
   }
-  }
-      
+             }
