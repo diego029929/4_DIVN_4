@@ -2,12 +2,26 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const contentType = req.headers.get("content-type") || "";
+    let body: any;
+
+    if (contentType.includes("application/json")) {
+      body = await req.json();
+    } else if (contentType.includes("application/x-www-form-urlencoded")) {
+      body = Object.fromEntries(
+        new URLSearchParams(await req.text()).entries()
+      );
+    } else {
+      body = Object.fromEntries(
+        (await req.formData()).entries() as any
+      );
+    }
+
     const { email, password } = body;
 
     if (!email || !password) {
@@ -46,19 +60,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Connexion réussie",
       user: {
         id: user.id,
         email: user.email,
-        username: user.username, // ✅ CORRECT
+        username: user.username,
       },
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error("LOGIN_ERROR:", err);
     return NextResponse.json(
       { error: "Erreur serveur" },
       { status: 500 }
     );
   }
-                                                                     }
-                               
+}
