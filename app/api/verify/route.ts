@@ -14,7 +14,7 @@ export async function GET(req: Request) {
       return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`);
     }
 
-    const verificationToken = await prisma.verificationToken.findUnique({
+    const verificationToken = await prisma.verificationToken.findFirst({
       where: { token },
       include: { user: true },
     });
