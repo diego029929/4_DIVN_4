@@ -1,48 +1,64 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const token = url.searchParams.get("token");
 
-    console.log("VERIFY TOKEN RECEIVED:", token);
-
     if (!token) {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`);
+      return NextResponse.redirect(
+        new URL("/verify?success=false", url.origin)
+      );
     }
+
+    // DEBUG SAFE
+    console.log(
+      "VERIFY TOKENS:",
+      await prisma.verificationToken.findMany()
+    );
 
     const verificationToken = await prisma.verificationToken.findFirst({
       where: { token },
-      include: { user: true },
     });
 
-    console.log("TOKEN IN DB:", verificationToken);
-
     if (!verificationToken) {
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=invalid`);
+      return NextResponse.redirect(
+        new URL("/verify?success=invalid", url.origin)
+      );
     }
 
     if (verificationToken.expires < new Date()) {
-      // Supprime le token expiré
-      await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=expired`);
+      // ❗ suppression UNIQUEMENT si expiré
+      await prisma.verificationToken.delete({
+        where: { id: verificationToken.id },
+      });
+
+      return NextResponse.redirect(
+        new URL("/verify?success=expired", url.origin)
+      );
     }
 
-    // Active le compte
     await prisma.user.update({
       where: { id: verificationToken.userId },
       data: { isVerified: true },
     });
 
-    // Supprime le token
-    await prisma.verificationToken.delete({ where: { id: verificationToken.id } });
+    // ❗ suppression UNIQUEMENT APRÈS succès
+    await prisma.verificationToken.delete({
+      where: { id: verificationToken.id },
+    });
 
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=true`);
+    return NextResponse.redirect(
+      new URL("/verify?success=true", url.origin)
+    );
   } catch (err) {
     console.error("VERIFY_ERROR", err);
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/verify?success=false`);
+    return NextResponse.redirect(
+      new URL("/verify?success=false", new URL(req.url).origin)
+    );
   }
-}
+    }
