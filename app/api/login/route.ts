@@ -1,76 +1,79 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
+"use client";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+import { signIn } from "next-auth/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export async function POST(req: Request) {
-  try {
-    const contentType = req.headers.get("content-type") || "";
-    let body: any;
+export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    if (contentType.includes("application/json")) {
-      body = await req.json();
-    } else if (contentType.includes("application/x-www-form-urlencoded")) {
-      body = Object.fromEntries(
-        new URLSearchParams(await req.text()).entries()
-      );
-    } else {
-      body = Object.fromEntries(
-        (await req.formData()).entries() as any
-      );
-    }
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    const { email, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Tous les champs sont requis" },
-        { status: 400 }
-      );
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email },
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
     });
 
-    if (!user) {
-      return NextResponse.json(
-        { error: "Utilisateur non trouvé" },
-        { status: 404 }
-      );
+    setLoading(false);
+
+    if (res?.error) {
+      setError(res.error);
+      return;
     }
 
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return NextResponse.json(
-        { error: "Mot de passe incorrect" },
-        { status: 401 }
-      );
-    }
-
-    if (!user.isVerified) {
-      return NextResponse.json(
-        { error: "Compte non vérifié" },
-        { status: 403 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-      },
-    });
-  } catch (err) {
-    console.error("LOGIN_ERROR:", err);
-    return NextResponse.json(
-      { error: "Erreur serveur" },
-      { status: 500 }
-    );
+    // ✅ connecté
+    router.push("/profile");
   }
-}
+
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-[#1f1f1f]">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md space-y-4"
+      >
+        <h1 className="text-2xl font-bold text-center text-black">
+          Connexion
+        </h1>
+
+        {error && (
+          <p className="text-red-600 text-sm text-center">{error}</p>
+        )}
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-4 py-3 border rounded-lg"
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Mot de passe"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-3 border rounded-lg"
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition"
+        >
+          {loading ? "Connexion..." : "Se connecter"}
+        </button>
+      </form>
+    </main>
+  );
+          }
+          
