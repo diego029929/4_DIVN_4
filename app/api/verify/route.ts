@@ -1,57 +1,56 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-
-  if (!baseUrl) {
-    console.error("NEXT_PUBLIC_BASE_URL is missing");
-    return NextResponse.redirect("/verify?success=false");
-  }
-
   try {
-    const { searchParams } = new URL(req.url);
-    const token = searchParams.get("token");
+    const url = new URL(req.url);
+    const token = url.searchParams.get("token");
 
     if (!token) {
-      return NextResponse.redirect(`${baseUrl}/verify?success=invalid`);
+      return NextResponse.redirect(
+        new URL("/verify?success=false", process.env.NEXT_PUBLIC_BASE_URL!)
+      );
     }
 
-    // 🔍 Token unique → findUnique
     const verificationToken = await prisma.verificationToken.findUnique({
       where: { token },
     });
 
     if (!verificationToken) {
-      return NextResponse.redirect(`${baseUrl}/verify?success=invalid`);
+      return NextResponse.redirect(
+        new URL("/verify?success=invalid", process.env.NEXT_PUBLIC_BASE_URL!)
+      );
     }
 
-    // ⏰ Expiration
     if (verificationToken.expires < new Date()) {
       await prisma.verificationToken.delete({
-        where: { token },
+        where: { id: verificationToken.id },
       });
 
-      return NextResponse.redirect(`${baseUrl}/verify?success=expired`);
+      return NextResponse.redirect(
+        new URL("/verify?success=expired", process.env.NEXT_PUBLIC_BASE_URL!)
+      );
     }
 
-    // ✅ Vérifie l'utilisateur
     await prisma.user.update({
       where: { id: verificationToken.userId },
       data: { isVerified: true },
     });
 
-    // 🧹 Nettoyage
     await prisma.verificationToken.delete({
-      where: { token },
+      where: { id: verificationToken.id },
     });
 
-    return NextResponse.redirect(`${baseUrl}/verify?success=true`);
-  } catch (error) {
-    console.error("VERIFY_ERROR:", error);
-    return NextResponse.redirect(`${baseUrl}/verify?success=false`);
+    return NextResponse.redirect(
+      new URL("/verify?success=true", process.env.NEXT_PUBLIC_BASE_URL!)
+    );
+  } catch (err) {
+    console.error("VERIFY_ERROR", err);
+    return NextResponse.redirect(
+      new URL("/verify?success=false", process.env.NEXT_PUBLIC_BASE_URL!)
+    );
   }
 }
