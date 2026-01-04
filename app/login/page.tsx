@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  // 🔐 Redirige si déjà connecté
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/profile")
@@ -30,37 +31,40 @@ export default function LoginPage() {
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: false, // 🔑 OBLIGATOIRE
+      redirect: false, // 👈 CRUCIAL
     })
 
     setLoading(false)
 
     if (!res) {
-      setError("Erreur inconnue")
+      setError("Erreur serveur. Réessaie plus tard.")
       return
     }
 
     if (res.error) {
-      if (res.error === "CredentialsSignin") {
-        setError("Email ou mot de passe incorrect")
-      } else {
-        setError(res.error)
-      }
+      setError(res.error)
       return
     }
 
-    // ✅ Connexion OK
     router.push("/profile")
   }
 
-  if (status === "loading") return null
+  if (status === "loading") {
+    return (
+      <p className="text-center mt-20 text-white">Chargement...</p>
+    )
+  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#1f1f1f]">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
-        <h1 className="text-3xl font-bold text-center text-black">Connexion</h1>
+
+        <h1 className="text-3xl font-bold text-center text-black">
+          Connexion
+        </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+
           <input
             type="email"
             placeholder="Email"
@@ -79,6 +83,7 @@ export default function LoginPage() {
               className="w-full border border-gray-300 p-3 rounded-lg text-black"
               required
             />
+
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -89,6 +94,7 @@ export default function LoginPage() {
           </div>
 
           <button
+            type="submit"
             disabled={loading}
             className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
           >
@@ -97,17 +103,19 @@ export default function LoginPage() {
         </form>
 
         {error && (
-          <p className="text-red-500 text-center text-sm">❌ {error}</p>
+          <p className="text-red-600 text-center text-sm">
+            ❌ {error}
+          </p>
         )}
 
-        <p className="text-center text-sm mt-4 text-black">
+        <p className="text-center text-sm text-black">
           Pas encore de compte ?{" "}
           <Link href="/register" className="underline">
             Créer un compte
           </Link>
         </p>
+
       </div>
     </main>
   )
-    }
-      
+}
