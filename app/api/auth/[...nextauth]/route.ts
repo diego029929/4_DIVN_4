@@ -4,71 +4,44 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 const handler = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
-
-  session: {
-    strategy: "jwt",
-  },
-
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { type: "email" },
+        password: { type: "password" },
       },
-
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Champs manquants");
+          throw new Error("Missing credentials");
         }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (!user) {
-          throw new Error("Utilisateur introuvable");
-        }
+        if (!user) return null;
+        if (!user.isVerified) return null;
 
-        if (!user.isVerified) {
-          throw new Error("Compte non vérifié");
-        }
-
-        const isValid = await bcrypt.compare(
+        const valid = await bcrypt.compare(
           credentials.password,
           user.password
         );
 
-        if (!isValid) {
-          throw new Error("Mot de passe incorrect");
-        }
+        if (!valid) return null;
 
+        // ⚠️ RETOUR STRICT
         return {
           id: user.id,
           email: user.email,
-          name: user.username,
+          name: user.username ?? user.email,
         };
       },
     }),
   ],
-
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-      }
-      return session;
-    },
+  session: {
+    strategy: "jwt",
   },
-
   pages: {
     signIn: "/login",
   },
