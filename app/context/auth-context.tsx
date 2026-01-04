@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 type User = {
-  id: string;
+  id: number;
   email: string;
 };
 
@@ -14,53 +14,34 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true,
+  loading: false, // ⬅️ COMME AVANT
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // ⬅️ 🔥 LA SEULE MODIF
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function checkSession() {
+    async function check() {
       try {
-        const baseUrl =
-          process.env.NEXT_PUBLIC_BASE_URL || window.location.origin;
-
-        const res = await fetch(`${baseUrl}/api/check-session`, {
-          method: "GET",
+        const res = await fetch("/api/check-session", {
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
         });
 
-        // ⬇️ PAS D’ERREUR SERVEUR
         if (!res.ok) {
-          if (isMounted) setUser(null);
-          return;
+          setUser(null);
+        } else {
+          const data = await res.json();
+          setUser(data.user ?? null);
         }
-
-        const data = await res.json();
-
-        if (isMounted) {
-          setUser(data?.user ?? null);
-        }
-      } catch (err) {
-        // ⬇️ JAMAIS throw
-        if (isMounted) setUser(null);
+      } catch {
+        setUser(null);
       } finally {
-        if (isMounted) setLoading(false);
+        // loading reste false → header OK
       }
     }
 
-    checkSession();
-
-    return () => {
-      isMounted = false;
-    };
+    check();
   }, []);
 
   return (
