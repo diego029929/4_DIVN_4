@@ -1,5 +1,4 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { auh } from "@/auth"
 import { authOptions } from "@/auth"; // ⚠️ adapte le chemin si besoin
 
 export async function GET() {
