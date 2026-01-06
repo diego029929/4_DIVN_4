@@ -1,29 +1,39 @@
+// app/api/checkout/route.ts
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/auth" // adapte le chemin si besoin
+import { stripe } from "@/lib/stripe"
 
-export async function GET() {
-  try {
-    const session = await getServerSession(authOptions)
+export async function POST(req: Request) {
+  const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { user: null },
-        { status: 401 }
-      )
-    }
-
-    return NextResponse.json({
-      user: {
-        id: session.user.id,
-        email: session.user.email,
-      },
-    })
-  } catch (err) {
-    console.error("CHECK_SESSION_ERROR", err)
+  if (!session?.user?.email) {
     return NextResponse.json(
-      { user: null },
-      { status: 500 }
+      { error: "Non authentifié" },
+      { status: 401 }
     )
   }
-  }
+
+  const { items } = await req.json()
+
+  const checkoutSession = await stripe.checkout.sessions.create({
+    mode: "payment",
+    payment_method_types: ["card"],
+    line_items: items.map((item: any) => ({
+      price_data: {
+        currency: "eur",
+        product_data: { name: item.name },
+        unit_amount: item.priceInCents,
+      },
+      quantity: item.quantity,
+    })),
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,
+    metadata: {
+      userEmail: session.user.email,
+    },
+  })
+
+  return NextResponse.json({ url: checkoutSession.url })
+      }
+    
