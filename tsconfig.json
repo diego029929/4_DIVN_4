@@ -17,12 +17,11 @@
     "types": ["node", "react", "react-dom"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["app/*"]
+      "@/*": ["app/*"],
+      "@lib/*": ["lib/*"]      // <-- ajouté pour que @lib/auth fonctionne
     },
     "plugins": [
-      {
-        "name": "next"
-      }
+      { "name": "next" }
     ],
     "outDir": "dist",
     "noEmit": false
