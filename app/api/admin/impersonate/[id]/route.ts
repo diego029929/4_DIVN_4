@@ -1,22 +1,27 @@
-import { cookies } from 'next/headers'
-import { prisma } from '@/lib/prisma'
-import { getUserFromSession } from '@/lib/auth'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-server";
+import { cookies } from "next/headers";
 
-export async function POST(_: any, { params }: any) {
-  const admin = await getUserFromSession()
-  if (admin?.role !== 'ADMIN') return NextResponse.json({}, { status: 403 })
+export async function POST(
+  _: Request,
+  { params }: { params: { id: string } }
+) {
+  const admin = await requireAdmin();
 
-  cookies().set('impersonator', admin.id)
-  cookies().set('session', params.id)
+  cookies().set("impersonate", params.id, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+  });
 
   await prisma.adminLog.create({
     data: {
       adminId: admin.id,
-      action: 'IMPERSONATE',
-      targetUserId: params.id
-    }
-  })
+      action: "IMPERSONATE",
+      targetUserId: params.id,
+    },
+  });
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true });
 }
