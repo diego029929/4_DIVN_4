@@ -1,12 +1,15 @@
-import { prisma } from '@/lib/prisma'
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth-server";
 
-export async function logError(err: any, userId?: string, url?: string) {
+export async function logError(error: Error, url?: string) {
+  const user = await getCurrentUser();
+
   await prisma.errorLog.create({
     data: {
-      userId,
-      message: err.message,
-      stack: err.stack,
-      url
-    }
-  })
+      userId: user?.id,
+      message: error.message,
+      stack: error.stack,
+      url,
+    },
+  });
 }
