@@ -7,7 +7,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Enums
+////////////////////
+// ENUMS
+////////////////////
+
 enum Role {
   USER
   ADMIN
@@ -21,7 +24,10 @@ enum OrderStatus {
   CANCELLED
 }
 
-// Models
+////////////////////
+// MODELS
+////////////////////
+
 model User {
   id         String   @id @default(cuid())
   email      String   @unique
@@ -30,7 +36,12 @@ model User {
   lastName   String?
   password   String
   isVerified Boolean  @default(false)
+
+  // 🔐 ADMIN & SÉCURITÉ
   role       Role     @default(USER)
+  isBlocked  Boolean  @default(false)
+  deletedAt  DateTime?
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -39,6 +50,11 @@ model User {
   verificationTokens  VerificationToken[]
   passwordResetTokens PasswordResetToken[]
   profile             Profile?
+
+  // 🧾 BACK-OFFICE
+  payments   Payment[]
+  errorLogs  ErrorLog[]
+  adminLogs  AdminLog[] @relation("AdminActions")
 
   @@map("users")
 }
@@ -63,9 +79,8 @@ model VerificationToken {
   expires   DateTime
   createdAt DateTime @default(now())
 
+  @@unique([token, userId])
   @@map("verification_tokens")
-  @@unique([token, userId]) // 👈 IMPORTANT
-
 }
 
 model PasswordResetToken {
@@ -79,15 +94,19 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
+////////////////////
+// PRODUITS / PANIER
+////////////////////
+
 model Product {
-  id          String      @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
   description String?
   price       Float
   imageUrl    String?
-  stock       Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   cartItems  CartItem[]
   orderItems OrderItem[]
@@ -120,6 +139,10 @@ model CartItem {
   @@map("cart_items")
 }
 
+////////////////////
+// COMMANDES
+////////////////////
+
 model Order {
   id        String      @id @default(cuid())
   userId    String
@@ -127,8 +150,14 @@ model Order {
   total     Float
   status    OrderStatus @default(PENDING)
   items     OrderItem[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+
+  // Stripe
+  stripeSessionId String?
+
+  payments  Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("orders")
 }
@@ -146,4 +175,51 @@ model OrderItem {
 
   @@unique([orderId, productId])
   @@map("order_items")
+}
+
+////////////////////
+// 💳 PAIEMENTS
+////////////////////
+
+model Payment {
+  id          String   @id @default(cuid())
+  userId      String
+  orderId     String?
+  provider    String   // stripe
+  externalId  String   // payment_intent / session_id
+  amount      Float
+  currency    String
+  status      String   // succeeded / failed / refunded
+
+  user        User     @relation(fields: [userId], references: [id])
+  order       Order?   @relation(fields: [orderId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+////////////////////
+// 🚨 LOGS & ADMIN
+////////////////////
+
+model ErrorLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  message   String
+  stack     String?
+  url       String?
+
+  user      User?    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model AdminLog {
+  id           String   @id @default(cuid())
+  adminId      String
+  action       String   // BLOCK_USER, UNBLOCK_USER, IMPERSONATE, DELETE_USER
+  targetUserId String?
+
+  admin        User     @relation("AdminActions", fields: [adminId], references: [id])
+
+  createdAt    DateTime @default(now())
 }
