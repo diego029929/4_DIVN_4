@@ -1,25 +1,17 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { getUserFromSession } from '@/lib/auth'
+import { withAuth } from "next-auth/middleware";
 
-export async function middleware(req: NextRequest) {
-  const user = await getUserFromSession(req)
-
-  // User bloqué
-  if (user?.isBlocked) {
-    return NextResponse.redirect(new URL('/login', req.url))
-  }
-
-  // Zone admin
-  if (req.nextUrl.pathname.startsWith('/admin')) {
-    if (!user || user.role !== 'ADMIN') {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-  }
-
-  return NextResponse.next()
-}
+export default withAuth({
+  callbacks: {
+    authorized: ({ token, req }) => {
+      // Zone admin
+      if (req.nextUrl.pathname.startsWith("/admin")) {
+        return token?.id !== undefined;
+      }
+      return true;
+    },
+  },
+});
 
 export const config = {
-  matcher: ['/admin/:path*']
-}
+  matcher: ["/admin/:path*"],
+};
