@@ -1,37 +1,33 @@
-'use client'
+import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-server";
 
-import { useEffect, useState } from 'react'
+export default async function AdminUsersPage() {
+  await requireAdmin();
 
-export default function AdminUsers() {
-  const [users, setUsers] = useState([])
-
-  useEffect(() => {
-    fetch('/api/admin/users')
-      .then(res => res.json())
-      .then(setUsers)
-  }, [])
+  const users = await prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <div>
-      <h2 className="text-xl mb-4">Users</h2>
+      <h1 className="text-xl font-bold mb-4">Users</h1>
 
-      {users.map((u: any) => (
-        <div key={u.id} className="flex gap-2 mb-2">
+      {users.map((u) => (
+        <div key={u.id} className="flex gap-4 mb-2">
           <span>{u.email}</span>
+          <span>{u.role}</span>
+          <span>{u.isBlocked ? "❌" : "✅"}</span>
 
-          <button
-            onClick={() => fetch(`/api/admin/users/${u.id}/block`, { method: 'POST' })}
-          >
-            Block
-          </button>
+          <form action={`/api/admin/users/${u.id}/block`} method="POST">
+            <button>Block</button>
+          </form>
 
-          <button
-            onClick={() => fetch(`/api/admin/impersonate/${u.id}`, { method: 'POST' })}
-          >
-            Impersonate
-          </button>
+          <form action={`/api/admin/impersonate/${u.id}`} method="POST">
+            <button>Impersonate</button>
+          </form>
         </div>
       ))}
     </div>
-  )
+  );
 }
+
