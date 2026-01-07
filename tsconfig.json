@@ -17,8 +17,7 @@
     "types": ["node", "react", "react-dom"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["app/*"],
-      "@lib/*": ["lib/*"]      // <-- ajouté pour que @lib/auth fonctionne
+      "@/*": ["app/*"]
     },
     "plugins": [
       { "name": "next" }
