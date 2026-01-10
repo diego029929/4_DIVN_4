@@ -17,18 +17,20 @@ const nextConfig = {
     config.resolve.alias["@"] = path.resolve(".");
     return config;
   },
+
+  sentry: {
+    hideSourceMaps: true, // 🔐 important en prod
+  },
 };
 
 export default withSentryConfig(
   nextConfig,
-  { silent: true },
   {
-    // 🔥 IMPORTANT
-    org: process.env.SENTRY_ORG,
-    project: process.env.SENTRY_PROJECT,
-    authToken: process.env.SENTRY_AUTH_TOKEN,
-    hideSourceMaps: true,
-    disableLogger: true,
-    dryRun: process.env.NODE_ENV !== "production",
+    silent: true, // pas de spam dans les logs
+  },
+  {
+    widenClientFileUpload: true,
+    transpileClientSDK: true,
   }
 );
+    
