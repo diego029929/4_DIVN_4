@@ -1,7 +1,9 @@
-export async function GET() {
-  if (process.env.NODE_ENV === 'production') {
-    return new Response('Sentry test disabled in prod', { status: 200 });
-  }
+// app/api/sentry-test/route.ts
+import * as Sentry from "@sentry/nextjs";
 
-  throw new Error('Test Sentry Backend');
+export const runtime = "nodejs";
+
+export async function GET() {
+  Sentry.captureMessage("🔥 SENTRY BACKEND OK 🔥");
+  return new Response("ok");
 }
