@@ -17,20 +17,18 @@ const nextConfig = {
     config.resolve.alias["@"] = path.resolve(".");
     return config;
   },
-
-  sentry: {
-    hideSourceMaps: true, // 🔐 important en prod
-  },
 };
 
 export default withSentryConfig(
   nextConfig,
   {
-    silent: true, // pas de spam dans les logs
+    // 🔧 options Sentry (remplace l’ancien bloc `sentry`)
+    silent: true,
+    hideSourceMaps: true,
   },
   {
     widenClientFileUpload: true,
     transpileClientSDK: true,
   }
 );
-    
+  
