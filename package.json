@@ -10,7 +10,7 @@
     
   },
   "dependencies": {
-    "@logtail/node": "^x.x.x",
+    "@logtail/node": "^0.9.3",
     "@sentry/nextjs": "^8.0.0",
     "pino": "^8.17.0",
     "@next-auth/prisma-adapter": "^1.0.7",
