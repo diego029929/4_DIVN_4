@@ -1,9 +1,5 @@
-import pino from "pino";
+import { Logtail } from "@logtail/node";
 
-export const logger = pino({
-  level: process.env.NODE_ENV === "production" ? "info" : "debug",
-  base: {
-    service: "nextjs-app",
-    env: process.env.NODE_ENV,
-  },
-});
+export const logger = new Logtail(
+  process.env.BETTERSTACK_SOURCE_TOKEN!
+);
