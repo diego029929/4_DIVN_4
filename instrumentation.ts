@@ -11,8 +11,7 @@ export async function register() {
     process.on("unhandledRejection", async (reason) => {
       await logger.error("Unhandled Rejection", reason);
     });
-
-export function register() {
+    
   console.log("🔥 SENTRY INSTRUMENTATION REGISTER");
 
   Sentry.init({
