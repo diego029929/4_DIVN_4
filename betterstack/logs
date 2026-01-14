@@ -1,0 +1,13 @@
+export async function log(message: string, level = "info") {
+  await fetch("https://in.logs.betterstack.com", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.BETTERSTACK_SOURCE_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message,
+      level,
+    }),
+  });
+}
