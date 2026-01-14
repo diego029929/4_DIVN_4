@@ -1,6 +1,11 @@
 import * as Sentry from "@sentry/nextjs";
 
 export async function GET() {
-  await Sentry.captureMessage("🔥 SENTRY HARD TEST BACKEND 🔥");
+  console.log("🔥 API SENTRY HARD TEST HIT");
+
+  Sentry.captureException(
+    new Error("🔥 SENTRY BACKEND HARD TEST")
+  );
+
   return new Response("ok");
 }
