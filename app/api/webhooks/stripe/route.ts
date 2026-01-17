@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { logger } from "lib/logger";
+import { logtail } from "lib/logger";
 import type Stripe from "stripe";
 
 export const runtime = "nodejs"; // ⚠️ IMPORTANT POUR STRIPE
