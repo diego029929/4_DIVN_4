@@ -1,5 +1,5 @@
 import { Logtail } from "@logtail/node";
 
-export const logger = new Logtail(
+export const logtail = new Logtail(
   process.env.BETTERSTACK_SOURCE_TOKEN!
 );
