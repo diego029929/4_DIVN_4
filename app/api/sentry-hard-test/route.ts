@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { logtail } from "@/lib/logger";
+import { logtail } from "lib/logger";
 
 export const dynamic = "force-dynamic";
 
