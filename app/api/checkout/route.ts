@@ -1,6 +1,6 @@
 // app/api/checkout/route.ts
 import { NextResponse } from "next/server"
-import { auth } from "app/auth"
+import { auth } from "auth"
 import { stripe } from "@/lib/stripe"
 
 export async function POST(req: Request) {
