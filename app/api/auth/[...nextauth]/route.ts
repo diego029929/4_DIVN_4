@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
-import { logger } from "@/lib/logger.server"
+import { logtail } from "lib/logger"
 
 const handler = NextAuth({
   providers: [
