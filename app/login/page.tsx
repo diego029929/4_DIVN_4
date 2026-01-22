@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { FiEye, FiEyeOff } from "react-icons/fi"
-import { logger } from "@/lib/logger"
+import { logtail } from "@/lib/logger"
 
 export default function LoginPage() {
   const { status } = useSession()
