@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { FiEye, FiEyeOff } from "react-icons/fi"
+import { logger } from "@/lib/logger"
 
 export default function LoginPage() {
   const { status } = useSession()
@@ -16,42 +17,65 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  // 🔐 Redirige si déjà connecté
+  // 🔐 Redirection si déjà connecté
   useEffect(() => {
     if (status === "authenticated") {
+      logger.info("Utilisateur déjà connecté → redirection profil")
       router.replace("/profile")
     }
   }, [status, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
     setError("")
     setLoading(true)
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false, // 👈 CRUCIAL
-    })
+    logger.info("Tentative de connexion (client)", { email })
 
-    setLoading(false)
+    try {
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
 
-    if (!res) {
-      setError("Erreur serveur. Réessaie plus tard.")
-      return
+      setLoading(false)
+
+      if (!res) {
+        logger.error("Connexion échouée : réponse vide")
+        setError("Une erreur est survenue. Réessaie plus tard.")
+        return
+      }
+
+      if (res.error) {
+        logger.warn("Connexion refusée (client)", {
+          email,
+          reason: res.error,
+        })
+
+        setError(res.error)
+        return
+      }
+
+      logger.info("Connexion réussie (client)", { email })
+      router.push("/profile")
+    } catch (err) {
+      logger.error("Erreur inattendue lors de la connexion", {
+        error: err,
+        email,
+      })
+
+      setError("Une erreur est survenue. Réessaie plus tard.")
+      setLoading(false)
     }
-
-    if (res.error) {
-      setError(res.error)
-      return
-    }
-
-    router.push("/profile")
   }
 
   if (status === "loading") {
     return (
-      <p className="text-center mt-20 text-white">Chargement...</p>
+      <p className="text-center mt-20 text-white">
+        Chargement...
+      </p>
     )
   }
 
@@ -114,8 +138,8 @@ export default function LoginPage() {
             Créer un compte
           </Link>
         </p>
-
       </div>
     </main>
   )
       }
+        
