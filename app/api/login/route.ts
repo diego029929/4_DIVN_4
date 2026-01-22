@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { logger } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
+    logger.info("Connexion - tentative");
+
     const { email, password } = await req.json();
 
     if (!email || !password) {
+      logger.warn("Connexion refusée : champs manquants", { email });
+
       return NextResponse.json(
-        { error: "Champs manquants" },
+        { error: "Veuillez remplir tous les champs." },
         { status: 400 }
       );
     }
@@ -18,26 +23,44 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
+      logger.warn("Connexion refusée : utilisateur introuvable", { email });
+
       return NextResponse.json(
-        { error: "Utilisateur introuvable" },
+        { error: "Adresse email ou mot de passe incorrect." },
         { status: 401 }
       );
     }
 
     if (!user.isVerified) {
+      logger.warn("Connexion refusée : compte non vérifié", {
+        userId: user.id,
+        email,
+      });
+
       return NextResponse.json(
-        { error: "Compte non vérifié" },
+        { error: "Votre compte n’est pas encore vérifié." },
         { status: 403 }
       );
     }
 
-    const ok = await bcrypt.compare(password, user.password);
-    if (!ok) {
+    const passwordOk = await bcrypt.compare(password, user.password);
+
+    if (!passwordOk) {
+      logger.warn("Connexion refusée : mot de passe incorrect", {
+        userId: user.id,
+        email,
+      });
+
       return NextResponse.json(
-        { error: "Mot de passe incorrect" },
+        { error: "Adresse email ou mot de passe incorrect." },
         { status: 401 }
       );
     }
+
+    logger.info("Connexion réussie", {
+      userId: user.id,
+      email,
+    });
 
     return NextResponse.json({
       success: true,
@@ -46,10 +69,13 @@ export async function POST(req: Request) {
         email: user.email,
       },
     });
-  } catch (e) {
-    console.error("LOGIN_API_ERROR", e);
+  } catch (error) {
+    logger.error("Erreur serveur lors de la connexion", {
+      error,
+    });
+
     return NextResponse.json(
-      { error: "Erreur serveur" },
+      { error: "Une erreur est survenue. Veuillez réessayer plus tard." },
       { status: 500 }
     );
   }
