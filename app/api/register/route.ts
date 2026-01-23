@@ -9,7 +9,7 @@ import { logtail } from "lib/logger";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const logtail = new Logtail(process.env.BETTERSTACK_SOURCE_TOKEN!);
+const logtail = new logtail(process.env.BETTERSTACK_SOURCE_TOKEN!);
 
 export async function POST(req: Request) {
   try {
