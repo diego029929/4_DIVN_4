@@ -16,17 +16,20 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+  // Redirection si l'utilisateur est déjà connecté
   useEffect(() => {
     if (status === "authenticated") {
+      console.log("Utilisateur déjà connecté, redirection vers /profile", email)
       router.replace("/profile")
     }
-  }, [status, router])
+  }, [status, router, email])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
     setError("")
     setLoading(true)
+    console.log("Tentative de connexion avec email :", email)
 
     try {
       const res = await signIn("credentials", {
@@ -39,13 +42,16 @@ export default function LoginPage() {
 
       if (!res || res.error) {
         setError("Email ou mot de passe incorrect")
+        console.warn("Échec de connexion pour :", email)
         return
       }
 
+      console.log("Connexion réussie pour :", email)
       router.push("/profile")
-    } catch {
+    } catch (err) {
       setError("Une erreur est survenue.")
       setLoading(false)
+      console.error("Erreur lors de la connexion :", err)
     }
   }
 
@@ -56,10 +62,7 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#1f1f1f]">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
-
-        <h1 className="text-3xl font-bold text-center text-black">
-          Connexion
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-black">Connexion</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -80,7 +83,6 @@ export default function LoginPage() {
               className="w-full border p-3 rounded-lg text-black"
               required
             />
-
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
@@ -100,9 +102,7 @@ export default function LoginPage() {
         </form>
 
         {error && (
-          <p className="text-red-600 text-center text-sm">
-            ❌ {error}
-          </p>
+          <p className="text-red-600 text-center text-sm">❌ {error}</p>
         )}
 
         <p className="text-center text-sm text-black">
