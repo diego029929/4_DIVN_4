@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/send-email";
 import { renderVerifyEmail } from "@/lib/email-templates";
-import { Logtail } from "lib/logger";
+import { logtail } from "lib/logger";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
