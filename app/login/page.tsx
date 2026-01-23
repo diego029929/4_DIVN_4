@@ -20,7 +20,7 @@ export default function LoginPage() {
   // 🔐 Redirection si déjà connecté
   useEffect(() => {
     if (status === "authenticated") {
-      logger.info("Utilisateur déjà connecté → redirection profil")
+      logtail.info("Utilisateur déjà connecté → redirection profil")
       router.replace("/profile")
     }
   }, [status, router])
@@ -31,7 +31,7 @@ export default function LoginPage() {
     setError("")
     setLoading(true)
 
-    logger.info("Tentative de connexion (client)", { email })
+    logtail.info("Tentative de connexion (client)", { email })
 
     try {
       const res = await signIn("credentials", {
@@ -49,7 +49,7 @@ export default function LoginPage() {
       }
 
       if (res.error) {
-        logger.warn("Connexion refusée (client)", {
+        logtail.warn("Connexion refusée (client)", {
           email,
           reason: res.error,
         })
@@ -58,10 +58,10 @@ export default function LoginPage() {
         return
       }
 
-      logger.info("Connexion réussie (client)", { email })
+      logtail.info("Connexion réussie (client)", { email })
       router.push("/profile")
     } catch (err) {
-      logger.error("Erreur inattendue lors de la connexion", {
+      loggerror("Erreur inattendue lors de la connexion", {
         error: err,
         email,
       })
