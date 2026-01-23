@@ -16,7 +16,7 @@ const handler = NextAuth({
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            logger.warn("Auth refusée : champs manquants")
+            logtail.warn("Auth refusée : champs manquants")
             return null
           }
 
@@ -25,14 +25,14 @@ const handler = NextAuth({
           })
 
           if (!user) {
-            logger.warn("Auth refusée : utilisateur introuvable", {
+            logtail.warn("Auth refusée : utilisateur introuvable", {
               email: credentials.email,
             })
             return null
           }
 
           if (!user.isVerified) {
-            logger.warn("Auth refusée : compte non vérifié", {
+            logtail.warn("Auth refusée : compte non vérifié", {
               userId: user.id,
             })
             return null
@@ -44,13 +44,13 @@ const handler = NextAuth({
           )
 
           if (!valid) {
-            logger.warn("Auth refusée : mot de passe incorrect", {
+            logtail.warn("Auth refusée : mot de passe incorrect", {
               userId: user.id,
             })
             return null
           }
 
-          logger.info("Connexion réussie", {
+          logtail.info("Connexion réussie", {
             userId: user.id,
           })
 
@@ -61,7 +61,7 @@ const handler = NextAuth({
             name: user.username ?? user.email,
           }
         } catch (error) {
-          logger.error("Erreur lors de l’authentification", { error })
+          logtail.error("Erreur lors de l’authentification", { error })
           return null
         }
       },
