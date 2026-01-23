@@ -5,12 +5,12 @@ import { logtail } from "lib/logger";
 
 export async function POST(req: Request) {
   try {
-    logger.info("Connexion - tentative");
+    logtail.info("Connexion - tentative");
 
     const { email, password } = await req.json();
 
     if (!email || !password) {
-      logger.warn("Connexion refusée : champs manquants", { email });
+      logtail.warn("Connexion refusée : champs manquants", { email });
 
       return NextResponse.json(
         { error: "Veuillez remplir tous les champs." },
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
-      logger.warn("Connexion refusée : utilisateur introuvable", { email });
+      logtail.warn("Connexion refusée : utilisateur introuvable", { email });
 
       return NextResponse.json(
         { error: "Adresse email ou mot de passe incorrect." },
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     if (!user.isVerified) {
-      logger.warn("Connexion refusée : compte non vérifié", {
+      logtail.warn("Connexion refusée : compte non vérifié", {
         userId: user.id,
         email,
       });
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
       );
     }
 
-    logger.info("Connexion réussie", {
+    logtail.info("Connexion réussie", {
       userId: user.id,
       email,
     });
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
-    logger.error("Erreur serveur lors de la connexion", {
+    logtail.error("Erreur serveur lors de la connexion", {
       error,
     });
 
