@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { logtail } from "lib/logger";
+import { Logtail } from "lib/logger";
 
 export async function POST(req: Request) {
   try {
