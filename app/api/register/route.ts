@@ -4,12 +4,10 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/send-email";
 import { renderVerifyEmail } from "@/lib/email-templates";
-import { logtail } from "lib/logger";
+import { logtail } from "lib/logger"; // on utilise directement l'import
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const logtail = new Logtail(process.env.BETTERSTACK_SOURCE_TOKEN!);
 
 export async function POST(req: Request) {
   try {
@@ -121,7 +119,6 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   } finally {
-    // ⚠️ Indispensable pour que Logtail envoie les logs
     await logtail.flush();
   }
 }
