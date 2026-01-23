@@ -4,12 +4,17 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/send-email";
 import { renderVerifyEmail } from "@/lib/email-templates";
+import { Logtail } from "@logtail/node";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
+const logtail = new Logtail(process.env.LOGTAIL_SOURCE_TOKEN!);
+
 export async function POST(req: Request) {
   try {
+    logtail.info("Début de l’inscription");
+
     const contentType = req.headers.get("content-type") || "";
     let body: any = {};
 
@@ -30,20 +35,23 @@ export async function POST(req: Request) {
     const username = body.username?.toString().trim();
 
     if (!email || !password || !username) {
-      console.log("REGISTER missing fields:", body);
+      logtail.warn("Champs manquants lors de l’inscription", { body });
       return NextResponse.json(
-        { success: false, error: "Missing fields" },
+        { success: false, error: "Champs manquants" },
         { status: 400 }
       );
     }
+
+    logtail.info("Tentative d’inscription", { email });
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
+      logtail.warn("Utilisateur déjà existant", { email });
       return NextResponse.json(
-        { success: false, error: "User already exists" },
+        { success: false, error: "Utilisateur déjà existant" },
         { status: 400 }
       );
     }
@@ -59,31 +67,34 @@ export async function POST(req: Request) {
       },
     });
 
+    logtail.info("Utilisateur créé", { userId: user.id });
+
     const token = randomUUID();
 
     await prisma.verificationToken.create({
       data: {
         token,
         userId: user.id,
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24h
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24),
       },
     });
 
-    // ⚠️ Utilisation obligatoire de NEXT_PUBLIC_BASE_URL
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
     if (!baseUrl) {
-      console.error("NEXT_PUBLIC_BASE_URL is missing");
+      logtail.error("NEXT_PUBLIC_BASE_URL manquant");
       return NextResponse.json(
-        { success: false, error: "Server misconfiguration" },
+        { success: false, error: "Erreur serveur" },
         { status: 500 }
       );
     }
 
     const verifyUrl = `${baseUrl}/api/verify?token=${token}`;
 
-    // DEBUG TEMPORAIRE
-    console.log("VERIFY URL:", verifyUrl);
+    logtail.info("Envoi de l’email de vérification", {
+      email,
+      verifyUrl,
+    });
 
     await sendEmail({
       to: email,
@@ -91,16 +102,26 @@ export async function POST(req: Request) {
       html: renderVerifyEmail(username, verifyUrl),
     });
 
+    logtail.info("Inscription terminée avec succès", {
+      userId: user.id,
+      email,
+    });
+
     return NextResponse.json({
       success: true,
-      message: "User created, verification email sent",
+      message: "Utilisateur créé et email envoyé",
     });
-  } catch (err) {
-    console.error("REGISTER_ERROR", err);
+  } catch (error) {
+    logtail.error("Erreur lors de l’inscription", {
+      erreur: error instanceof Error ? error.message : error,
+    });
+
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: "Erreur interne du serveur" },
       { status: 500 }
     );
+  } finally {
+    // ⚠️ Indispensable pour que Logtail envoie les logs
+    await logtail.flush();
   }
 }
-  
