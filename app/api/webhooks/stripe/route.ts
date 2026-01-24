@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get("stripe-signature");
 
   if (!signature) {
-    logger.warn("Stripe webhook missing signature");
+    logtail.warn("Stripe webhook missing signature");
 
     return NextResponse.json(
       { error: "Missing Stripe signature" },
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
-    logger.error({ err }, "Stripe signature verification failed");
+    logtail.error({ err }, "Stripe signature verification failed");
     Sentry.captureException(err);
 
     return NextResponse.json(
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const userId = session.metadata?.userId;
 
     if (!userId) {
-      logger.error(
+      logtail.error(
         { sessionId: session.id },
         "Stripe webhook missing userId"
       );
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingOrder) {
-      logger.info(
+      logtail.info(
         { orderId: existingOrder.id },
         "Stripe webhook duplicate ignored"
       );
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    logger.info(
+    logtail.info(
       {
         orderId: order.id,
         userId,
