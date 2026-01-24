@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { Logtail } from "lib/logger";
+import { logtail } from "lib/logger";
 
 export async function POST(req: Request) {
   try {
@@ -17,6 +17,8 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    logtail.info("Recherche de l’utilisateur", { email });
 
     const user = await prisma.user.findUnique({
       where: { email },
@@ -43,10 +45,12 @@ export async function POST(req: Request) {
       );
     }
 
+    logtail.info("Vérification du mot de passe", { userId: user.id });
+
     const passwordOk = await bcrypt.compare(password, user.password);
 
     if (!passwordOk) {
-      logger.warn("Connexion refusée : mot de passe incorrect", {
+      logtail.warn("Connexion refusée : mot de passe incorrect", {
         userId: user.id,
         email,
       });
@@ -71,12 +75,15 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     logtail.error("Erreur serveur lors de la connexion", {
-      error,
+      error: error instanceof Error ? error.message : error,
     });
 
     return NextResponse.json(
       { error: "Une erreur est survenue. Veuillez réessayer plus tard." },
       { status: 500 }
     );
+  } finally {
+    // Important pour envoyer les logs à Better Stack
+    await logtail.flush();
   }
-}
+        }
