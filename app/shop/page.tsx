@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import * as Sentry from "@sentry/nextjs";
+import { logtail } from "@/lib/logger";
+
 import ProductsGrid from "@/components/products-grid";
 import { useSearchParams } from "next/navigation";
 
@@ -11,12 +14,26 @@ export default function BoutiquePage() {
     ? decodeURIComponent(searchParams.get("category")!)
     : "Tous les produits";
 
-  // 🔥 Appel de app/shop/route.ts
   useEffect(() => {
-    fetch("/api/shop").catch(() => {
-      // on ignore volontairement les erreurs
+    // 🔹 Log côté client
+    logtail.info("Boutique page mounted", { category });
+    Sentry.addBreadcrumb({
+      category: "page",
+      message: `Boutique page loaded - category: ${category}`,
+      level: "info",
     });
-  }, []);
+
+    // 🔹 Appel côté serveur pour déclencher les logs API
+    fetch("/api/shop")
+      .then(() => {
+        logtail.info("Call to /api/shop succeeded");
+      })
+      .catch((error) => {
+        logtail.warn("Call to /api/shop failed", { error });
+        // Sentry capture optional
+        Sentry.captureException(error);
+      });
+  }, [category]);
 
   return (
     <main className="pt-20 bg-black min-h-screen text-white">
