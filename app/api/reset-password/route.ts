@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { logtail } from "lib/logger";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: Request) {
   try {
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
       where: { id: record.userId },
       data: {
         password: hashedPassword,
-        isVerified: true, // 👍 optionnel mais recommandé
+        isVerified: true, // optionnel mais recommandé
       },
     });
 
@@ -60,12 +61,23 @@ export async function POST(req: Request) {
       where: { id: record.id },
     });
 
+    // 🔥 SENTRY — attacher l'utilisateur à l'action
+    Sentry.setUser({ id: record.userId });
+
     logtail.info("Mot de passe réinitialisé avec succès", {
       userId: record.userId,
     });
 
     return NextResponse.json({ success: true });
+
   } catch (error) {
+    // 🔥 Capture l’erreur dans Sentry
+    Sentry.captureException(error, {
+      tags: {
+        scope: "reset-password",
+      },
+    });
+
     logtail.error("Erreur reset mot de passe", {
       error: error instanceof Error ? error.message : error,
     });
@@ -77,5 +89,4 @@ export async function POST(req: Request) {
   } finally {
     await logtail.flush();
   }
-      }
-        
+}
