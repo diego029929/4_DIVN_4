@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { logtail } from "lib/logger";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: Request) {
   try {
@@ -61,6 +62,12 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🔥 SENTRY — on attache l'utilisateur
+    Sentry.setUser({
+      id: user.id,
+      email: user.email,
+    });
+
     logtail.info("Connexion réussie", {
       userId: user.id,
       email,
@@ -73,7 +80,15 @@ export async function POST(req: Request) {
         email: user.email,
       },
     });
+
   } catch (error) {
+    // 🔥 Capture erreur Sentry
+    Sentry.captureException(error, {
+      tags: {
+        scope: "login",
+      },
+    });
+
     logtail.error("Erreur serveur lors de la connexion", {
       error: error instanceof Error ? error.message : error,
     });
@@ -83,7 +98,8 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   } finally {
-    // Important pour envoyer les logs à Better Stack
+    // Important pour Better Stack
     await logtail.flush();
   }
-        }
+}
+
