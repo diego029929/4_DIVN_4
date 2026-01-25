@@ -4,7 +4,8 @@ import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/send-email";
 import { renderVerifyEmail } from "@/lib/email-templates";
-import { logtail } from "lib/logger"; // on utilise directement l'import
+import { logtail } from "lib/logger";
+import * as Sentry from "@sentry/nextjs";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -34,6 +35,7 @@ export async function POST(req: Request) {
 
     if (!email || !password || !username) {
       logtail.warn("Champs manquants lors de l’inscription", { body });
+
       return NextResponse.json(
         { success: false, error: "Champs manquants" },
         { status: 400 }
@@ -48,6 +50,7 @@ export async function POST(req: Request) {
 
     if (existingUser) {
       logtail.warn("Utilisateur déjà existant", { email });
+
       return NextResponse.json(
         { success: false, error: "Utilisateur déjà existant" },
         { status: 400 }
@@ -63,6 +66,12 @@ export async function POST(req: Request) {
         password: hashedPassword,
         isVerified: false,
       },
+    });
+
+    // 🔥 SENTRY — associer l'utilisateur
+    Sentry.setUser({
+      id: user.id,
+      email: user.email,
     });
 
     logtail.info("Utilisateur créé", { userId: user.id });
@@ -81,6 +90,7 @@ export async function POST(req: Request) {
 
     if (!baseUrl) {
       logtail.error("NEXT_PUBLIC_BASE_URL manquant");
+
       return NextResponse.json(
         { success: false, error: "Erreur serveur" },
         { status: 500 }
@@ -109,7 +119,15 @@ export async function POST(req: Request) {
       success: true,
       message: "Utilisateur créé et email envoyé",
     });
+
   } catch (error) {
+    // 🔥 SENTRY
+    Sentry.captureException(error, {
+      tags: {
+        scope: "register",
+      },
+    });
+
     logtail.error("Erreur lors de l’inscription", {
       erreur: error instanceof Error ? error.message : error,
     });
