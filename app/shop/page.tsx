@@ -13,7 +13,7 @@ export default function BoutiquePage() {
 
   // 🔥 Appel de app/shop/route.ts
   useEffect(() => {
-    fetch("/shop").catch(() => {
+    fetch("/api/shop").catch(() => {
       // on ignore volontairement les erreurs
     });
   }, []);
