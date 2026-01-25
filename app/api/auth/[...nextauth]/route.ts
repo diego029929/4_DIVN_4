@@ -1,8 +1,10 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
+import * as Sentry from "@sentry/nextjs"
+
 import { prisma } from "@/lib/prisma"
+import { logtail } from "@/lib/logger"
 import bcrypt from "bcryptjs"
-import { logtail } from "lib/logger"
 
 const handler = NextAuth({
   providers: [
@@ -54,14 +56,26 @@ const handler = NextAuth({
             userId: user.id,
           })
 
-          // ✅ OBLIGATOIRE : retourner un objet simple
+          // 🔍 Sentry context
+          Sentry.setUser({
+            id: user.id,
+            email: user.email,
+          })
+
           return {
             id: user.id,
             email: user.email,
             name: user.username ?? user.email,
           }
         } catch (error) {
-          logtail.error("Erreur lors de l’authentification", { error })
+          // 🧠 Sentry
+          Sentry.captureException(error)
+
+          // 📜 Logtail
+          logtail.error("Erreur lors de l’authentification", {
+            error,
+          })
+
           return null
         }
       },
@@ -78,4 +92,3 @@ const handler = NextAuth({
 })
 
 export { handler as GET, handler as POST }
-          
