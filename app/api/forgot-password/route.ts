@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/send-email";
 import { renderForgotPasswordEmail } from "@/lib/email-templates";
 import { logtail } from "lib/logger";
+import * as Sentry from "@sentry/nextjs";
 
 export async function POST(req: Request) {
   try {
@@ -26,12 +27,18 @@ export async function POST(req: Request) {
       where: { email: email.toLowerCase() },
     });
 
-    // Anti-enumération : on répond OK même si l'utilisateur n'existe pas
+    // Anti-enumération : toujours OK
     if (!user) {
       logtail.warn("Mot de passe oublié - utilisateur introuvable", { email });
 
       return NextResponse.json({ success: true });
     }
+
+    // 👇 Ajout du contexte utilisateur pour Sentry
+    Sentry.setUser({
+      id: user.id,
+      email: user.email,
+    });
 
     const token = randomUUID();
     const expires = new Date(Date.now() + 60 * 60 * 1000);
@@ -48,7 +55,6 @@ export async function POST(req: Request) {
 
     logtail.info("Envoi email reset mot de passe", {
       userId: user.id,
-      email,
     });
 
     await sendEmail({
@@ -57,12 +63,20 @@ export async function POST(req: Request) {
       html: renderForgotPasswordEmail(user.username, resetUrl),
     });
 
-    logtail.info("Email de reset envoyé avec succès", {
+    logtail.info("Email de reset envoyé", {
       userId: user.id,
     });
 
     return NextResponse.json({ success: true });
+
   } catch (error) {
+    // 🔥 SENTRY
+    Sentry.captureException(error, {
+      tags: {
+        scope: "forgot-password",
+      },
+    });
+
     logtail.error("Erreur serveur - mot de passe oublié", {
       error: error instanceof Error ? error.message : error,
     });
@@ -72,8 +86,6 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   } finally {
-    // Important pour Better Stack
     await logtail.flush();
   }
-      }
-                 
+}
