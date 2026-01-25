@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { logtail } from "lib/logger";
+import * as Sentry from "@sentry/nextjs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -56,6 +57,11 @@ export async function GET(req: Request) {
       where: { id: verificationToken.id },
     });
 
+    // 🔥 SENTRY — attacher l’utilisateur
+    Sentry.setUser({
+      id: verificationToken.userId,
+    });
+
     logtail.info("Email vérifié avec succès", {
       userId: verificationToken.userId,
     });
@@ -64,6 +70,13 @@ export async function GET(req: Request) {
       new URL("/verify?success=true", process.env.NEXT_PUBLIC_BASE_URL!)
     );
   } catch (error) {
+    // 🔥 Capture erreur Sentry
+    Sentry.captureException(error, {
+      tags: {
+        scope: "verify-email",
+      },
+    });
+
     logtail.error("Erreur lors de la vérification email", {
       error: error instanceof Error ? error.message : error,
     });
@@ -74,4 +87,4 @@ export async function GET(req: Request) {
   } finally {
     await logtail.flush();
   }
-  }
+}
