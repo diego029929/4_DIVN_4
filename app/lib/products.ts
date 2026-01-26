@@ -59,11 +59,21 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
+/* ============================
+   FONCTIONS UTILITAIRES
+============================ */
+
+export function getAllProducts(): Product[] {
+  return PRODUCTS;
+}
+
 export function getProductById(id: string): Product | undefined {
   return PRODUCTS.find((p) => p.id === id);
 }
 
-export function getProductsByCategory(cat: Product["category"]): Product[] {
+export function getProductsByCategory(
+  cat: Product["category"]
+): Product[] {
   return PRODUCTS.filter((p) => p.category === cat);
 }
 
@@ -76,4 +86,4 @@ export function formatPrice(priceInCents: number): string {
     style: "currency",
     currency: "EUR",
   }).format(priceInCents / 100);
-      }
+}
