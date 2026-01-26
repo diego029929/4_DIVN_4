@@ -9,7 +9,7 @@ export default function BoutiquePage() {
 
   const category = searchParams?.get("category")
     ? decodeURIComponent(searchParams.get("category")!)
-    : "Tous les produits";
+    : "Toutes les collections";
 
   useEffect(() => {
     // 🔥 Déclenche les logs côté serveur
