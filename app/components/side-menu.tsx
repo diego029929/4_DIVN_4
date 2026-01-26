@@ -10,7 +10,7 @@ type SideMenuProps = {
 };
 
 const menuItems = [
-  { label: "Boutique", href: "/shop" },
+  { label: "Collections", href: "/shop" },
   { label: "À propos", href: "/about" },
   { label: "Contact", href: "/contact" },
   { label: "Créer un compte", href: "/register" },
