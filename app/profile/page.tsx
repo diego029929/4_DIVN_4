@@ -40,7 +40,7 @@ export default function ProfilePage() {
         <h1 className="text-2xl font-bold text-black">Mon profil</h1>
 
         <p className="mt-2 text-gray-800">
-          Connecté en tant que : <strong>{session.user?.email}</strong>
+          Connecté en tant que : <strong>{session.user?.name}</strong>
         </p>
 
         <button
