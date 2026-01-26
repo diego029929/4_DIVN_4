@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { X } from "lucide-react";
-import { FaInstagram, FaTiktok, FaTwitter } from "react-icons/fa";
+import { FaInstagram, FaTiktok, FaEnvelope } from "react-icons/fa";
 
 type SideMenuProps = {
   open: boolean;
@@ -18,6 +18,10 @@ const menuItems = [
 ];
 
 export default function SideMenu({ open, onClose }: SideMenuProps) {
+  const openLink = (url: string) => {
+    window.open(url, "_blank");
+  };
+
   return (
     <>
       {/* Overlay */}
@@ -40,7 +44,9 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-white/10">
-          <span className="text-xs tracking-widest font-medium opacity-70">MENU</span>
+          <span className="text-xs tracking-widest font-medium opacity-70">
+            MENU
+          </span>
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-white/10 transition"
@@ -64,25 +70,42 @@ export default function SideMenu({ open, onClose }: SideMenuProps) {
               >
                 {item.label}
               </Link>
-              {/* Barre séparatrice sauf après le dernier lien */}
               {idx !== menuItems.length - 1 && (
-                <div className="h-px bg-white/20 mx-5"></div>
+                <div className="h-px bg-white/20 mx-5" />
               )}
             </div>
           ))}
         </nav>
 
         {/* Footer social */}
-        <div className="absolute bottom-6 left-5 flex gap-4 text-xl opacity-70">
-          <a href="#" aria-label="Instagram" className="hover:opacity-100 transition">
+        <div className="absolute bottom-6 left-5 flex gap-5 text-xl opacity-70">
+          <button
+            onClick={() =>
+              openLink("https://www.instagram.com/4.divn.4?igsh=aXJ0NTU3MDdqbzQ5")
+            }
+            className="hover:opacity-100 transition"
+            aria-label="Instagram"
+          >
             <FaInstagram />
-          </a>
-          <a href="#" aria-label="TikTok" className="hover:opacity-100 transition">
+          </button>
+
+          <button
+            onClick={() =>
+              openLink("https://www.tiktok.com/@4.divn.4?_r=1&_t=ZN-93P91IO10Cs")
+            }
+            className="hover:opacity-100 transition"
+            aria-label="TikTok"
+          >
             <FaTiktok />
-          </a>
-          <a href="#" aria-label="Twitter" className="hover:opacity-100 transition">
-            <FaTwitter />
-          </a>
+          </button>
+
+          <button
+            onClick={() => openLink("mailto:wist.infodev@gmail.com")}
+            className="hover:opacity-100 transition"
+            aria-label="Email"
+          >
+            <FaEnvelope />
+          </button>
         </div>
       </aside>
     </>
