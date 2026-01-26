@@ -5,45 +5,51 @@ import { FaInstagram, FaTiktok, FaEnvelope } from "react-icons/fa";
 export const dynamic = "force-dynamic";
 
 export default function ContactPage() {
+  const openLink = (url: string) => {
+    window.open(url, "_blank");
+  };
+
   return (
     <main className="flex-1 container mx-auto px-4 py-16">
-      <h1 className="text-4xl font-bold mb-8">Contactez-nous</h1>
+      <h1 className="text-4xl font-bold mb-10 text-white">
+        Contactez-nous
+      </h1>
 
-      <p className="text-muted-foreground mb-6">
-        Vous pouvez nous contacter via :
-      </p>
-
-      <div className="flex flex-col gap-4">
+      <div className="grid gap-6 max-w-md">
         {/* Instagram */}
-        <a
-          href="https://www.instagram.com/4.divn.4?igsh=aXJ0NTU3MDdqbzQ5"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 text-pink-500 hover:underline"
+        <button
+          onClick={() =>
+            openLink("https://www.instagram.com/4.divn.4?igsh=aXJ0NTU3MDdqbzQ5")
+          }
+          className="flex items-center gap-4 p-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition text-white"
         >
-          <FaInstagram size={22} />
-          <span>Instagram — Cliquez ici</span>
-        </a>
+          <FaInstagram className="text-2xl" />
+          <span className="text-lg font-medium">Instagram</span>
+        </button>
 
         {/* TikTok */}
-        <a
-          href="https://www.tiktok.com/@4.divn.4?_r=1&_t=ZN-93P91IO10Cs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 text-black dark:text-white hover:underline"
+        <button
+          onClick={() =>
+            openLink("https://www.tiktok.com/@4.divn.4?_r=1&_t=ZN-93P91IO10Cs")
+          }
+          className="flex items-center gap-4 p-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition text-white"
         >
-          <FaTiktok size={22} />
-          <span>TikTok — Cliquez ici</span>
-        </a>
+          <FaTiktok className="text-2xl" />
+          <span className="text-lg font-medium">TikTok</span>
+        </button>
 
         {/* Email */}
-        <a
-          href="mailto:wist.infodev@gmail.com"
-          className="flex items-center gap-3 text-blue-600 hover:underline"
+        <button
+          onClick={() =>
+            openLink("mailto:wist.infodev@gmail.com")
+          }
+          className="flex items-center gap-4 p-5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition text-white"
         >
-          <FaEnvelope size={22} />
-          <span>wist.infodev@gmail.com</span>
-        </a>
+          <FaEnvelope className="text-2xl" />
+          <span className="text-lg font-medium">
+            wist.infodev@gmail.com
+          </span>
+        </button>
       </div>
     </main>
   );
