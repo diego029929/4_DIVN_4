@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Menu, Search, User } from "lucide-react";
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import SideMenu from "@/components/side-menu";
 
@@ -13,8 +14,15 @@ export default function Header() {
   const { user, loading } = useAuth();
   const [sideOpen, setSideOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const router = useRouter();
 
   if (loading) return null;
+
+  const handleSearch = () => {
+    if (!searchValue.trim()) return;
+    router.push(`/search?q=${encodeURIComponent(searchValue)}`);
+    setSearchValue("");
+  };
 
   return (
     <div>
@@ -43,6 +51,7 @@ export default function Header() {
               placeholder="Rechercher..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
               className="
                 w-full rounded-full
                 py-2 pl-4 pr-9
@@ -55,13 +64,16 @@ export default function Header() {
                 focus:ring-yellow-400
               "
             />
-            <Search
-              size={16}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
+
+            <button
+              onClick={handleSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition"
+            >
+              <Search size={16} />
+            </button>
           </div>
 
-          {/* DIVN à droite */}
+          {/* Logo */}
           <Link href="/">
             <div className="font-bold text-lg cursor-pointer whitespace-nowrap">
               DIVN
