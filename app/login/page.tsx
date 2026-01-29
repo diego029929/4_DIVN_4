@@ -96,7 +96,7 @@ export default function LoginPage() {
           {/* Mot de passe oublié */}
           <div className="text-right">
             <Link
-              href="@/forgot-password"
+              href="/forgot-password"
               className="text-sm text-gray-600 hover:underline"
             >
               Mot de passe oublié ?
