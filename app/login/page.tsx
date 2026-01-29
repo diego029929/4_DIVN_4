@@ -16,20 +16,17 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  // Redirection si l'utilisateur est déjà connecté
+  // Redirection si déjà connecté
   useEffect(() => {
     if (status === "authenticated") {
-      console.log("Utilisateur déjà connecté, redirection vers /profile", email)
       router.replace("/profile")
     }
-  }, [status, router, email])
+  }, [status, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
     setError("")
     setLoading(true)
-    console.log("Tentative de connexion avec email :", email)
 
     try {
       const res = await signIn("credentials", {
@@ -38,42 +35,46 @@ export default function LoginPage() {
         redirect: false,
       })
 
-      setLoading(false)
-
       if (!res || res.error) {
         setError("Email ou mot de passe incorrect")
-        console.warn("Échec de connexion pour :", email)
+        setLoading(false)
         return
       }
 
-      console.log("Connexion réussie pour :", email)
       router.push("/profile")
     } catch (err) {
       setError("Une erreur est survenue.")
       setLoading(false)
-      console.error("Erreur lors de la connexion :", err)
     }
   }
 
   if (status === "loading") {
-    return <p className="text-center mt-20 text-white">Chargement...</p>
+    return (
+      <p className="text-center mt-20 text-white">
+        Chargement...
+      </p>
+    )
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#1f1f1f]">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg space-y-6">
-        <h1 className="text-3xl font-bold text-center text-black">Connexion</h1>
+        <h1 className="text-3xl font-bold text-center text-black">
+          Connexion
+        </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Adresse email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full border p-3 rounded-lg text-black"
             required
           />
 
+          {/* Mot de passe */}
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
@@ -92,19 +93,34 @@ export default function LoginPage() {
             </button>
           </div>
 
+          {/* Mot de passe oublié */}
+          <div className="text-right">
+            <Link
+              href="@/forgot-password"
+              className="text-sm text-gray-600 hover:underline"
+            >
+              Mot de passe oublié ?
+            </Link>
+          </div>
+
+          {/* Bouton */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white py-3 rounded-lg"
+            className="w-full bg-black text-white py-3 rounded-lg hover:opacity-90 transition"
           >
             {loading ? "Connexion..." : "Se connecter"}
           </button>
         </form>
 
+        {/* Erreur */}
         {error && (
-          <p className="text-red-600 text-center text-sm">❌ {error}</p>
+          <p className="text-red-600 text-center text-sm">
+            ❌ {error}
+          </p>
         )}
 
+        {/* Lien inscription */}
         <p className="text-center text-sm text-black">
           Pas encore de compte ?{" "}
           <Link href="/register" className="underline">
