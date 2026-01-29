@@ -1,7 +1,6 @@
 "use client";
 
-import type React from "react";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 interface CartItem {
   productId: string;
@@ -16,43 +15,48 @@ interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">) => void;
   removeItem: (productId: string, size?: string) => void;
-  updateQuantity: (productId: string, quantity: number, size?: string) => void;
+  updateQuantity: (
+    productId: string,
+    quantity: number,
+    size?: string
+  ) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+const CartContext = createContext<CartContextType | null>(null);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [isMounted, setIsMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Charger le panier côté client uniquement
+  /* ✅ Charger le panier */
   useEffect(() => {
     const saved = localStorage.getItem("divn-cart");
-    if (saved) {
-      setItems(JSON.parse(saved));
-    }
-    setIsMounted(true);
+    if (saved) setItems(JSON.parse(saved));
+    setMounted(true);
   }, []);
 
-  // Sauvegarde dans localStorage
+  /* ✅ Sauvegarde auto */
   useEffect(() => {
-    if (isMounted) {
+    if (mounted) {
       localStorage.setItem("divn-cart", JSON.stringify(items));
     }
-  }, [items, isMounted]);
+  }, [items, mounted]);
 
+  /* ➕ Ajouter */
   const addItem = (item: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
-      const existingIndex = prev.findIndex(
-        (i) => i.productId === item.productId && i.size === item.size
+      const index = prev.findIndex(
+        (i) =>
+          i.productId === item.productId &&
+          i.size === item.size
       );
 
-      if (existingIndex > -1) {
+      if (index !== -1) {
         const updated = [...prev];
-        updated[existingIndex].quantity += 1;
+        updated[index].quantity += 1;
         return updated;
       }
 
@@ -60,13 +64,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  /* ❌ Supprimer */
   const removeItem = (productId: string, size?: string) => {
     setItems((prev) =>
-      prev.filter((i) => !(i.productId === productId && i.size === size))
+      prev.filter(
+        (item) =>
+          !(item.productId === productId && item.size === size)
+      )
     );
   };
 
-  const updateQuantity = (productId: string, quantity: number, size?: string) => {
+  /* 🔁 Modifier quantité */
+  const updateQuantity = (
+    productId: string,
+    quantity: number,
+    size?: string
+  ) => {
     if (quantity <= 0) {
       removeItem(productId, size);
       return;
@@ -81,16 +94,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
+  /* 🧹 Vider */
   const clearCart = () => setItems([]);
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalItems = items.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
   const totalPrice = items.reduce(
     (sum, item) => sum + item.priceInCents * item.quantity,
     0
   );
 
-  // ⚠️ Ne rien rendre tant que le provider n'est pas prêt
-  if (!isMounted) return null;
+  if (!mounted) return null;
 
   return (
     <CartContext.Provider
@@ -109,7 +126,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ✅ FIX DÉFINITIF BUILD / PRERENDER
+/* ✅ Hook sécurisé */
 export function useCart(): CartContextType {
   const context = useContext(CartContext);
 
@@ -126,5 +143,4 @@ export function useCart(): CartContextType {
   }
 
   return context;
-                             }
-  
+}
