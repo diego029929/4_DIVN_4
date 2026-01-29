@@ -1,67 +1,79 @@
-"use client";
+"use client"
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useCart } from "@/components/cart-provider";
-import { useEffect, useState } from "react";
-import { CartContent } from "@/components/cart-content";
+import Image from "next/image"
+import { FaTrash } from "react-icons/fa"
+import { useState } from "react"
+
+type CartItem = {
+  id: string
+  name: string
+  price: number
+  size: string
+  image: string
+  quantity: number
+}
 
 export default function CartPage() {
-  const { data: session, status } = useSession();
-  const { items } = useCart();
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [cart, setCart] = useState<CartItem[]>([
+    {
+      id: "1",
+      name: "T-shirt Oversize",
+      price: 29.99,
+      size: "M",
+      image: "/products/tshirt.jpg",
+      quantity: 1,
+    },
+    {
+      id: "2",
+      name: "Hoodie Noir",
+      price: 59.99,
+      size: "L",
+      image: "/products/hoodie.jpg",
+      quantity: 1,
+    },
+  ])
 
-  // ⛔️ Attendre que la session soit chargée
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
-
-  if (status === "loading") return null;
-
-  const handleCheckout = async () => {
-    if (loading || items.length === 0) return;
-    setLoading(true);
-
-    try {
-      const checkoutRes = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ items }),
-      });
-
-      const data = await checkoutRes.json();
-
-      if (!checkoutRes.ok || !data.url) {
-        throw new Error("Stripe session invalid");
-      }
-
-      window.location.href = data.url;
-    } catch (err) {
-      console.error(err);
-      alert("Erreur lors du paiement");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const removeItem = (id: string) => {
+    setCart(cart.filter(item => item.id !== id))
+  }
 
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
-      <CartContent />
-      <div className="mt-10 flex justify-end">
-        <button
-          onClick={handleCheckout}
-          disabled={loading || items.length === 0}
-          className="px-8 py-4 bg-black text-white font-bold rounded-lg"
-        >
-          {loading ? "Redirection..." : "Payer maintenant"}
-        </button>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">🛒 Mon panier</h1>
+
+      <div className="space-y-4">
+        {cart.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center gap-4 border rounded-xl p-4 shadow-sm bg-white"
+          >
+            {/* Image */}
+            <Image
+              src={item.image}
+              alt={item.name}
+              width={100}
+              height={100}
+              className="rounded-lg object-cover"
+            />
+
+            {/* Infos produit */}
+            <div className="flex-1">
+              <h2 className="font-semibold text-lg">{item.name}</h2>
+              <p className="text-sm text-gray-500">Taille : {item.size}</p>
+              <p className="font-bold mt-1">{item.price.toFixed(2)} €</p>
+            </div>
+
+            {/* Bouton supprimer */}
+            <button
+              onClick={() => removeItem(item.id)}
+              className="text-red-500 hover:text-red-700 transition"
+              title="Supprimer"
+            >
+              <FaTrash size={20} />
+            </button>
+          </div>
+        ))}
       </div>
-    </main>
-  );
-                                      }
-          
+    </div>
+  )
+}
