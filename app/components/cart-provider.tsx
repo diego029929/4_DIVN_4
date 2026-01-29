@@ -1,67 +1,161 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useCart } from "@/components/cart-provider";
-import { useEffect, useState } from "react";
-import { CartContent } from "@/components/cart-content";
+import { createContext, useContext, useEffect, useState } from "react";
 
-export default function CartPage() {
-  const { data: session, status } = useSession();
-  const { items } = useCart();
-  const router = useRouter();
-  const [loading, setLoading] = useState(false);
+interface CartItem {
+  productId: string;
+  name: string;
+  priceInCents: number;
+  quantity: number;
+  size?: string;
+  image: string;
+}
 
-  // ⛔️ Attendre que la session soit chargée
+interface CartContextType {
+  items: CartItem[];
+  addItem: (item: Omit<CartItem, "quantity">) => void;
+  removeItem: (productId: string, size?: string) => void;
+  updateQuantity: (
+    productId: string,
+    quantity: number,
+    size?: string
+  ) => void;
+  clearCart: () => void;
+  totalItems: number;
+  totalPrice: number;
+}
+
+const CartContext = createContext<CartContextType | null>(null);
+
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  // Charger le panier
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
+    const saved = localStorage.getItem("divn-cart");
+    if (saved) setItems(JSON.parse(saved));
+    setMounted(true);
+  }, []);
+
+  // Sauvegarde auto
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("divn-cart", JSON.stringify(items));
     }
-  }, [status, router]);
+  }, [items, mounted]);
 
-  if (status === "loading") return null;
+  // Ajouter un produit
+  const addItem = (item: Omit<CartItem, "quantity">) => {
+    setItems((prev) => {
+      const index = prev.findIndex(
+        (i) =>
+          i.productId === item.productId &&
+          i.size === item.size
+      );
 
-  const handleCheckout = async () => {
-    if (loading || items.length === 0) return;
-    setLoading(true);
-
-    try {
-      const checkoutRes = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ items }),
-      });
-
-      const data = await checkoutRes.json();
-
-      if (!checkoutRes.ok || !data.url) {
-        throw new Error("Stripe session invalid");
+      if (index !== -1) {
+        const updated = [...prev];
+        updated[index].quantity += 1;
+        return updated;
       }
 
-      window.location.href = data.url;
-    } catch (err) {
-      console.error(err);
-      alert("Erreur lors du paiement");
-    } finally {
-      setLoading(false);
-    }
+      return [...prev, { ...item, quantity: 1 }];
+    });
   };
 
-  return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
-      <CartContent />
-      <div className="mt-10 flex justify-end">
-        <button
-          onClick={handleCheckout}
-          disabled={loading || items.length === 0}
-          className="px-8 py-4 bg-black text-white font-bold rounded-lg"
-        >
-          {loading ? "Redirection..." : "Payer maintenant"}
-        </button>
-      </div>
-    </main>
+  // Supprimer un produit
+  const removeItem = (productId: string, size?: string) => {
+    setItems((prev) =>
+      prev.filter(
+        (item) =>
+          !(item.productId === productId && item.size === size)
+      )
+    );
+  };
+
+  // Modifier quantité
+  const updateQuantity = (
+    productId: string,
+    quantity: number,
+    size?: string
+  ) => {
+    if (quantity <= 0) {
+      removeItem(productId, size);
+      return;
+    }
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId && item.size === size
+          ? { ...item, quantity }
+          : item
+      )
+    );
+  };
+
+  const clearCart = () => setItems([]);
+
+  const totalItems = items.reduce(
+    (sum, item) => sum + item.quantity,
+    0
   );
-                                      }
-          
+
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.priceInCents * item.quantity,
+    0
+  );
+
+  // ⚠️ IMPORTANT : on retourne TOUJOURS le provider
+  if (!mounted) {
+    return (
+      <CartContext.Provider
+        value={{
+          items: [],
+          addItem: () => {},
+          removeItem: () => {},
+          updateQuantity: () => {},
+          clearCart: () => {},
+          totalItems: 0,
+          totalPrice: 0,
+        }}
+      >
+        {children}
+      </CartContext.Provider>
+    );
+  }
+
+  return (
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        totalItems,
+        totalPrice,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
+}
+
+export function useCart(): CartContextType {
+  const context = useContext(CartContext);
+
+  if (!context) {
+    return {
+      items: [],
+      addItem: () => {},
+      removeItem: () => {},
+      updateQuantity: () => {},
+      clearCart: () => {},
+      totalItems: 0,
+      totalPrice: 0,
+    };
+  }
+
+  return context;
+}
