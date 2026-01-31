@@ -1,7 +1,7 @@
 "use client";
 
 import { useCart } from "@/components/cart-provider";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa"; // icône "supprimer"
 
 export function CartContent() {
   const { items, removeItem } = useCart();
@@ -10,63 +10,51 @@ export function CartContent() {
     return <p className="text-lg">Votre panier est vide.</p>;
   }
 
-  const total = (
-    items.reduce(
-      (sum, item) => sum + item.priceInCents * item.quantity,
-      0
-    ) / 100
-  ).toFixed(2);
+  const totalInCents = items.reduce(
+    (sum, item) => sum + item.priceInCents * item.quantity,
+    0
+  );
+  const total = (totalInCents / 100).toFixed(2);
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold">Votre panier</h2>
+      <h2 className="text-2xl font-semibold">Contenu du panier</h2>
 
       <ul className="space-y-4">
         {items.map((item) => (
           <li
-            key={`${item.productId}-${item.size}`}
-            className="flex items-center gap-4 p-4 border rounded-lg shadow-sm"
+            key={item.productId + (item.size ?? "")}
+            className="flex items-center justify-between border p-2 rounded-lg shadow-sm"
           >
-            {/* Image */}
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-20 h-20 object-cover rounded"
-            />
-
-            {/* Infos produit */}
-            <div className="flex-1">
-              <h3 className="font-semibold">{item.name}</h3>
-
-              {item.size && (
-                <p className="text-sm text-gray-500">
-                  Taille : {item.size}
+            <div className="flex items-center gap-4">
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-16 h-16 object-cover rounded"
+              />
+              <div>
+                <p className="font-medium">{item.name}</p>
+                {item.size && <p className="text-sm text-gray-500">Taille : {item.size}</p>}
+                <p className="text-sm">
+                  Quantité : {item.quantity} × {(item.priceInCents / 100).toFixed(2)} €
                 </p>
-              )}
-
-              <p className="text-sm text-gray-600">
-                Quantité : {item.quantity}
-              </p>
-
-              <p className="font-semibold mt-1">
-                {((item.priceInCents * item.quantity) / 100).toFixed(2)} €
-              </p>
+              </div>
             </div>
 
-            {/* Bouton supprimer */}
-            <button
-              onClick={() => removeItem(item.productId, item.size)}
-              className="text-red-500 hover:text-red-700 transition"
-              aria-label="Supprimer"
-            >
-              <FaTrash size={18} />
-            </button>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">{((item.priceInCents * item.quantity) / 100).toFixed(2)} €</span>
+              <button
+                onClick={() => removeItem(item.productId, item.size)}
+                className="text-red-500 hover:text-red-700"
+              >
+                <FaTrash />
+              </button>
+            </div>
           </li>
         ))}
       </ul>
 
-      {/* Total */}
-      <div className="flex justify-between text-xl font-bold pt-4 border-t">
+      <div className="text-xl font-bold flex justify-between pt-4 border-t">
         <span>Total :</span>
         <span>{total} €</span>
       </div>
