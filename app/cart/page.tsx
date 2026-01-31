@@ -12,7 +12,6 @@ export default function CartPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // Redirection si non connecté
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -55,42 +54,42 @@ export default function CartPage() {
   };
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-12">
-      <h1 className="text-4xl font-bold mb-8">Votre panier</h1>
+    <main className="max-w-5xl mx-auto px-4 py-12 text-white">
+      <h1 className="text-4xl font-bold mb-8 text-white">Votre panier</h1>
 
       {items.length === 0 ? (
-        <p className="text-lg text-gray-600">Votre panier est vide.</p>
+        <p className="text-lg text-gray-300">Votre panier est vide.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="space-y-6">
           {items.map((item) => (
             <li
               key={item.productId + (item.size ?? "")}
-              className="flex justify-between items-center border rounded-lg p-4 shadow hover:shadow-lg transition-shadow"
+              className="flex flex-col md:flex-row justify-between items-center bg-gray-900 rounded-xl p-4 shadow-lg hover:shadow-2xl transition-shadow"
             >
               <div className="flex items-center gap-4">
                 <img
                   src={item.image}
                   alt={item.name}
-                  className="w-20 h-20 object-cover rounded-lg"
+                  className="w-24 h-24 object-cover rounded-lg border border-gray-700"
                 />
                 <div className="flex flex-col">
                   <p className="font-semibold text-lg">{item.name}</p>
                   {item.size && (
-                    <p className="text-gray-500 text-sm">Taille : {item.size}</p>
+                    <p className="text-gray-400 text-sm">Taille : {item.size}</p>
                   )}
-                  <p className="text-gray-700 text-sm">
+                  <p className="text-gray-300 text-sm">
                     {item.quantity} × {(item.priceInCents / 100).toFixed(2)} €
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-col items-end gap-2">
+              <div className="flex flex-row md:flex-col items-center gap-3 md:gap-2 mt-4 md:mt-0">
                 <span className="font-bold text-lg">
                   {((item.priceInCents * item.quantity) / 100).toFixed(2)} €
                 </span>
                 <button
                   onClick={() => removeItem(item.productId, item.size)}
-                  className="text-red-500 hover:text-red-700 transition-colors"
+                  className="text-red-500 hover:text-red-600 transition-colors"
                   aria-label="Supprimer du panier"
                 >
                   <FaTrash size={18} />
@@ -102,12 +101,12 @@ export default function CartPage() {
       )}
 
       {items.length > 0 && (
-        <div className="mt-10 flex flex-col md:flex-row justify-between items-center border-t pt-6 gap-4">
-          <span className="text-2xl font-bold">Total : {total} €</span>
+        <div className="mt-10 flex flex-col md:flex-row justify-between items-center border-t border-gray-700 pt-6 gap-4">
+          <span className="text-2xl font-bold">{total} €</span>
           <button
             onClick={handleCheckout}
             disabled={loading || items.length === 0}
-            className="px-8 py-4 bg-black text-white font-bold rounded-lg hover:bg-gray-900 transition-colors"
+            className="px-8 py-4 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors"
           >
             {loading ? "Redirection..." : "Payer maintenant"}
           </button>
