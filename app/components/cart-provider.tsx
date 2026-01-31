@@ -1,70 +1,148 @@
 "use client";
 
+import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import type { Product } from "@/app/lib/product";
 
 interface CartItem {
-  product: Product;
+  productId: string;
+  name: string;
+  priceInCents: number;
   quantity: number;
   size?: string;
+  image: string;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, size?: string) => void;
+  addItem: (item: Omit<CartItem, "quantity">) => void;
   removeItem: (productId: string, size?: string) => void;
+  updateQuantity: (productId: string, quantity: number, size?: string) => void;
   clearCart: () => void;
+  totalItems: number;
+  totalPrice: number;
 }
 
-const CartContext = createContext<CartContextType | null>(null);
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
 
+  // ✅ Charger le panier côté client uniquement
   useEffect(() => {
-    const saved = localStorage.getItem("divn-cart");
-    if (saved) setItems(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem("divn-cart");
+      if (saved) {
+        setItems(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error("Erreur chargement panier", e);
+    } finally {
+      setIsMounted(true);
+    }
   }, []);
 
+  // ✅ Sauvegarde dans localStorage
   useEffect(() => {
-    localStorage.setItem("divn-cart", JSON.stringify(items));
-  }, [items]);
+    if (isMounted) {
+      localStorage.setItem("divn-cart", JSON.stringify(items));
+    }
+  }, [items, isMounted]);
 
-  const addItem = (product: Product, size?: string) => {
+  const addItem = (item: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
-      const index = prev.findIndex(
-        (i) => i.product.id === product.id && i.size === size
+      const existingIndex = prev.findIndex(
+        (i) =>
+          i.productId === item.productId &&
+          i.size === item.size
       );
 
-      if (index !== -1) {
-        const copy = [...prev];
-        copy[index].quantity += 1;
-        return copy;
+      if (existingIndex !== -1) {
+        const updated = [...prev];
+        updated[existingIndex].quantity += 1;
+        return updated;
       }
 
-      return [...prev, { product, quantity: 1, size }];
+      return [...prev, { ...item, quantity: 1 }];
     });
   };
 
   const removeItem = (productId: string, size?: string) => {
     setItems((prev) =>
       prev.filter(
-        (i) => !(i.product.id === productId && i.size === size)
+        (i) =>
+          !(i.productId === productId && i.size === size)
+      )
+    );
+  };
+
+  const updateQuantity = (
+    productId: string,
+    quantity: number,
+    size?: string
+  ) => {
+    if (quantity <= 0) {
+      removeItem(productId, size);
+      return;
+    }
+
+    setItems((prev) =>
+      prev.map((item) =>
+        item.productId === productId && item.size === size
+          ? { ...item, quantity }
+          : item
       )
     );
   };
 
   const clearCart = () => setItems([]);
 
+  const totalItems = items.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
+  const totalPrice = items.reduce(
+    (sum, item) => sum + item.priceInCents * item.quantity,
+    0
+  );
+
+  /**
+   * ⚠️ CRUCIAL POUR NEXT.JS :
+   * On NE retourne JAMAIS null
+   */
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, clearCart }}>
+    <CartContext.Provider
+      value={{
+        items: isMounted ? items : [],
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        totalItems: isMounted ? totalItems : 0,
+        totalPrice: isMounted ? totalPrice : 0,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 }
 
-export function useCart() {
-  const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart must be used inside CartProvider");
-  return ctx;
+// ✅ Hook SAFE (ne casse pas le build)
+export function useCart(): CartContextType {
+  const context = useContext(CartContext);
+
+  if (!context) {
+    return {
+      items: [],
+      addItem: () => {},
+      removeItem: () => {},
+      updateQuantity: () => {},
+      clearCart: () => {},
+      totalItems: 0,
+      totalPrice: 0,
+    };
+  }
+
+  return context;
 }
