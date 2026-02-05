@@ -1,11 +1,16 @@
-useEffect(() => {
-  const sessionId = new URLSearchParams(window.location.search).get("session_id");
+"use client";
 
-  if (sessionId) {
-    fetch("/api/success", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId }),
-    });
-  }
-}, []);
+import { useEffect } from "react";
+
+export default function SuccessPage() {
+  useEffect(() => {
+    console.log("Payment success page loaded");
+  }, []);
+
+  return (
+    <div>
+      <h1>Paiement confirmé ✅</h1>
+      <p>Merci pour votre commande</p>
+    </div>
+  );
+}
