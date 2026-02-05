@@ -1,4 +1,4 @@
-// app/api/checkout/route.ts
+// app/api/checkout-session/route.ts
 
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -30,6 +30,8 @@ export async function POST(req: Request) {
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
+
+      // 🧾 PRODUITS
       line_items: items.map((item: any) => ({
         price_data: {
           currency: "eur",
@@ -40,8 +42,21 @@ export async function POST(req: Request) {
         },
         quantity: item.quantity,
       })),
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
+
+      // 📦 ADRESSE (OBLIGATOIRE POUR GELATO)
+      shipping_address_collection: {
+        allowed_countries: ["FR", "BE", "CH", "LU"],
+      },
+      billing_address_collection: "required",
+
+      // 👤 CLIENT
+      customer_email: session.user.email,
+
+      // 🔁 REDIRECTION AVEC SESSION ID
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,
+
+      // 🧠 DATA POUR GELATO
       metadata: {
         userId: session.user.id,
         cart: JSON.stringify(
