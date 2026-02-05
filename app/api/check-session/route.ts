@@ -1,34 +1,31 @@
 // app/api/checkout/route.ts
 
-import * as Sentry from "@sentry/nextjs"
-import { logtail } from "@/lib/logger"
-
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/auth"
-import { stripe } from "@/lib/stripe"
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
+import { stripe } from "@/lib/stripe";
+import * as Sentry from "@sentry/nextjs";
+import { logtail } from "@/lib/logger";
 
 export async function POST(req: Request) {
-  logtail.info("Checkout API called")
-
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
-      logtail.warn("Unauthorized checkout attempt")
-
+    if (!session?.user?.id || !session.user.email) {
       return NextResponse.json(
         { error: "Non authentifié" },
         { status: 401 }
-      )
+      );
     }
 
-    const { items } = await req.json()
+    const { items } = await req.json();
 
-    logtail.info("Creating Stripe checkout session", {
-      userEmail: session.user.email,
-      itemsCount: items?.length,
-    })
+    if (!items || items.length === 0) {
+      return NextResponse.json(
+        { error: "Panier vide" },
+        { status: 400 }
+      );
+    }
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -36,7 +33,9 @@ export async function POST(req: Request) {
       line_items: items.map((item: any) => ({
         price_data: {
           currency: "eur",
-          product_data: { name: item.name },
+          product_data: {
+            name: item.name,
+          },
           unit_amount: item.priceInCents,
         },
         quantity: item.quantity,
@@ -44,27 +43,24 @@ export async function POST(req: Request) {
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,
       metadata: {
-        userEmail: session.user.email,
+        userId: session.user.id,
+        cart: JSON.stringify(
+          items.map((item: any) => ({
+            gelatoProductId: item.gelatoProductId,
+            quantity: item.quantity,
+          }))
+        ),
       },
-    })
+    });
 
-    logtail.info("Stripe checkout session created", {
-      sessionId: checkoutSession.id,
-    })
-
-    return NextResponse.json({ url: checkoutSession.url })
-  } catch (error) {
-    Sentry.captureException(error)
-
-    logtail.error("Checkout failed", {
-      error,
-    })
+    return NextResponse.json({ url: checkoutSession.url });
+  } catch (err) {
+    Sentry.captureException(err);
+    logtail.error({ err }, "Stripe checkout failed");
 
     return NextResponse.json(
-      { error: "Erreur lors de la création du paiement" },
+      { error: "Erreur paiement" },
       { status: 500 }
-    )
+    );
   }
 }
-
-    
