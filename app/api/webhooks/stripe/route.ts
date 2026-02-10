@@ -5,15 +5,30 @@ import { prisma } from "@/lib/prisma";
 import { logtail } from "lib/logger";
 import type Stripe from "stripe";
 
-export const runtime = "nodejs"; // ⚠️ IMPORTANT POUR STRIPE
+export const runtime = "nodejs";
+
+// 👉 Optionnel mais utile pour éviter la 405 dans le navigateur
+export async function GET() {
+  return NextResponse.json(
+    { message: "Stripe webhook endpoint (POST only)" },
+    { status: 200 }
+  );
+}
 
 export async function POST(req: NextRequest) {
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    logtail.error("Missing STRIPE_WEBHOOK_SECRET env var");
+    return NextResponse.json(
+      { error: "Server misconfigured" },
+      { status: 500 }
+    );
+  }
+
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
 
   if (!signature) {
     logtail.warn("Stripe webhook missing signature");
-
     return NextResponse.json(
       { error: "Missing Stripe signature" },
       { status: 400 }
@@ -26,7 +41,7 @@ export async function POST(req: NextRequest) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
     logtail.error({ err }, "Stripe signature verification failed");
@@ -41,7 +56,6 @@ export async function POST(req: NextRequest) {
   // ✅ Paiement confirmé
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
-
     const userId = session.metadata?.userId;
 
     if (!userId) {
@@ -56,7 +70,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 🔹 Sécurité anti-doublon
+    // 🔒 Anti-doublon
     const existingOrder = await prisma.order.findFirst({
       where: { stripeSessionId: session.id },
     });
@@ -70,7 +84,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true });
     }
 
-    // 🔹 Création de la commande
     const order = await prisma.order.create({
       data: {
         userId,
@@ -89,12 +102,12 @@ export async function POST(req: NextRequest) {
       "Order created from Stripe webhook"
     );
 
-    // 🔹 Récupération du panier depuis metadata (optionnel)
+    // 🛒 Cart metadata (optionnel)
     if (session.metadata?.cart) {
       try {
         JSON.parse(session.metadata.cart);
       } catch (err) {
-        logger.warn(
+        logtail.warn(
           { err, sessionId: session.id },
           "Failed to parse cart metadata"
         );
