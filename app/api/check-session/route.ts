@@ -1,5 +1,3 @@
-// app/api/checkout-session/route.ts
-
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
@@ -9,6 +7,7 @@ import { logtail } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
+    // 🔐 Auth
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id || !session.user.email) {
@@ -27,11 +26,20 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🧠 Metadata GELATO (utilisée dans le webhook Stripe)
+    const cartMetadata = items.map((item: any) => ({
+      gelatoProductId: item.gelatoProductId,
+      gelatoVariantId: item.gelatoVariantId,
+      quantity: item.quantity,
+      printFileUrl: item.printFileUrl, // 🔥 indispensable
+    }));
+
+    // 💳 Création session Stripe
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
 
-      // 🧾 PRODUITS
+      // 🧾 Produits affichés côté Stripe
       line_items: items.map((item: any) => ({
         price_data: {
           currency: "eur",
@@ -43,35 +51,30 @@ export async function POST(req: Request) {
         quantity: item.quantity,
       })),
 
-      // 📦 ADRESSE (OBLIGATOIRE POUR GELATO)
+      // 📦 Adresse requise (Gelato)
       shipping_address_collection: {
         allowed_countries: ["FR", "BE", "CH", "LU"],
       },
       billing_address_collection: "required",
 
-      // 👤 CLIENT
+      // 👤 Client
       customer_email: session.user.email,
 
-      // 🔁 REDIRECTION AVEC SESSION ID
+      // 🔁 Redirections
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,
 
-      // 🧠 DATA POUR GELATO
+      // 🧠 Metadata lue par le webhook Stripe
       metadata: {
         userId: session.user.id,
-        cart: JSON.stringify(
-          items.map((item: any) => ({
-            gelatoProductId: item.gelatoProductId,
-            quantity: item.quantity,
-          }))
-        ),
+        cart: JSON.stringify(cartMetadata),
       },
     });
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (err) {
     Sentry.captureException(err);
-    logtail.error({ err }, "Stripe checkout failed");
+    logtail.error({ err }, "Stripe checkout session creation failed");
 
     return NextResponse.json(
       { error: "Erreur paiement" },
