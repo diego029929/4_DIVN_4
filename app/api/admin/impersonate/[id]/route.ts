@@ -7,7 +7,12 @@ export async function POST(
   _: Request,
   { params }: { params: { id: string } }
 ) {
-  const admin = await requireAdmin();
+  let admin;
+  try {
+    admin = await requireAdmin();
+  } catch {
+    return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+  }
 
   cookies().set("impersonate", params.id, {
     httpOnly: true,

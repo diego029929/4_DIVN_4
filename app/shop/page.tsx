@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import ProductsGrid from "@/components/products-grid";
 import { useSearchParams } from "next/navigation";
 
@@ -10,13 +9,6 @@ export default function BoutiquePage() {
   const category = searchParams?.get("category")
     ? decodeURIComponent(searchParams.get("category")!)
     : "Toutes les collections";
-
-  useEffect(() => {
-    // 🔥 Déclenche les logs côté serveur
-    fetch("/api/shop").catch(() => {
-      // volontairement silencieux
-    });
-  }, []);
 
   return (
     <main className="pt-20 bg-black min-h-screen text-white">

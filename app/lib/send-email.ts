@@ -19,7 +19,7 @@ export async function sendEmail({ to, subject, html }: SendEmailProps) {
     body: JSON.stringify({
       sender: {
         name: "DIVN",
-        email: "wist.infodev@gmail.com",
+        email: process.env.BREVO_SENDER_EMAIL || "wist.infodev@gmail.com",
       },
       to: [
         {

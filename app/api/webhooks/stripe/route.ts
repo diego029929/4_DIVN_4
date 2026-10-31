@@ -1,104 +1,116 @@
-import { NextRequest, NextResponse } from "next/server";
-import * as Sentry from "@sentry/nextjs";
-import { stripe } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
-import { logtail } from "lib/logger";
-import { createGelatoOrder } from "@/lib/gelato";
-import type Stripe from "stripe";
+import { NextRequest, NextResponse } from "next/server"
+import * as Sentry from "@sentry/nextjs"
+import type Stripe from "stripe"
+import { getStripe } from "@/lib/stripe"
+import { sendEmail } from "@/lib/send-email"
 
-export const runtime = "nodejs";
+export const runtime = "nodejs"
+export const dynamic = "force-dynamic"
+
+function escapeHtml(value: string | null | undefined): string {
+  return (value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+}
+
+function formatEuros(cents: number | null | undefined): string {
+  return ((cents ?? 0) / 100).toLocaleString("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  })
+}
+
+async function handleCompletedCheckout(session: Stripe.Checkout.Session) {
+  if (session.payment_status !== "paid") return
+
+  const stripe = getStripe()
+  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 100 })
+
+  const shipping = session.shipping_details
+  const address = shipping?.address
+  const customerEmail = session.customer_details?.email
+
+  const itemsHtml = lineItems.data
+    .map(
+      (li) =>
+        `<li>${escapeHtml(li.description)} × ${li.quantity ?? 1} : ${formatEuros(li.amount_total)}</li>`
+    )
+    .join("")
+
+  const addressHtml = [
+    shipping?.name,
+    address?.line1,
+    address?.line2,
+    `${address?.postal_code ?? ""} ${address?.city ?? ""}`.trim(),
+    address?.country,
+    session.customer_details?.phone,
+  ]
+    .filter(Boolean)
+    .map((line) => escapeHtml(line))
+    .join("<br/>")
+
+  const orderHtml = `
+    <p>Référence Stripe : <code>${escapeHtml(session.id)}</code></p>
+    <ul>${itemsHtml}</ul>
+    <p><strong>Total payé : ${formatEuros(session.amount_total)}</strong></p>
+    <p><strong>Livraison :</strong><br/>${addressHtml}</p>
+  `
+
+  // 1. Notification à la marque (pour lancer l'impression / l'expédition)
+  const shopEmail = process.env.ORDER_NOTIFICATION_EMAIL
+  if (shopEmail) {
+    await sendEmail({
+      to: shopEmail,
+      subject: `Nouvelle commande DIVN : ${formatEuros(session.amount_total)}`,
+      html: `<h1>Nouvelle commande</h1><p>Client : ${escapeHtml(customerEmail)}</p>${orderHtml}`,
+    })
+  } else {
+    console.warn("ORDER_NOTIFICATION_EMAIL non défini : commande visible uniquement dans Stripe")
+  }
+
+  // 2. Confirmation au client
+  if (customerEmail) {
+    await sendEmail({
+      to: customerEmail,
+      subject: "Merci pour votre commande DIVN",
+      html: `<h1>Merci pour votre commande !</h1><p>Nous préparons votre commande et vous tiendrons informé(e) de l'expédition.</p>${orderHtml}`,
+    })
+  }
+}
 
 export async function POST(req: NextRequest) {
-  const body = await req.text();
-  const signature = req.headers.get("stripe-signature");
+  const body = await req.text()
+  const signature = req.headers.get("stripe-signature")
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
-  if (!signature) {
-    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+  if (!signature || !webhookSecret) {
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 })
   }
 
-  let event: Stripe.Event;
+  let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = getStripe().webhooks.constructEvent(body, signature, webhookSecret)
   } catch (err) {
-    Sentry.captureException(err);
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    Sentry.captureException(err)
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
-    const userId = session.metadata?.userId;
-
-    if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+  try {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "checkout.session.async_payment_succeeded"
+    ) {
+      await handleCompletedCheckout(event.data.object as Stripe.Checkout.Session)
     }
-
-    // 🔒 Anti-doublon
-    const existingOrder = await prisma.order.findFirst({
-      where: { stripeSessionId: session.id },
-    });
-
-    if (existingOrder) {
-      return NextResponse.json({ received: true });
-    }
-
-    // ✅ Création commande interne
-    const order = await prisma.order.create({
-      data: {
-        userId,
-        total: (session.amount_total ?? 0) / 100,
-        status: "CONFIRMED",
-        stripeSessionId: session.id,
-      },
-    });
-
-    try {
-      // 🚀 CRÉATION COMMANDE GELATO
-      const gelatoOrder = await createGelatoOrder({
-        externalId: order.id,
-        items: [
-          {
-            productUid: "GELATO_PRODUCT_UID",
-            variantUid: "GELATO_VARIANT_UID",
-            quantity: 1,
-            files: [
-              {
-                url: session.metadata?.printFileUrl, // IMPORTANT
-              },
-            ],
-          },
-        ],
-        shippingAddress: {
-          firstName: session.shipping_details?.name,
-          addressLine1: session.shipping_details?.address?.line1,
-          city: session.shipping_details?.address?.city,
-          postalCode: session.shipping_details?.address?.postal_code,
-          country: session.shipping_details?.address?.country,
-        },
-      });
-
-      // 💾 Sauvegarde lien Gelato
-      await prisma.order.update({
-        where: { id: order.id },
-        data: {
-          gelatoOrderId: gelatoOrder.id,
-          status: "PRINTING",
-        },
-      });
-    } catch (err) {
-      logtail.error({ err, orderId: order.id }, "Gelato order failed");
-      Sentry.captureException(err);
-
-      await prisma.order.update({
-        where: { id: order.id },
-        data: { status: "PRINT_FAILED" },
-      });
-    }
+  } catch (err) {
+    // On renvoie 500 pour que Stripe réessaie plus tard.
+    Sentry.captureException(err)
+    console.error("Erreur traitement webhook Stripe", err)
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 })
   }
 
-  return NextResponse.json({ received: true });
+  return NextResponse.json({ received: true })
 }

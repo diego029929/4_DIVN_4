@@ -1,18 +1,16 @@
 import { withAuth } from "next-auth/middleware";
 
+// Les pages /admin sont réservées aux administrateurs.
+// Les routes /api/admin vérifient aussi le rôle elles-mêmes (requireAdmin).
 export default withAuth({
   callbacks: {
-    authorized: ({ token, req }) => {
-      // 🔓 autorise admin/orders sans check
-      if (req.nextUrl.pathname === "/admin/orders") {
-        return true;
-      }
+    authorized: ({ token }) => {
+      if (!token) return false;
 
-      if (req.nextUrl.pathname.startsWith("/admin")) {
-        return !!token;
-      }
+      const adminEmail = process.env.ADMIN_EMAIL;
+      if (adminEmail && token.email === adminEmail) return true;
 
-      return true;
+      return token.role === "ADMIN";
     },
   },
 });

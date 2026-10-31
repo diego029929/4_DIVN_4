@@ -1,72 +1,36 @@
-# DIVN - SaaS E-commerce Premium
+# DIVN
 
-Site e-commerce dark mode avec intégration Stripe et notifications automatiques fabricant.
+Boutique en ligne de la marque DIVN (Next.js 14, Tailwind, Stripe Checkout).
 
-## Fonctionnalités
+## Lancer en local
 
-- **Design dark premium** avec accents dorés
-- **Catalogue produits** avec images, prix, tailles
-- **Panier fonctionnel** avec localStorage
-- **Paiement Stripe** (mode embedded checkout)
-- **Notifications fabricant automatiques** via webhooks Stripe
-- **Responsive** mobile et desktop
-- **Navigation fluide** avec catégories
+```bash
+pnpm install
+cp .env.example .env.local   # puis remplis les clés Stripe de test
+pnpm dev                     # http://localhost:3000
+```
 
-## Automatisation Fabricant
+Le site démarre et se construit (`pnpm build`) sans aucune variable d'environnement. Seules les fonctions qui en ont besoin (paiement, emails, comptes) échouent proprement.
 
-Lorsqu'une commande est validée sur Stripe:
+## Comment marche une commande
 
-1. Le webhook `/api/webhooks/stripe` reçoit l'événement `checkout.session.completed`
-2. Le système extrait les détails de commande (articles, quantités, tailles, client)
-3. Une notification est envoyée automatiquement au fabricant via `notifyManufacturer()`
-4. Le fabricant reçoit un email avec tous les détails pour préparer l'expédition
+1. Le panier est stocké dans le navigateur (`localStorage`).
+2. `POST /api/checkout` reçoit seulement les identifiants, tailles et quantités. Les prix viennent du catalogue `app/lib/products.ts`, jamais du navigateur.
+3. Le client paie sur la page Stripe Checkout, sans créer de compte. Stripe demande l'adresse de livraison et le téléphone.
+4. Stripe appelle `POST /api/webhooks/stripe` (signature vérifiée). Un email récapitulatif part vers `ORDER_NOTIFICATION_EMAIL` et vers le client.
+5. Les commandes se consultent dans le tableau de bord Stripe.
 
-### Configuration Webhook
+L'envoi automatique à l'imprimeur (Gelato) sera branché sur le webhook une fois les produits créés chez Gelato.
 
-1. Aller sur [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks)
-2. Ajouter un endpoint: `https://votre-domaine.com/api/webhooks/stripe`
-3. Sélectionner l'événement: `checkout.session.completed`
-4. Copier le secret webhook
+## Configurer le webhook Stripe
 
-### Variables d'environnement requises
+- En local : `stripe listen --forward-to localhost:3000/api/webhooks/stripe`, puis copie le `whsec_...` affiché dans `STRIPE_WEBHOOK_SECRET`.
+- En production : Stripe Dashboard → Webhooks → endpoint `https://<ton-site>/api/webhooks/stripe`, événements `checkout.session.completed` et `checkout.session.async_payment_succeeded`.
 
-\`\`\`env
-# Stripe (déjà configurées)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+## Catalogue
 
-# Webhook Stripe (à ajouter)
-STRIPE_WEBHOOK_SECRET=whsec_...
+Les produits sont dans `app/lib/products.ts`. Les photos vont dans `public/images/`, avec le chemin indiqué dans `images`.
 
-# Email fabricant (optionnel)
-MANUFACTURER_EMAIL=fabricant@divn.com
+## Comptes clients et admin (optionnels)
 
-# Service email (production - optionnel)
-RESEND_API_KEY=re_...
-\`\`\`
-
-### Service d'email (Production)
-
-Pour envoyer de vrais emails en production, installer un service comme Resend:
-
-\`\`\`bash
-npm install resend
-\`\`\`
-
-Puis modifier `lib/email.ts` pour utiliser Resend au lieu de console.log.
-
-## Démarrage
-
-Le projet est prêt à déployer sur Vercel avec toutes les intégrations configurées.
-
-## Pages
-
-- `/` - Accueil avec hero et produits vedettes
-- `/boutique` - Catalogue complet avec filtres catégories
-- `/boutique/[id]` - Page produit individuelle
-- `/cart` - Panier d'achat
-- `/checkout` - Paiement Stripe
-- `/admin/orders` - Dashboard fabricant
-- `/about` - À propos
-- `/contact` - Contact
+Inscription, connexion et pages `/admin` utilisent NextAuth + Prisma + PostgreSQL (`DATABASE_URL`). Les pages et routes `/admin` sont réservées au rôle `ADMIN` ou à l'email `ADMIN_EMAIL`.
