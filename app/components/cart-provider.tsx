@@ -95,7 +95,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    try {
+      localStorage.removeItem("divn-cart");
+    } catch {
+      // stockage indisponible : rien à faire
+    }
+    setItems([]);
+  };
 
   const totalItems = items.reduce(
     (sum, item) => sum + item.quantity,

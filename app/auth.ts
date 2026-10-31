@@ -17,28 +17,33 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        // Message identique dans tous les cas d'échec : on ne révèle pas
+        // si un email existe ou non.
+        const INVALID = "Email ou mot de passe incorrect";
+
         if (!credentials?.email || !credentials.password) {
-          throw new Error("Missing credentials");
+          throw new Error(INVALID);
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email.trim().toLowerCase() },
         });
 
-        if (!user) throw new Error("User not found");
-        if (!user.isVerified) throw new Error("Email not verified");
+        if (!user || user.isBlocked || user.deletedAt) throw new Error(INVALID);
 
         const isValid = await bcrypt.compare(
           credentials.password,
           user.password
         );
 
-        if (!isValid) throw new Error("Invalid password");
+        if (!isValid) throw new Error(INVALID);
+        if (!user.isVerified) throw new Error("Email not verified");
 
         return {
           id: user.id,
           email: user.email,
           name: user.username,
+          role: user.role,
         };
       },
     }),
@@ -46,7 +51,10 @@ export const authOptions: NextAuthOptions = {
 
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.id = user.id;
+      if (user) {
+        token.id = user.id;
+        token.role = (user as { role?: string }).role ?? "USER";
+      }
       return token;
     },
     async session({ session, token }) {

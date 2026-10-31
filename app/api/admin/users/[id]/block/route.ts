@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-server";
 
 // PATCH /api/admin/users/[id]/block?block=true|false
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
+    try {
+      await requireAdmin();
+    } catch {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
+
     const id = params.id;
     if (!id) {
       return NextResponse.json({ error: "Missing user id" }, { status: 400 });

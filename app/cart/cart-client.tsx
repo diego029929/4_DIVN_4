@@ -1,24 +1,12 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/components/cart-provider";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CartContent } from "@/components/cart-content";
 
 export default function CartClient() {
-  const { data: session, status } = useSession();
   const { items } = useCart();
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
-
-  if (status === "loading") return null;
 
   const handleCheckout = async () => {
     if (loading || items.length === 0) return;
@@ -28,8 +16,11 @@ export default function CartClient() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ items }),
+        // Seuls l'identifiant, la taille et la quantité sont envoyés :
+        // le prix est recalculé côté serveur.
+        body: JSON.stringify({
+          items: items.map((i) => ({ productId: i.productId, quantity: i.quantity, size: i.size })),
+        }),
       });
 
       const data = await res.json();

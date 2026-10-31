@@ -1,9 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-server";
 
 // GET /api/admin/users → liste tous les utilisateurs
 export async function GET() {
   try {
+    try {
+      await requireAdmin();
+    } catch {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
+
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -29,6 +36,12 @@ export async function GET() {
 // DELETE /api/admin/users?id=USER_ID → supprime un utilisateur
 export async function DELETE(req: Request) {
   try {
+    try {
+      await requireAdmin();
+    } catch {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
